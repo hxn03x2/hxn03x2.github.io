@@ -284,12 +284,14 @@
             line-height: 1.6;
         }
 
+        /* 접힘 상태: 최대 4줄까지만 표시하고 강제로 숨김 처리 */
         .card-content.expandable {
             display: -webkit-box;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-height: calc(1.6em * 4);
         }
 
         .toggle-input {
@@ -317,6 +319,7 @@
             display: block !important;
             -webkit-line-clamp: unset !important;
             overflow: visible !important;
+            max-height: none !important;
         }
         .toggle-input:checked ~ .more-btn::after { content: "접기"; }
 
@@ -608,7 +611,6 @@
                 `;
             }).join('');
 
-            // DOM 생성 후 실제 텍스트 오버플로우 여부 정밀 측정 및 더보기 버튼 동적 제어
             adjustExpandableButtons();
         }
 
@@ -621,7 +623,7 @@
                 const toggleInput = card.querySelector('.toggle-input');
 
                 if (contentEl && moreBtn) {
-                    if (contentEl.scrollHeight <= contentEl.clientHeight + 1) {
+                    if (contentEl.scrollHeight <= contentEl.clientHeight + 2) {
                         contentEl.classList.remove('expandable');
                         moreBtn.style.display = 'none';
                         if (toggleInput) toggleInput.style.display = 'none';
