@@ -219,13 +219,11 @@
             border-radius: 6px;
         }
         
-        /* 미래관 뱃지: 자연스럽고 차분한 파란색 톤 */
         .badge-mirae { 
             background-color: #eaf1f7; 
             color: #2e5178; 
             border: 1px solid #c8d8ea; 
         }
-        /* 청운관 뱃지: 기존 따뜻한 붉은/핑크 톤 유지 */
         .badge-cheongun { 
             background-color: #f3e5e1; 
             color: #7a3e35; 
@@ -242,7 +240,6 @@
             border: 1px solid #dfd6c8;
         }
 
-        /* 회신 필요 뱃지 */
         .reply-badge {
             font-size: 11px;
             font-weight: 700;
@@ -253,7 +250,6 @@
             border: 1px solid #f0d5a3;
         }
 
-        /* 회신 완료 뱃지 */
         .done-badge {
             font-size: 11px;
             font-weight: 700;
@@ -275,6 +271,7 @@
             flex-grow: 1;
         }
 
+        /* 튼튼한 높이 제한형 접힘 컨테이너 (줄바꿈이 많은 글도 완벽히 접힘) */
         .card-content {
             font-size: 13px;
             color: #3b3028;
@@ -282,19 +279,28 @@
             word-break: break-word;
             margin-top: 6px;
             line-height: 1.6;
-        }
-
-        /* 접힘 상태: 최대 4줄까지만 표시하고 강제로 숨김 처리 */
-        .card-content.expandable {
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
-            max-height: calc(1.6em * 4);
+            max-height: 95px; /* 약 4줄 분량으로 강제 제한 */
+            position: relative;
+            transition: max-height 0.3s ease;
         }
 
-        .toggle-input {
+        /* 그라데이션 효과로 잘린 느낌 부여 */
+        .card-content.expandable::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            background: linear-gradient(transparent, #fdfbf7);
+            pointer-events: none;
+        }
+
+        .card-content.expanded {
+            max-height: 2000px !important;
+        }
+        .card-content.expanded::after {
             display: none;
         }
 
@@ -306,22 +312,13 @@
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
-            padding: 10px 0 0 0;
+            padding: 8px 0 0 0;
             align-self: flex-start;
-            margin-top: auto;
+            margin-top: 4px;
             display: inline-block;
             user-select: none;
         }
         .more-btn:hover { text-decoration: underline; color: #5c4033; }
-        .more-btn::after { content: "더보기"; }
-
-        .toggle-input:checked ~ .card-content.expandable {
-            display: block !important;
-            -webkit-line-clamp: unset !important;
-            overflow: visible !important;
-            max-height: none !important;
-        }
-        .toggle-input:checked ~ .more-btn::after { content: "접기"; }
 
         /* 회신 내용 박스 스타일 */
         .reply-box {
@@ -601,9 +598,8 @@
                             <span class="card-date">${item.date}</span>
                         </div>
                         <div class="card-body">
-                            <input type="checkbox" id="card-${item.id}" class="toggle-input">
-                            <p class="card-content expandable">${escapeHtml(item.content)}</p>
-                            <label for="card-${item.id}" class="more-btn"></label>
+                            <div class="card-content expandable" id="content-${item.id}">${escapeHtml(item.content)}</div>
+                            <button class="more-btn" id="btn-more-${item.id}" onclick="toggleCard(${item.id})">더보기</button>
                             ${replyBoxHtml}
                             ${adminEditorHtml}
                         </div>
@@ -611,29 +607,47 @@
                 `;
             }).join('');
 
-            adjustExpandableButtons();
+            checkContentOverflow();
         }
 
-        // 실제 줄 수/높이 기반 더보기 버튼 활성화 및 재발 방지 제어 함수
-        function adjustExpandableButtons() {
-            const cards = cardsContainer.querySelectorAll('.card');
-            cards.forEach(card => {
-                const contentEl = card.querySelector('.card-content');
-                const moreBtn = card.querySelector('.more-btn');
-                const toggleInput = card.querySelector('.toggle-input');
+        // 내용이 짧으면 더보기 버튼을 숨기고 길면 접어두는 함수
+        function checkContentOverflow() {
+            const contents = cardsContainer.querySelectorAll('.card-content');
+            contents.forEach(contentEl => {
+                const id = contentEl.id.replace('content-', '');
+                const btn = document.getElementById(`btn-more-${id}`);
+                
+                // 실제 전체 콘텐츠 높이와 제한 높이(95px) 비교
+                // 임시로 expanded를 붙여서 전체 높이 측정
+                contentEl.classList.add('expanded');
+                const fullHeight = contentEl.scrollHeight;
+                contentEl.classList.remove('expanded');
 
-                if (contentEl && moreBtn) {
-                    if (contentEl.scrollHeight <= contentEl.clientHeight + 2) {
-                        contentEl.classList.remove('expandable');
-                        moreBtn.style.display = 'none';
-                        if (toggleInput) toggleInput.style.display = 'none';
-                    } else {
-                        contentEl.classList.add('expandable');
-                        moreBtn.style.display = 'inline-block';
-                    }
+                if (fullHeight <= 105) {
+                    // 내용이 짧아서 접을 필요가 없는 경우
+                    contentEl.classList.remove('expandable');
+                    if (btn) btn.style.display = 'none';
+                } else {
+                    // 내용이 길어서 접어야 하는 경우
+                    contentEl.classList.add('expandable');
+                    if (btn) btn.style.display = 'inline-block';
                 }
             });
         }
+
+        // 더보기 / 접기 토글 기능
+        window.toggleCard = function(id) {
+            const contentEl = document.getElementById(`content-${id}`);
+            const btn = document.getElementById(`btn-more-${id}`);
+
+            if (contentEl.classList.contains('expanded')) {
+                contentEl.classList.remove('expanded');
+                btn.textContent = '더보기';
+            } else {
+                contentEl.classList.add('expanded');
+                btn.textContent = '접기';
+            }
+        };
 
         // HTML 태그 이스케이프 함수
         function escapeHtml(str) {
@@ -713,7 +727,6 @@
                         return;
                     }
 
-                    const headers = json[0];
                     let addedCount = 0;
 
                     for (let i = 1; i < json.length; i++) {
@@ -769,9 +782,6 @@
         filterDorm.addEventListener('change', renderCards);
         filterCategory.addEventListener('change', renderCards);
         filterStatus.addEventListener('change', renderCards);
-
-        // 화면 크기 변경 시 더보기 버튼 노출 상태 동적 재계산
-        window.addEventListener('resize', adjustExpandableButtons);
 
         // 최초 실행
         renderCards();
