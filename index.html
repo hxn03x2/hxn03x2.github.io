@@ -506,7 +506,7 @@
                 // 회신 상태 필터
                 let matchesStatus = true;
                 if (statusVal === '회신 대기') {
-                    matchesStatus = (item.replyStatus === '회신 대기');
+                    matchesStatus = (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요');
                 } else if (statusVal === '회신 완료') {
                     matchesStatus = (item.replyStatus === '회신 완료');
                 }
@@ -524,11 +524,13 @@
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
                 const isLongContent = item.content.length > 120 || item.content.includes('\n');
-                const isPendingTarget = (item.id === 6 || item.id === 20 || item.id === 26 || item.id === 28 || item.id === 32);
+                
+                // 회신 대기 또는 회신 필요 건에 대해서만 작성 권한 부여
+                const isPendingTarget = (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요');
 
                 let statusBadgeHtml = '';
-                if (item.replyStatus === '회신 대기') {
-                    statusBadgeHtml = `<span class="reply-badge">회신 대기</span>`;
+                if (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요') {
+                    statusBadgeHtml = `<span class="reply-badge">${escapeHtml(item.replyStatus)}</span>`;
                 } else if (item.replyStatus === '회신 완료') {
                     statusBadgeHtml = `<span class="done-badge">회신 완료</span>`;
                 }
@@ -543,7 +545,7 @@
                     `;
                 }
 
-                // 관리자용 회신 작성 영역 (회신 대기 5건 대상)
+                // 관리자 인증 시 회신 대기 상태인 건만 작성 영역 표시
                 let adminEditorHtml = '';
                 if (isAdmin && isPendingTarget) {
                     adminEditorHtml = `
@@ -595,18 +597,18 @@
                 if (confirm("관리자 모드를 종료하시겠습니까?")) {
                     isAdmin = false;
                     adminIndicator.style.display = 'none';
-                    btnAdminLogin.textContent = 'Administrator authentication complete';
+                    btnAdminLogin.textContent = 'Administrator';
                     renderCards();
                 }
                 return;
             }
 
-            const pwd = prompt("관리자 인증 비밀번호를 입력하세요 :");
+            const pwd = prompt("관리자 인증 비밀번호를 입력해 주세요.");
             if (pwd === "0303") {
                 isAdmin = true;
                 adminIndicator.style.display = 'inline-block';
                 btnAdminLogin.textContent = 'Administrator logout';
-                alert("관리자 인증이 완료되었습니다. 회신 대기 안건에 대한 회신 작성 기능이 활성화됩니다.");
+                alert("관리자 인증이 완료되었습니다.\n회신 대기 안건에 대한 회신 작성 기능이 활성화됩니다.");
                 renderCards();
             } else if (pwd !== null) {
                 alert("비밀번호가 올바르지 않습니다.");
