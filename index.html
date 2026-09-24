@@ -493,17 +493,11 @@
             const statusVal = filterStatus.value;
 
             const filtered = petitions.filter(item => {
-                // 검색어 매칭 (ID, 기숙사, 카테고리, 날짜, 내용, 회신상태, 회신내용 전체)
                 const searchTarget = `${item.id} ${item.dorm} ${item.category} ${item.date} ${item.content} ${item.replyStatus || ''} ${item.replyContent || ''}`.toLowerCase();
                 const matchesSearch = !query || searchTarget.includes(query);
-
-                // 기숙사 필터
                 const matchesDorm = (dormVal === 'all') || item.dorm.includes(dormVal);
-
-                // 카테고리 필터
                 const matchesCategory = (categoryVal === 'all') || item.category === categoryVal;
 
-                // 회신 상태 필터
                 let matchesStatus = true;
                 if (statusVal === '회신 대기') {
                     matchesStatus = (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요');
@@ -523,9 +517,6 @@
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
-                const isLongContent = item.content.length > 120 || item.content.includes('\n');
-                
-                // 회신 대기 또는 회신 필요 건에 대해서만 작성 권한 부여
                 const isPendingTarget = (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요');
 
                 let statusBadgeHtml = '';
@@ -545,7 +536,6 @@
                     `;
                 }
 
-                // 관리자 인증 시 회신 대기 상태인 건만 작성 영역 표시
                 let adminEditorHtml = '';
                 if (isAdmin && isPendingTarget) {
                     adminEditorHtml = `
@@ -569,15 +559,40 @@
                             <span class="card-date">${item.date}</span>
                         </div>
                         <div class="card-body">
-                            ${isLongContent ? `<input type="checkbox" id="card-${item.id}" class="toggle-input">` : ''}
-                            <p class="card-content ${isLongContent ? 'expandable' : ''}">${escapeHtml(item.content)}</p>
-                            ${isLongContent ? `<label for="card-${item.id}" class="more-btn"></label>` : ''}
+                            <input type="checkbox" id="card-${item.id}" class="toggle-input">
+                            <p class="card-content expandable">${escapeHtml(item.content)}</p>
+                            <label for="card-${item.id}" class="more-btn"></label>
                             ${replyBoxHtml}
                             ${adminEditorHtml}
                         </div>
                     </div>
                 `;
             }).join('');
+
+            // DOM 생성 후 실제 텍스트 오버플로우 여부 정밀 측정 및 더보기 버튼 동적 제어
+            adjustExpandableButtons();
+        }
+
+        // 실제 줄 수/높이 기반 더보기 버튼 활성화 및 재발 방지 제어 함수
+        function adjustExpandableButtons() {
+            const cards = cardsContainer.querySelectorAll('.card');
+            cards.forEach(card => {
+                const contentEl = card.querySelector('.card-content');
+                const moreBtn = card.querySelector('.more-btn');
+                const toggleInput = card.querySelector('.toggle-input');
+
+                if (contentEl && moreBtn) {
+                    // scrollHeight가 clientHeight보다 큰 경우에만 4줄 초과 생략 발생으로 판단
+                    if (contentEl.scrollHeight <= contentEl.clientHeight + 1) {
+                        contentEl.classList.remove('expandable');
+                        moreBtn.style.display = 'none';
+                        if (toggleInput) toggleInput.style.display = 'none';
+                    } else {
+                        contentEl.classList.add('expandable');
+                        moreBtn.style.display = 'inline-block';
+                    }
+                }
+            });
         }
 
         // HTML 태그 이스케이프 함수
@@ -658,7 +673,6 @@
                         return;
                     }
 
-                    // 헤더를 기반으로 데이터 컬럼 매핑
                     const headers = json[0];
                     let addedCount = 0;
 
@@ -673,13 +687,11 @@
 
                         if (!content) continue;
 
-                        // 기숙사 매핑
                         let dormStr = "미래관, 남성 기숙사";
                         if (rawDorm.includes("청운관") || rawDorm.includes("여성")) {
                             dormStr = "청운관, 여성 기숙사";
                         }
 
-                        // 카테고리 매핑
                         let categoryStr = "기타";
                         if (rawCat.includes("규정") || rawCat.includes("점호") || rawCat.includes("벌점")) categoryStr = "생활 규정 및 점호";
                         else if (rawCat.includes("시설") || rawCat.includes("설비") || rawCat.includes("파손")) categoryStr = "시설 및 설비";
@@ -717,6 +729,9 @@
         filterDorm.addEventListener('change', renderCards);
         filterCategory.addEventListener('change', renderCards);
         filterStatus.addEventListener('change', renderCards);
+
+        // 화면 크기 변경 시 더보기 버튼 노출 상태 동적 재계산
+        window.addEventListener('resize', adjustExpandableButtons);
 
         // 최초 실행
         renderCards();
