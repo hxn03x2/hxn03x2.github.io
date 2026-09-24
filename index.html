@@ -14,19 +14,20 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            background-color: #f7f5f0;
+            color: #3b3028;
             line-height: 1.6;
         }
         
         header {
-            background-color: #312e81;
-            color: #ffffff;
+            background-color: #2c221e;
+            color: #f7f5f0;
             padding: 24px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(44, 34, 30, 0.15);
+            border-bottom: 2px solid #8c6d58;
         }
         .header-container {
             max-width: 1150px;
@@ -41,21 +42,23 @@
             font-size: 16px;
             font-weight: 800;
             word-break: keep-all;
+            color: #fdfbf7;
         }
         .header-subtitle {
             font-size: 13px;
-            color: #c7d2fe;
+            color: #d1c2b4;
             margin-top: 6px;
         }
 
         .admin-status {
             font-size: 12px;
-            background-color: #4c1d95;
-            color: #e9d5ff;
+            background-color: #5c4033;
+            color: #f7f5f0;
             padding: 4px 10px;
             border-radius: 20px;
             display: inline-block;
             margin-top: 4px;
+            border: 1px solid #8c6d58;
         }
 
         /* 컨트롤 패널 (검색, 필터, 버튼) */
@@ -65,11 +68,11 @@
             padding: 0 16px;
         }
         .panel-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: #fdfbf7;
+            border: 1px solid #e2d9cd;
             border-radius: 12px;
             padding: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(60, 48, 38, 0.04);
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -81,14 +84,17 @@
             width: 100%;
             padding: 10px 14px;
             font-size: 13px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d5c8b8;
+            background-color: #ffffff;
+            color: #3b3028;
             border-radius: 8px;
             outline: none;
             font-family: inherit;
+            transition: all 0.2s;
         }
         .search-input:focus {
-            border-color: #4338ca;
-            box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.15);
+            border-color: #8c6d58;
+            box-shadow: 0 0 0 3px rgba(140, 109, 88, 0.15);
         }
         .filter-row {
             display: flex;
@@ -106,11 +112,16 @@
             padding: 8px 12px;
             font-size: 12px;
             font-family: inherit;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d5c8b8;
             border-radius: 6px;
             background-color: #ffffff;
-            color: #334155;
+            color: #3b3028;
             cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus {
+            border-color: #8c6d58;
         }
         .btn-group {
             display: flex;
@@ -124,18 +135,18 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, box-shadow 0.2s;
         }
         .btn-admin {
-            background-color: #4338ca;
-            color: #ffffff;
+            background-color: #5c4033;
+            color: #f7f5f0;
         }
-        .btn-admin:hover { background-color: #3730a3; }
+        .btn-admin:hover { background-color: #422d24; }
         .btn-excel {
-            background-color: #059669;
+            background-color: #6e7855;
             color: #ffffff;
         }
-        .btn-excel:hover { background-color: #047857; }
+        .btn-excel:hover { background-color: #576043; }
 
         main {
             max-width: 1150px;
@@ -145,7 +156,7 @@
 
         .stats-summary {
             font-size: 13px;
-            color: #64748b;
+            color: #6e6155;
             margin-bottom: 16px;
             font-weight: 700;
         }
@@ -163,15 +174,20 @@
         }
 
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            background-color: #fdfbf7;
+            border: 1px solid #e2d9cd;
             border-radius: 12px;
             padding: 18px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 6px rgba(60, 48, 38, 0.04);
             display: flex;
             flex-direction: column;
             margin-bottom: 16px;
             break-inside: avoid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(60, 48, 38, 0.08);
         }
         .card-header {
             display: flex;
@@ -188,12 +204,13 @@
             flex-wrap: wrap;
         }
         .badge-id {
-            background-color: #eef2ff;
-            color: #4338ca;
+            background-color: #efebe4;
+            color: #5c4033;
             font-size: 11px;
             font-weight: 700;
             padding: 4px 8px;
             border-radius: 6px;
+            border: 1px solid #d5c8b8;
         }
         .badge-dorm {
             font-size: 11px;
@@ -201,44 +218,55 @@
             padding: 4px 8px;
             border-radius: 6px;
         }
-        .badge-mirae { background-color: #eff6ff; color: #1d4ed8; }
-        .badge-cheongun { background-color: #fff1f2; color: #be123c; }
+        
+        /* 미래관 뱃지: 자연스럽고 차분한 파란색 톤 */
+        .badge-mirae { 
+            background-color: #eaf1f7; 
+            color: #2e5178; 
+            border: 1px solid #c8d8ea; 
+        }
+        /* 청운관 뱃지: 기존 따뜻한 붉은/핑크 톤 유지 */
+        .badge-cheongun { 
+            background-color: #f3e5e1; 
+            color: #7a3e35; 
+            border: 1px solid #e2c4be; 
+        }
         
         .category-badge {
             font-size: 11px;
             font-weight: 700;
-            color: #475569;
-            background-color: #f1f5f9;
+            color: #5c5248;
+            background-color: #f0ebe1;
             padding: 4px 8px;
             border-radius: 6px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dfd6c8;
         }
 
         /* 회신 필요 뱃지 */
         .reply-badge {
             font-size: 11px;
             font-weight: 700;
-            color: #b45309;
-            background-color: #fefce8;
+            color: #8c5311;
+            background-color: #fdf6e7;
             padding: 4px 8px;
             border-radius: 6px;
-            border: 1px solid #fde047;
+            border: 1px solid #f0d5a3;
         }
 
         /* 회신 완료 뱃지 */
         .done-badge {
             font-size: 11px;
             font-weight: 700;
-            color: #047857;
-            background-color: #ecfdf5;
+            color: #3b5e3d;
+            background-color: #edf3eb;
             padding: 4px 8px;
             border-radius: 6px;
-            border: 1px solid #a7f3d0;
+            border: 1px solid #c7dcc5;
         }
         
         .card-date {
             font-size: 11px;
-            color: #94a3b8;
+            color: #8c7f73;
         }
         
         .card-body {
@@ -249,7 +277,7 @@
 
         .card-content {
             font-size: 13px;
-            color: #334155;
+            color: #3b3028;
             white-space: pre-wrap;
             word-break: break-word;
             margin-top: 6px;
@@ -271,7 +299,7 @@
         .more-btn {
             background: none;
             border: none;
-            color: #4338ca;
+            color: #8c6d58;
             font-family: 'Nanum Gothic', sans-serif;
             font-size: 12px;
             font-weight: 700;
@@ -282,12 +310,13 @@
             display: inline-block;
             user-select: none;
         }
-        .more-btn:hover { text-decoration: underline; }
+        .more-btn:hover { text-decoration: underline; color: #5c4033; }
         .more-btn::after { content: "더보기"; }
 
         .toggle-input:checked ~ .card-content.expandable {
-            display: block;
-            overflow: visible;
+            display: block !important;
+            -webkit-line-clamp: unset !important;
+            overflow: visible !important;
         }
         .toggle-input:checked ~ .more-btn::after { content: "접기"; }
 
@@ -295,14 +324,14 @@
         .reply-box {
             margin-top: 14px;
             padding: 12px 14px;
-            background-color: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background-color: #f4efe6;
+            border: 1px solid #dbcfc0;
             border-radius: 8px;
         }
         .reply-header {
             font-size: 12px;
             font-weight: 700;
-            color: #166534;
+            color: #5c4033;
             margin-bottom: 6px;
             display: flex;
             align-items: center;
@@ -310,7 +339,7 @@
         }
         .reply-content {
             font-size: 12px;
-            color: #1f2937;
+            color: #2c221e;
             white-space: pre-wrap;
             word-break: break-word;
             line-height: 1.6;
@@ -320,8 +349,8 @@
         .admin-reply-editor {
             margin-top: 14px;
             padding: 12px;
-            background-color: #f8fafc;
-            border: 1px dashed #6366f1;
+            background-color: #f7f5f0;
+            border: 1px dashed #8c6d58;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
@@ -333,39 +362,49 @@
             padding: 8px;
             font-family: inherit;
             font-size: 12px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d5c8b8;
             border-radius: 6px;
             resize: vertical;
+            background-color: #ffffff;
+            color: #3b3028;
+            outline: none;
+        }
+        .admin-reply-textarea:focus {
+            border-color: #8c6d58;
         }
         .admin-save-btn {
             align-self: flex-end;
             padding: 6px 12px;
-            background-color: #4338ca;
+            background-color: #5c4033;
             color: #ffffff;
             font-size: 11px;
             font-weight: 700;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .admin-save-btn:hover {
+            background-color: #422d24;
         }
 
         .no-result {
             text-align: center;
             padding: 40px;
-            color: #94a3b8;
+            color: #8c7f73;
             font-size: 14px;
-            background: #ffffff;
+            background: #fdfbf7;
             border-radius: 12px;
-            border: 1px dashed #cbd5e1;
+            border: 1px dashed #d5c8b8;
         }
 
         footer {
-            background-color: #ffffff;
-            border-top: 1px solid #e2e8f0;
+            background-color: #fdfbf7;
+            border-top: 1px solid #e2d9cd;
             padding: 24px;
             text-align: center;
             font-size: 13px;
-            color: #64748b;
+            color: #6e6155;
             font-weight: 700;
         }
     </style>
@@ -466,7 +505,7 @@
             { id: 29, dorm: "미래관, 남성 기숙사", category: "청소 및 위생", date: "2026-09-22 00:27:54", content: "5층 추가학습실 중 오픈된 책상이 있는 방의 에어컨의 청소가 제대로 이뤄지지 않아 에어컨을 킬 시 곰팡이 냄새가 나는 문제점이 있습니다. 주기적인 에어컨 청소가 필요합니다.", replyStatus: "회신 완료", replyContent: "귀하께서 제기해 주신 안건은 ‘5층 추가학습실 내 에어컨 청소 미흡 및 곰팡이 냄새 개선 요청’에 관한 건으로 확인되었습니다.\n\n본 자치위원회에서는 해당 민원을 접수한 즉시 실태 조사를 진행하였으며, 조속한 조치의 필요성을 확인하였습니다. 현행 기숙사 방침상 에어컨 필터 청소가 연 1회 실시되고 있으나, 제기해 주신 것처럼 기존 주기로는 쾌적한 환경을 유지하기 어렵다는 점을 확인하였습니다.\n\n이에 자치위원회에서는 담당 지도교사 및 사감 교사께 해당 현장의 심각성을 전달하고 즉각적인 대책 마련을 요청하였습니다.\n\n그 결과, 문제가 제기된 5층 추가학습실 에어컨에 대해 조속한 시일 내 전문 분해 세척 및 살균 소독을 우선 집행하기로 협의를 완료하였습니다. 나아가 기숙사생 전체를 대상으로 실시될 ‘기숙사 위생 관리 실태 설문조사’를 통해 에어컨 정기 청소 주기 단축 및 위생 점검 정례화 방안을 학교 측과 지속해서 협의해 나갈 예정입니다.\n\n기숙사 자치위원회는 이번 에어컨 분해 세척 및 악취 제거 조치가 차질 없이 완료될 때까지 이행 경과를 점검하고, 추후 진행되는 상황에 의거하여 기숙사 내 전체 공지로 진행 상황을 전해드릴 예정입니다.\n\n소중한 의견에 깊이 감사드리며, 앞으로도 안전하고 쾌적한 기숙사 환경을 조성하는 데 최선을 다하겠습니다." },
             { id: 30, dorm: "청운관, 여성 기숙사", category: "시설 및 설비", date: "2026-09-22 01:47:07", content: "화장실 너무 더러워요 변기에서 물 새는 거나 세면대 보수 공사 진짜 필요해여", replyStatus: null, replyContent: "" },
             { id: 31, dorm: "청운관, 여성 기숙사", category: "시설 및 설비", date: "2026-09-22 12:19:13", content: "쌀이 별로고 급식실에 이상한 냄새 나서 식욕이 떠러져요", replyStatus: null, replyContent: "" },
-            { id: 32, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 13:38:25", content: "불편사항을 쓰라고 했으니 이왕 하는거 툭 까놓고 다 말씀드릴게요.\n지금부터는 의무적으로 고쳐야된다고 생각하는 것들입니다.\n청소기 좀 새로 사주세요 제발요. 저희가 무선청소기를 바랍니까 다이슨을 바랍니까 그냥 잘 빨아들이는 좋은거 구비하는걸 원하는 건데 그게 어려워서 우리 할머니도 안쓸것같은 개무거운 유선청소기로 청소를 어떻게 제대로 하라는거에요. 진짜 잘 작동되기라도 하면 말 안했겠죠, 끝부분 빠져있어가지고 작은 통구멍으로 힘겹게 청소하는데 흡입력도 세질 않아서 빨아들이면 다시 뱉잖아요. 이게 맞아요? 몇십만원 주고 생활하는 곳에서 최소한 집만큼의 시설은 구비가 되어있어야지 또 샤워실 바닥 청소주기는 왜이래요? 하루에 열댓명이 몸씻고 더러운 맨발로 밟으면서 옷 갈아입고, 신발신고 올라가기도 하는데 물기 남아있으면 기분 더럽고 털도 다 남아있어서 이게맞나 싶습니다. 공용공간인데도 더 철저히 관리도 안하고 위생수준이 가정집 화장실 바닥만도 못하네요.\n지금부터는 권장드리는 것들입니다.\n기숙사 점호 및 통금 시간, 벌점에 대해 불만이 매우 큽니다. 아침 7시에 깨우는 건 이해할 수 있으나 문제는 강제로 1층으로 내려오는 겁니다. 3학년은 방문 앞에서 점호를 하지만 1-2학년들은 아침점호로 1층에 내려와야 하는데, 노래틀고 3분 딱 기다려주고 내려오라 하면 잠이 덜 깨거나 비몽사몽한 학생들이 헐레벌떡 계단을 통해 내려오다가 넘어져 다칠 수 있는 경우가 있습니다. 아직까지 그런 적이 없긴 하지만, 이로 인한 심각한 사고가 발생할 경우 기숙사의 방침을 탓할 수밖에 없을 것 같네요. 또 기숙사는 정기외출증을 쓰더라도 10시 30분까지 들어와야 하는데 상식적으로 4시반에 학교끝나고 5시에 밥먹고, 학원 1-2개 갔다오면 훌쩍 10시가 넘는데 30분 안에 밥을 어떻게 해결합니까? 저녁을 5시에 주니까 당연히 10시넘으면 배고프죠. 편의점에서 라면이나 먹고와라 이겁니까? 설령 학원이 없다고 해도 중간에 쉬는시간이 꼴랑 30분인것도 이해가 안갑니다 진짜. 그 시간에 도대체 뭘 할 수 있습니까? 학교 근처에 음식점이라고는 편의점이나 롯데리아뿐인데 그거 안먹고 다른데 갔다오면 늦어서 혼낸다는게 '뭐 어찌되든 나는 상관없다~'는 것 같다는 마인드네요. 이게 가장 잘 드러나는게 벌점에 관해서입니다. 상식적으로 기숙사는 놀러온 곳이 아니지, 멀리서 사는 학생들을 위해 먹여주고 재워주는 거잖습니까. 근데 벌점 상태가 왜이렇죠? 점호지각 한번에 5점이요? 소등 후 잡담에 10점이요? 저희 20점이면 퇴소당하는데 4번만 지각해도 일주일 퇴소네요? 싫으면 걸리지 말라고 하는데 그건 멀리서 통학하는 어려움을 몰라서 그렇게 말하는거죠. 벌점도 타방 출입&잡담으로 한번에 20점씩 주는 경우가 비일비재한데 잡담인지 자기전에 잘자라고 말하는건지 어떻게 판단합니까? 자기 일 아니라고 벌점을 막 주는게 눈에 보여요. 심지어 어떨 때는 사감쌤이랑 친하다고, 처음 걸렸다고 안주는 경우도 있는데 저희가 뭐 사감쌤한테 잘보이려고 아부까지 해야됩니까? 눈밖에 나면 남들 다 봐주는 것도 나한테만 엄격한데 이게 독재가 아니면 뭡니까? 벌점 강도를 낮추던가 사감을 바꾸던가 해야죠. 참고로 저는 현재 벌점 0점이고 한번도 퇴소당해본 적 없습니다. 그런 제가 보기에도 시스템이 너무 썩었어요, 고쳐주세요 좀.\n지금부터는 참을 순 있지만 불편한 점들입니다.\n사감쌤이 저녁점호 끝내고 12시 넘어서 방문열고 확인하던데 특정 선생님은 완전 방 한가운데까지 들어오더라고요? 불편합니다. 새벽에 침대에 누워있다가 조명키고 문 벌컥벌컥 열고 구석구석까지 점검하는데 과한 것 같아요, 프라이버시가 존중되지 않는 느낌입니다. 굳이 그렇게까지 해서 득볼게 있나 싶기도 하고 어떤 생각인지 모르겠네요.\n이상입니다. 제발 좀 고칠 건 고쳐주세요.", replyStatus: "회신 대기", replyContent: "" },
+            { id: 32, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 13:38:25", content: "불편사항을 쓰라고 했으니 이왕 하는거 툭 까놓고 다 말씀드릴게요.\n지금부터는 의무적으로 고쳐야된다고 생각하는 것들입니다.\n청소기 좀 새로 사주세요 제발요. 저희가 무선청소기를 바랍니까 다이슨을 바랍니까 그냥 잘 빨아들이는 좋은거 구비하는걸 원하는 건데 그게 어려워서 우리 할머니도 안쓸것같은 개무거운 유선청소기로 청소를 어떻게 제대로 하라는거에요. 진짜 잘 작동되기라도 하면 말 안했겠죠, 끝부분 빠져있어가지고 작은 통구멍으로 힘겹게 청소하는데 흡입력도 세질 않아서 빨아들이면 다시 뱉잖아요. 이게 맞아요? 몇십만원 주고 생활하는 곳에서 최소한 집만큼의 시설은 구비가 되어있어야지 또 샤워실 바닥 청소주기는 왜이래요? 하루에 열댓명이 몸씻고 더러운 맨발로 밟으면서 옷 갈아입고, 신발신고 올라가기도 하는데 물기 남아있으면 기분 더럽고 털도 다 남아있어서 이게맞나 싶습니다. 공용공간인데도 더 철저히 관리도 안하고 위생수준이 가정집 화장실 바닥만도 못하네요.\n지금부터는 권장드리는 것들입니다.\n기숙사 점호 및 통금 시간, 벌점에 대해 불만이 매우 큽니다. 아침 7시에 깨우는 건 이해할 수 있으나 문제는 강제로 1층으로 내려오는 겁니다. 3학년은 방문 앞에서 점호를 하지만 1-2학년들은 아침점호로 1층에 내려와야 하는데, 노래틀고 3분 딱 기다려주고 내려오라 하면 잠이 덜 깨거나 비몽사몽한 학생들이 헐레벌떡 계단을 통해 내려오다가 넘어져 다칠 수 있는 경우가 있습니다. 아직까지 그런 적이 없긴 하지만, 이로 인한 심각한 사고가 발생할 경우 기숙사의 방침을 탓할 수밖에 없을 것 같네요. 또 기숙사는 정기외출증을 쓰더라도 10시 30분까지 들어와야 하는데 상식적으로 4시반에 학교끝나고 5시에 밥먹고, 학원 1-2개 갔다오면 훌쩍 10시가 넘는데 30분 안에 밥을 어떻게 해결합니까? 저녁을 5시에 주니까 당연히 10시넘으면 배고프죠. 편의점에서 라면이나 먹고와라 이겁니까? 설령 학원이 없다고 해도 중간에 쉬는시간이 꼴랑 30분인것도 이해가 안간다고 진짜. 그 시간에 도대체 뭘 할 수 있습니까? 학교 근처에 음식점이라고는 편의점이나 롯데리아뿐인데 그거 안먹고 다른데 갔다오면 늦어서 혼낸다는게 '뭐 어찌되든 나는 상관없다~'는 것 같다는 마인드네요. 이게 가장 잘 드러나는게 벌점에 관해서입니다. 상식적으로 기숙사는 놀러온 곳이 아니지, 멀리서 사는 학생들을 위해 먹여주고 재워주는 거잖습니까. 근데 벌점 상태가 왜이렇죠? 점호지각 한번에 5점이요? 소등 후 잡담에 10점이요? 저희 20점이면 퇴소당하는데 4번만 지각해도 일주일 퇴소네요? 싫으면 걸리지 말라고 하는데 그건 멀리서 통학하는 어려움을 몰라서 그렇게 말하는거죠. 벌점도 타방 출입&잡담으로 한번에 20점씩 주는 경우가 비일비재한데 잡담인지 자기전에 잘자라고 말하는건지 어떻게 판단합니까? 자기 일 아니라고 벌점을 막 주는게 눈에 보여요. 심지어 어떨 때는 사감쌤이랑 친하다고, 처음 걸렸다고 안주는 경우도 있는데 저희가 뭐 사감쌤한테 잘보이려고 아부까지 해야됩니까? 눈밖에 나면 남들 다 봐주는 것도 나한테만 엄격한데 이게 독재가 아니면 뭡니까? 벌점 강도를 낮추던가 사감을 바꾸던가 해야죠. 참고로 저는 현재 벌점 0점이고 한번도 퇴소당해본 적 없습니다. 그런 제가 보기에도 시스템이 너무 썩었어요, 고쳐주세요 좀.\n지금부터는 참을 순 있지만 불편한 점들입니다.\n사감쌤이 저녁점호 끝내고 12시 넘어서 방문열고 확인하던데 특정 선생님은 완전 방 한가운데까지 들어오더라고요? 불편합니다. 새벽에 침대에 누워있다가 조명키고 문 벌컥벌컥 열고 구석구석까지 점검하는데 과한 것 같아요, 프라이버시가 존중되지 않는 느낌입니다. 굳이 그렇게까지 해서 득볼게 있나 싶기도 하고 어떤 생각인지 모르겠네요.\n이상입니다. 제발 좀 고칠 건 고쳐주세요.", replyStatus: "회신 대기", replyContent: "" },
             { id: 33, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 16:00:11", content: "샤위기가 너무 별로입니다 제가 써본 샤워기 중에 진짜 제일 안 좋아요. 비데가 없는 곳이 너무 별로다", replyStatus: null, replyContent: "" }
         ];
 
@@ -540,7 +579,7 @@
                 if (isAdmin && isPendingTarget) {
                     adminEditorHtml = `
                         <div class="admin-reply-editor">
-                            <div style="font-size:11px; font-weight:700; color:#4338ca;">[관리자 권한] 회신 입력 및 수정</div>
+                            <div style="font-size:11px; font-weight:700; color:#5c4033;">[관리자 권한] 회신 입력 및 수정</div>
                             <textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${item.replyContent || ''}</textarea>
                             <button class="admin-save-btn" onclick="saveAdminReply(${item.id})">회신 내용 저장 및 등록</button>
                         </div>
@@ -582,7 +621,6 @@
                 const toggleInput = card.querySelector('.toggle-input');
 
                 if (contentEl && moreBtn) {
-                    // scrollHeight가 clientHeight보다 큰 경우에만 4줄 초과 생략 발생으로 판단
                     if (contentEl.scrollHeight <= contentEl.clientHeight + 1) {
                         contentEl.classList.remove('expandable');
                         moreBtn.style.display = 'none';
