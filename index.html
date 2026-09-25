@@ -9,25 +9,147 @@
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
     <!-- SheetJS 라이브러리 (엑셀 업로드 파싱용) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
+
+    <!-- 테마 깜빡임 방지를 위해 CSS 적용 전에 먼저 저장된 테마를 반영 -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('gjcentral_dorm_theme_v1');
+                var theme = (saved === 'dark' || saved === 'light')
+                    ? saved
+                    : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.style.colorScheme = theme;
+            } catch (e) { /* localStorage 사용 불가 시 기본 라이트 테마 유지 */ }
+        })();
+    </script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --color-bg: #f7f5f0;
+            --color-card-bg: #fdfbf7;
+            --color-text: #3b3028;
+            --color-text-muted: #6e6155;
+            --color-text-faint: #8c7f73;
+            --color-border: #e2d9cd;
+            --color-border-soft: #d5c8b8;
+
+            --color-header-bg: #2c221e;
+            --color-header-text: #fdfbf7;
+            --color-header-subtext: #d1c2b4;
+
+            --color-accent: #8c6d58;
+            --color-accent-dark: #5c4033;
+            --color-accent-darker: #422d24;
+
+            --color-excel: #6e7855;
+            --color-excel-hover: #576043;
+
+            --color-input-bg: #ffffff;
+
+            --shadow-header: 0 4px 12px rgba(44, 34, 30, 0.15);
+            --shadow-panel: 0 2px 8px rgba(60, 48, 38, 0.04);
+            --shadow-card: 0 2px 6px rgba(60, 48, 38, 0.04);
+            --shadow-card-hover: 0 4px 12px rgba(60, 48, 38, 0.08);
+            --shadow-modal: 0 12px 32px rgba(44, 34, 30, 0.22);
+
+            --badge-id-bg: #efebe4; --badge-id-text: #5c4033; --badge-id-border: #d5c8b8;
+            --badge-mirae-bg: #eaf1f7; --badge-mirae-text: #2e5178; --badge-mirae-border: #c8d8ea;
+            --badge-cheongun-bg: #f3e5e1; --badge-cheongun-text: #7a3e35; --badge-cheongun-border: #e2c4be;
+            --badge-category-bg: #f0ebe1; --badge-category-text: #5c5248; --badge-category-border: #dfd6c8;
+            --badge-reply-bg: #fdf6e7; --badge-reply-text: #8c5311; --badge-reply-border: #f0d5a3;
+            --badge-done-bg: #edf3eb; --badge-done-text: #3b5e3d; --badge-done-border: #c7dcc5;
+            --badge-new-bg: #fdece7; --badge-new-text: #a8431f; --badge-new-border: #f3c7b6;
+
+            --reply-box-bg: #f4efe6; --reply-box-border: #dbcfc0; --reply-box-header: #5c4033; --reply-box-text: #2c221e;
+
+            --mark-bg: #ffe08a; --mark-text: #3b3028;
+
+            --toast-bg: #2c221e; --toast-text: #fdfbf7;
+            --toast-success: #6e9c6f; --toast-error: #b5564a; --toast-warning: #c99a3a; --toast-info: #8c6d58;
+
+            --stats-fill: #8c6d58;
+        }
+
+        [data-theme="dark"] {
+            --color-bg: #1c1712;
+            --color-card-bg: #29221b;
+            --color-text: #ece4d8;
+            --color-text-muted: #b8a996;
+            --color-text-faint: #93866f;
+            --color-border: #443626;
+            --color-border-soft: #52422e;
+
+            --color-header-bg: #120d0a;
+            --color-header-text: #f7f2ea;
+            --color-header-subtext: #c9b6a1;
+
+            --color-accent: #caa274;
+            --color-accent-dark: #dcb98b;
+            --color-accent-darker: #ecd0a4;
+
+            --color-excel: #93a56c;
+            --color-excel-hover: #a7b884;
+
+            --color-input-bg: #241d16;
+
+            --shadow-header: 0 4px 14px rgba(0, 0, 0, 0.45);
+            --shadow-panel: 0 2px 10px rgba(0, 0, 0, 0.3);
+            --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+            --badge-id-bg: #3a2f22; --badge-id-text: #e8d8c3; --badge-id-border: #52422e;
+            --badge-mirae-bg: #1f2c3a; --badge-mirae-text: #a1c3df; --badge-mirae-border: #2d4258;
+            --badge-cheongun-bg: #3a2621; --badge-cheongun-text: #e5ac9e; --badge-cheongun-border: #4d322c;
+            --badge-category-bg: #332a1e; --badge-category-text: #dccdb7; --badge-category-border: #4a3c29;
+            --badge-reply-bg: #392c14; --badge-reply-text: #e8ba6c; --badge-reply-border: #59461f;
+            --badge-done-bg: #22301f; --badge-done-text: #9dcb9c; --badge-done-border: #334a2f;
+            --badge-new-bg: #392015; --badge-new-text: #f1a884; --badge-new-border: #59321f;
+
+            --reply-box-bg: #2e2519; --reply-box-border: #4a3c29; --reply-box-header: #dfc49b; --reply-box-text: #ece4d8;
+
+            --mark-bg: #6b5320; --mark-text: #fff3d6;
+
+            --toast-bg: #efe6d9; --toast-text: #2c221e;
+            --toast-success: #9fce9c; --toast-error: #e29a8d; --toast-warning: #e8c479; --toast-info: #caa274;
+
+            --stats-fill: #caa274;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
             font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f7f5f0;
-            color: #3b3028;
+            background-color: var(--color-bg);
+            color: var(--color-text);
             line-height: 1.6;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
-        
+
+        button, input, select, textarea { font-family: inherit; }
+
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--color-accent-dark);
+            outline-offset: 2px;
+        }
+
         header {
-            background-color: #2c221e;
-            color: #f7f5f0;
+            background-color: var(--color-header-bg);
+            color: var(--color-header-text);
             padding: 24px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 12px rgba(44, 34, 30, 0.15);
-            border-bottom: 2px solid #8c6d58;
+            box-shadow: var(--shadow-header);
+            border-bottom: 2px solid var(--color-accent);
+            transition: background-color 0.2s ease;
         }
         .header-container {
             max-width: 1150px;
@@ -42,23 +164,44 @@
             font-size: 16px;
             font-weight: 800;
             word-break: keep-all;
-            color: #fdfbf7;
+            color: var(--color-header-text);
         }
         .header-subtitle {
             font-size: 13px;
-            color: #d1c2b4;
+            color: var(--color-header-subtext);
             margin-top: 6px;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-theme {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background-color: rgba(255, 255, 255, 0.06);
+            color: var(--color-header-text);
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+        .btn-theme:hover { background-color: rgba(255, 255, 255, 0.14); }
+
         .admin-status {
             font-size: 12px;
-            background-color: #5c4033;
+            background-color: var(--color-accent-dark);
             color: #f7f5f0;
             padding: 4px 10px;
             border-radius: 20px;
             display: inline-block;
-            margin-top: 4px;
-            border: 1px solid #8c6d58;
+            border: 1px solid var(--color-accent);
         }
 
         /* 컨트롤 패널 (검색, 필터, 버튼) */
@@ -67,33 +210,34 @@
             margin: 20px auto 0 auto;
             padding: 0 16px;
         }
+        .control-panel + .control-panel { margin-top: 12px; }
+
         .panel-card {
-            background: #fdfbf7;
-            border: 1px solid #e2d9cd;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-border);
             border-radius: 12px;
             padding: 16px;
-            box-shadow: 0 2px 8px rgba(60, 48, 38, 0.04);
+            box-shadow: var(--shadow-panel);
             display: flex;
             flex-direction: column;
             gap: 12px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
-        .search-bar-wrap {
-            width: 100%;
-        }
+        .search-bar-wrap { width: 100%; }
         .search-input {
             width: 100%;
             padding: 10px 14px;
             font-size: 13px;
-            border: 1px solid #d5c8b8;
-            background-color: #ffffff;
-            color: #3b3028;
+            border: 1px solid var(--color-border-soft);
+            background-color: var(--color-input-bg);
+            color: var(--color-text);
             border-radius: 8px;
             outline: none;
             font-family: inherit;
             transition: all 0.2s;
         }
         .search-input:focus {
-            border-color: #8c6d58;
+            border-color: var(--color-accent);
             box-shadow: 0 0 0 3px rgba(140, 109, 88, 0.15);
         }
         .filter-row {
@@ -103,30 +247,22 @@
             align-items: center;
             justify-content: space-between;
         }
-        .filter-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .filter-select {
             padding: 8px 12px;
             font-size: 12px;
             font-family: inherit;
-            border: 1px solid #d5c8b8;
+            border: 1px solid var(--color-border-soft);
             border-radius: 6px;
-            background-color: #ffffff;
-            color: #3b3028;
+            background-color: var(--color-input-bg);
+            color: var(--color-text);
             cursor: pointer;
             outline: none;
             transition: border-color 0.2s;
         }
-        .filter-select:focus {
-            border-color: #8c6d58;
-        }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
+        .filter-select:focus { border-color: var(--color-accent); }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn {
             padding: 8px 14px;
             font-size: 12px;
@@ -137,16 +273,66 @@
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
-        .btn-admin {
-            background-color: #5c4033;
-            color: #f7f5f0;
+        .btn-admin { background-color: var(--color-accent-dark); color: #f7f5f0; }
+        .btn-admin:hover { background-color: var(--color-accent-darker); }
+        .btn-excel { background-color: var(--color-excel); color: #ffffff; }
+        .btn-excel:hover { background-color: var(--color-excel-hover); }
+        .btn-print { background-color: transparent; color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
+        .btn-print:hover { background-color: var(--color-border); }
+
+        /* 통계 패널 */
+        .stats-panel { gap: 14px; }
+        .stats-panel-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-muted);
         }
-        .btn-admin:hover { background-color: #422d24; }
-        .btn-excel {
-            background-color: #6e7855;
-            color: #ffffff;
+        .stats-columns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
         }
-        .btn-excel:hover { background-color: #576043; }
+        @media (min-width: 640px) {
+            .stats-columns { grid-template-columns: 1fr 1fr; }
+        }
+        .stats-column-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-faint);
+            margin-bottom: 8px;
+        }
+        .stats-bars { display: flex; flex-direction: column; gap: 7px; }
+        .stats-bar-row {
+            display: grid;
+            grid-template-columns: 76px 1fr 22px;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-bar-label {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stats-bar-track {
+            height: 7px;
+            border-radius: 4px;
+            background-color: var(--color-border);
+            overflow: hidden;
+        }
+        .stats-bar-fill {
+            height: 100%;
+            background-color: var(--stats-fill);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .stats-bar-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text);
+            text-align: right;
+        }
 
         main {
             max-width: 1150px;
@@ -156,39 +342,28 @@
 
         .stats-summary {
             font-size: 13px;
-            color: #6e6155;
+            color: var(--color-text-muted);
             margin-bottom: 16px;
             font-weight: 700;
         }
 
         /* 메이슨리(Masonry) 다단 레이아웃 설정 */
-        .cards-grid {
-            column-count: 1;
-            column-gap: 16px;
-            margin-bottom: 40px;
-        }
-        @media (min-width: 768px) {
-            .cards-grid { 
-                column-count: 2; 
-            }
-        }
+        .cards-grid { column-count: 1; column-gap: 16px; margin-bottom: 40px; }
+        @media (min-width: 768px) { .cards-grid { column-count: 2; } }
 
         .card {
-            background-color: #fdfbf7;
-            border: 1px solid #e2d9cd;
+            background-color: var(--color-card-bg);
+            border: 1px solid var(--color-border);
             border-radius: 12px;
             padding: 18px;
-            box-shadow: 0 2px 6px rgba(60, 48, 38, 0.04);
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             margin-bottom: 16px;
             break-inside: avoid;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s ease, border-color 0.2s ease;
         }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(60, 48, 38, 0.08);
-        }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -197,215 +372,287 @@
             flex-wrap: wrap;
             gap: 8px;
         }
-        .badge-group {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .badge-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .badge-id {
-            background-color: #efebe4;
-            color: #5c4033;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #d5c8b8;
+            background-color: var(--badge-id-bg); color: var(--badge-id-text);
+            font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px;
+            border: 1px solid var(--badge-id-border);
         }
-        .badge-dorm {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        
-        .badge-mirae { 
-            background-color: #eaf1f7; 
-            color: #2e5178; 
-            border: 1px solid #c8d8ea; 
-        }
-        .badge-cheongun { 
-            background-color: #f3e5e1; 
-            color: #7a3e35; 
-            border: 1px solid #e2c4be; 
-        }
-        
+        .badge-dorm { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+        .badge-mirae { background-color: var(--badge-mirae-bg); color: var(--badge-mirae-text); border: 1px solid var(--badge-mirae-border); }
+        .badge-cheongun { background-color: var(--badge-cheongun-bg); color: var(--badge-cheongun-text); border: 1px solid var(--badge-cheongun-border); }
+
         .category-badge {
-            font-size: 11px;
-            font-weight: 700;
-            color: #5c5248;
-            background-color: #f0ebe1;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #dfd6c8;
+            font-size: 11px; font-weight: 700; color: var(--badge-category-text);
+            background-color: var(--badge-category-bg); padding: 4px 8px; border-radius: 6px;
+            border: 1px solid var(--badge-category-border);
         }
-
         .reply-badge {
-            font-size: 11px;
-            font-weight: 700;
-            color: #8c5311;
-            background-color: #fdf6e7;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #f0d5a3;
+            font-size: 11px; font-weight: 700; color: var(--badge-reply-text);
+            background-color: var(--badge-reply-bg); padding: 4px 8px; border-radius: 6px;
+            border: 1px solid var(--badge-reply-border);
         }
-
         .done-badge {
-            font-size: 11px;
-            font-weight: 700;
-            color: #3b5e3d;
-            background-color: #edf3eb;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1px solid #c7dcc5;
+            font-size: 11px; font-weight: 700; color: var(--badge-done-text);
+            background-color: var(--badge-done-bg); padding: 4px 8px; border-radius: 6px;
+            border: 1px solid var(--badge-done-border);
         }
-        
-        .card-date {
-            font-size: 11px;
-            color: #8c7f73;
-        }
-        
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
+        .new-badge {
+            font-size: 11px; font-weight: 700; color: var(--badge-new-text);
+            background-color: var(--badge-new-bg); padding: 4px 8px; border-radius: 6px;
+            border: 1px solid var(--badge-new-border);
         }
 
-        /* 튼튼한 높이 제한형 접힘 컨테이너 (줄바꿈이 많은 글도 완벽히 접힘) */
+        .card-date { font-size: 11px; color: var(--color-text-faint); }
+
+        .card-body { display: flex; flex-direction: column; flex-grow: 1; }
+
         .card-content {
             font-size: 13px;
-            color: #3b3028;
+            color: var(--color-text);
             white-space: pre-wrap;
             word-break: break-word;
             margin-top: 6px;
             line-height: 1.6;
             overflow: hidden;
-            max-height: 95px; /* 약 4줄 분량으로 강제 제한 */
+            max-height: 95px;
             position: relative;
             transition: max-height 0.3s ease;
         }
-
-        /* 그라데이션 효과로 잘린 느낌 부여 */
         .card-content.expandable::after {
             content: "";
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 35px;
-            background: linear-gradient(transparent, #fdfbf7);
+            bottom: 0; left: 0; width: 100%; height: 35px;
+            background: linear-gradient(transparent, var(--color-card-bg));
             pointer-events: none;
         }
+        .card-content.expanded { max-height: 2000px !important; }
+        .card-content.expanded::after { display: none; }
 
-        .card-content.expanded {
-            max-height: 2000px !important;
-        }
-        .card-content.expanded::after {
-            display: none;
+        .card-content mark, .reply-content mark {
+            background-color: var(--mark-bg);
+            color: var(--mark-text);
+            border-radius: 2px;
+            padding: 0 1px;
         }
 
         .more-btn {
-            background: none;
-            border: none;
-            color: #8c6d58;
-            font-family: 'Nanum Gothic', sans-serif;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            padding: 8px 0 0 0;
-            align-self: flex-start;
-            margin-top: 4px;
-            display: inline-block;
-            user-select: none;
+            background: none; border: none; color: var(--color-accent);
+            font-family: 'Nanum Gothic', sans-serif; font-size: 12px; font-weight: 700;
+            cursor: pointer; padding: 8px 0 0 0; align-self: flex-start; margin-top: 4px;
+            display: inline-block; user-select: none;
         }
-        .more-btn:hover { text-decoration: underline; color: #5c4033; }
+        .more-btn:hover { text-decoration: underline; color: var(--color-accent-dark); }
 
-        /* 회신 내용 박스 스타일 */
         .reply-box {
-            margin-top: 14px;
-            padding: 12px 14px;
-            background-color: #f4efe6;
-            border: 1px solid #dbcfc0;
+            margin-top: 14px; padding: 12px 14px;
+            background-color: var(--reply-box-bg);
+            border: 1px solid var(--reply-box-border);
             border-radius: 8px;
         }
         .reply-header {
-            font-size: 12px;
-            font-weight: 700;
-            color: #5c4033;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            font-size: 12px; font-weight: 700; color: var(--reply-box-header);
+            margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
         }
         .reply-content {
-            font-size: 12px;
-            color: #2c221e;
-            white-space: pre-wrap;
-            word-break: break-word;
-            line-height: 1.6;
+            font-size: 12px; color: var(--reply-box-text);
+            white-space: pre-wrap; word-break: break-word; line-height: 1.6;
         }
 
-        /* 관리자용 회신 작성 양식 */
         .admin-reply-editor {
-            margin-top: 14px;
-            padding: 12px;
-            background-color: #f7f5f0;
-            border: 1px dashed #8c6d58;
+            margin-top: 14px; padding: 12px;
+            background-color: var(--color-bg);
+            border: 1px dashed var(--color-accent);
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            display: flex; flex-direction: column; gap: 8px;
         }
+        .admin-reply-editor-label { font-size: 11px; font-weight: 700; color: var(--color-accent-dark); }
         .admin-reply-textarea {
-            width: 100%;
-            min-height: 90px;
-            padding: 8px;
-            font-family: inherit;
-            font-size: 12px;
-            border: 1px solid #d5c8b8;
-            border-radius: 6px;
+            width: 100%; min-height: 90px; padding: 8px;
+            font-family: inherit; font-size: 12px;
+            border: 1px solid var(--color-border-soft); border-radius: 6px;
             resize: vertical;
-            background-color: #ffffff;
-            color: #3b3028;
+            background-color: var(--color-input-bg); color: var(--color-text);
             outline: none;
         }
-        .admin-reply-textarea:focus {
-            border-color: #8c6d58;
-        }
+        .admin-reply-textarea:focus { border-color: var(--color-accent); }
         .admin-save-btn {
-            align-self: flex-end;
-            padding: 6px 12px;
-            background-color: #5c4033;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            align-self: flex-end; padding: 6px 12px;
+            background-color: var(--color-accent-dark); color: #ffffff;
+            font-size: 11px; font-weight: 700; border: none; border-radius: 4px;
+            cursor: pointer; transition: background-color 0.2s;
         }
-        .admin-save-btn:hover {
-            background-color: #422d24;
-        }
+        .admin-save-btn:hover { background-color: var(--color-accent-darker); }
 
         .no-result {
-            text-align: center;
-            padding: 40px;
-            color: #8c7f73;
-            font-size: 14px;
-            background: #fdfbf7;
-            border-radius: 12px;
-            border: 1px dashed #d5c8b8;
+            text-align: center; padding: 40px; color: var(--color-text-faint);
+            font-size: 14px; background: var(--color-card-bg); border-radius: 12px;
+            border: 1px dashed var(--color-border-soft);
         }
 
         footer {
-            background-color: #fdfbf7;
-            border-top: 1px solid #e2d9cd;
-            padding: 24px;
-            text-align: center;
-            font-size: 13px;
-            color: #6e6155;
+            background-color: var(--color-card-bg);
+            border-top: 1px solid var(--color-border);
+            padding: 24px; text-align: center; font-size: 13px;
+            color: var(--color-text-muted); font-weight: 700;
+        }
+
+        /* 맨 위로 버튼 */
+        .back-to-top {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--color-border-soft);
+            background-color: var(--color-accent-dark);
+            color: #fdfbf7;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: var(--shadow-card-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s;
+            z-index: 90;
+        }
+        .back-to-top.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .back-to-top:hover { background-color: var(--color-accent-darker); }
+
+        /* 토스트 알림 */
+        .toast-container {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 200;
+            width: min(92vw, 380px);
+            align-items: stretch;
+        }
+        .toast {
+            background-color: var(--toast-bg);
+            color: var(--toast-text);
+            border-left: 4px solid var(--toast-info);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-modal);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { border-left-color: var(--toast-success); }
+        .toast-error { border-left-color: var(--toast-error); }
+        .toast-warning { border-left-color: var(--toast-warning); }
+        .toast-icon { flex-shrink: 0; }
+        .toast-msg { word-break: keep-all; }
+
+        /* 엑셀 업로드 미리보기 모달 */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background-color: rgba(28, 23, 18, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 300;
+        }
+        .modal-card {
+            background-color: var(--color-card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-modal);
+            width: min(100%, 560px);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .modal-header h2 { font-size: 14px; font-weight: 800; color: var(--color-text); }
+        .modal-close {
+            background: none; border: none; cursor: pointer;
+            font-size: 15px; color: var(--color-text-muted); line-height: 1;
+            padding: 4px;
+        }
+        .modal-close:hover { color: var(--color-text); }
+        .modal-body { padding: 16px 18px; overflow-y: auto; }
+        .modal-summary { font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px; word-break: keep-all; }
+        .excel-preview-list { display: flex; flex-direction: column; gap: 10px; }
+        .excel-preview-item {
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background-color: var(--color-bg);
+        }
+        .excel-preview-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+        .excel-preview-content { font-size: 12px; color: var(--color-text); word-break: break-word; }
+        .modal-footer {
+            display: flex; justify-content: flex-end; gap: 8px;
+            padding: 14px 18px;
+            border-top: 1px solid var(--color-border);
+        }
+        .btn-modal-cancel { background-color: var(--color-border); color: var(--color-text); }
+        .btn-modal-cancel:hover { background-color: var(--color-border-soft); }
+        .btn-modal-confirm { background-color: var(--color-excel); color: #ffffff; }
+        .btn-modal-confirm:hover { background-color: var(--color-excel-hover); }
+
+        /* 인쇄용 보기 모드 상단 바 */
+        .print-mode-bar {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 150;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--color-accent-dark);
+            justify-content: center;
+        }
+        .print-mode-bar .btn-modal-confirm { background-color: #ffffff; color: var(--color-accent-darker); }
+        .print-mode-bar .btn-modal-cancel { background-color: rgba(255,255,255,0.18); color: #fff; }
+
+        body.print-preview-mode .control-panel,
+        body.print-preview-mode .back-to-top,
+        body.print-preview-mode .toast-container,
+        body.print-preview-mode .more-btn,
+        body.print-preview-mode .admin-reply-editor {
+            display: none !important;
+        }
+        body.print-preview-mode .cards-grid { column-count: 1 !important; }
+        body.print-preview-mode .card-content { max-height: none !important; overflow: visible !important; }
+        body.print-preview-mode .card-content.expandable::after { display: none !important; }
+        /* 인쇄 미리보기 중에도 상단 인쇄 바와 겹치지 않도록 헤더만 고정 해제, 색상은 현재 테마(라이트/다크)를 그대로 따름 */
+        body.print-preview-mode header { position: static !important; }
+        body.print-preview-mode footer { display: none; }
+
+        @media print {
+            .control-panel, .back-to-top, .toast-container, .btn-theme,
+            .print-mode-bar, .more-btn, .admin-reply-editor, .stats-panel, footer {
+                display: none !important;
+            }
+            .cards-grid { column-count: 1 !important; }
+            .card-content { max-height: none !important; overflow: visible !important; }
+            .card-content.expandable::after { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; }
+            header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
+            .header-title, .header-subtitle { color: #000 !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
         }
     </style>
 </head>
@@ -417,11 +664,17 @@
                 <h1 class="header-title">광주중앙고등학교 기숙사 자치위원 협의 안건 중 건의 및 개선사항 제안서</h1>
                 <p class="header-subtitle">청운관 및 미래관 건의사항, 총 33건 접수 (2026.09.21 - 2026.09.23)</p>
             </div>
-            <div>
+            <div class="header-actions">
+                <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
             </div>
         </div>
     </header>
+
+    <div id="print-mode-bar" class="print-mode-bar">
+        <button id="btn-do-print" class="btn btn-modal-confirm">🖨️ 인쇄하기</button>
+        <button id="btn-exit-print" class="btn btn-modal-cancel">✕ 일반 화면으로</button>
+    </div>
 
     <!-- 검색 및 필터 컨트롤 패널 -->
     <div class="control-panel">
@@ -451,12 +704,37 @@
                         <option value="회신 대기">회신 대기</option>
                         <option value="회신 완료">회신 완료</option>
                     </select>
+
+                    <select id="filter-sort" class="filter-select">
+                        <option value="id_asc">번호순</option>
+                        <option value="date_desc">최신순</option>
+                        <option value="date_asc">오래된순</option>
+                        <option value="dorm">기숙사별</option>
+                    </select>
                 </div>
 
                 <div class="btn-group">
                     <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
                     <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
+                    <button id="btn-print-view" class="btn btn-print">🖨️ 인쇄용 보기</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 현황 요약 통계 패널 -->
+    <div class="control-panel">
+        <div class="panel-card stats-panel">
+            <div class="stats-panel-title">현황 요약 (전체 기준)</div>
+            <div class="stats-columns">
+                <div>
+                    <div class="stats-column-label">기숙사별 건수</div>
+                    <div id="stats-dorm" class="stats-bars"></div>
+                </div>
+                <div>
+                    <div class="stats-column-label">카테고리별 건수</div>
+                    <div id="stats-category" class="stats-bars"></div>
                 </div>
             </div>
         </div>
@@ -470,6 +748,27 @@
     <footer>
         <p>광주중앙고등학교 기숙사 자치위원회</p>
     </footer>
+
+    <button id="btn-back-to-top" class="back-to-top" aria-label="맨 위로 이동" title="맨 위로">↑</button>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- 엑셀 업로드 미리보기 모달 -->
+    <div id="excel-preview-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>엑셀 업로드 미리보기</h2>
+                <button id="btn-excel-preview-close" class="modal-close" aria-label="닫기">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="excel-preview-summary" class="modal-summary"></p>
+                <div id="excel-preview-list" class="excel-preview-list"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-excel-cancel" class="btn btn-modal-cancel">취소</button>
+                <button id="btn-excel-confirm" class="btn btn-modal-confirm">적용하기</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 초기 원본 데이터 (33건 보존)
@@ -509,8 +808,35 @@
             { id: 33, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 16:00:11", content: "샤위기가 너무 별로입니다 제가 써본 샤워기 중에 진짜 제일 안 좋아요. 비데가 없는 곳이 너무 별로다", replyStatus: null, replyContent: "" }
         ];
 
-        let petitions = [...initialPetitions];
+        // ── 로컬 저장소 (localStorage) 연동 ──────────────────────────
+        const STORAGE_KEY = 'gjcentral_dorm_petitions_v1';
+        const THEME_KEY = 'gjcentral_dorm_theme_v1';
+
+        function loadPetitions() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+            } catch (e) {
+                console.error('저장된 데이터를 불러오는 중 오류:', e);
+            }
+            return JSON.parse(JSON.stringify(initialPetitions));
+        }
+
+        function savePetitions() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(petitions));
+            } catch (e) {
+                console.error('저장 중 오류:', e);
+                showToast('브라우저 저장 공간 문제로 데이터가 저장되지 않았습니다.', 'error');
+            }
+        }
+
+        let petitions = loadPetitions();
         let isAdmin = false;
+        let pendingExcelItems = [];
 
         // DOM 요소
         const cardsContainer = document.getElementById('cards-container');
@@ -518,18 +844,74 @@
         const filterDorm = document.getElementById('filter-dorm');
         const filterCategory = document.getElementById('filter-category');
         const filterStatus = document.getElementById('filter-status');
+        const filterSort = document.getElementById('filter-sort');
         const statsSummary = document.getElementById('stats-summary');
         const btnAdminLogin = document.getElementById('btn-admin-login');
         const adminIndicator = document.getElementById('admin-indicator');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const excelFileInput = document.getElementById('excel-file-input');
+        const btnThemeToggle = document.getElementById('btn-theme-toggle');
+        const btnBackToTop = document.getElementById('btn-back-to-top');
+        const toastContainer = document.getElementById('toast-container');
+        const btnPrintView = document.getElementById('btn-print-view');
+        const printModeBar = document.getElementById('print-mode-bar');
 
-        // 카드 렌더링 함수
+        // ── 유틸 함수 ─────────────────────────────────────────────
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // 검색어를 HTML 이스케이프 후 <mark>로 감싸 하이라이트
+        function highlightText(rawText, query) {
+            const escaped = escapeHtml(rawText);
+            if (!query) return escaped;
+            const escapedQuery = escapeHtml(query);
+            const pattern = escapeRegex(escapedQuery);
+            if (!pattern) return escaped;
+            try {
+                const regex = new RegExp(pattern, 'gi');
+                return escaped.replace(regex, (match) => `<mark>${match}</mark>`);
+            } catch (e) {
+                return escaped;
+            }
+        }
+
+        function getDateValue(item) {
+            const cleaned = item.date.replace('(수정)', '').trim().replace(' ', 'T');
+            const t = new Date(cleaned).getTime();
+            return isNaN(t) ? 0 : t;
+        }
+
+        function compareItems(a, b, sortVal) {
+            switch (sortVal) {
+                case 'date_desc': return getDateValue(b) - getDateValue(a);
+                case 'date_asc': return getDateValue(a) - getDateValue(b);
+                case 'dorm': {
+                    if (a.dorm === b.dorm) return a.id - b.id;
+                    return a.dorm.localeCompare(b.dorm, 'ko');
+                }
+                default: return a.id - b.id;
+            }
+        }
+
+        // ── 카드 렌더링 ───────────────────────────────────────────
         function renderCards() {
             const query = searchInput.value.trim().toLowerCase();
+            const rawQuery = searchInput.value.trim();
             const dormVal = filterDorm.value;
             const categoryVal = filterCategory.value;
             const statusVal = filterStatus.value;
+            const sortVal = filterSort.value;
 
             const filtered = petitions.filter(item => {
                 const searchTarget = `${item.id} ${item.dorm} ${item.category} ${item.date} ${item.content} ${item.replyStatus || ''} ${item.replyContent || ''}`.toLowerCase();
@@ -547,40 +929,48 @@
                 return matchesSearch && matchesDorm && matchesCategory && matchesStatus;
             });
 
+            filtered.sort((a, b) => compareItems(a, b, sortVal));
+
             statsSummary.textContent = `조회된 안건 : 총 ${filtered.length}건 (전체 ${petitions.length}건 중)`;
 
             if (filtered.length === 0) {
                 cardsContainer.innerHTML = `<div class="no-result">검색 또는 필터 조건에 부합하는 안건이 존재하지 않습니다.</div>`;
+                renderStats();
                 return;
             }
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
                 const isPendingTarget = (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요');
+                const isDoneTarget = (item.replyStatus === '회신 완료');
+                const isEditableByAdmin = isPendingTarget || isDoneTarget;
 
                 let statusBadgeHtml = '';
-                if (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요') {
+                if (isPendingTarget) {
                     statusBadgeHtml = `<span class="reply-badge">${escapeHtml(item.replyStatus)}</span>`;
-                } else if (item.replyStatus === '회신 완료') {
+                } else if (isDoneTarget) {
                     statusBadgeHtml = `<span class="done-badge">회신 완료</span>`;
                 }
 
+                const newBadgeHtml = item.isNew ? `<span class="new-badge">🆕 신규</span>` : '';
+
                 let replyBoxHtml = '';
-                if (item.replyStatus === '회신 완료' && item.replyContent) {
+                if (isDoneTarget && item.replyContent) {
                     replyBoxHtml = `
                         <div class="reply-box">
                             <div class="reply-header">📌 [광주중앙고등학교 기숙사 자치위원회 회신]</div>
-                            <div class="reply-content">${escapeHtml(item.replyContent)}</div>
+                            <div class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
                         </div>
                     `;
                 }
 
                 let adminEditorHtml = '';
-                if (isAdmin && isPendingTarget) {
+                if (isAdmin && isEditableByAdmin) {
+                    const editorLabel = isDoneTarget ? '[관리자 권한] 회신 내용 수정' : '[관리자 권한] 회신 입력 및 수정';
                     adminEditorHtml = `
                         <div class="admin-reply-editor">
-                            <div style="font-size:11px; font-weight:700; color:#5c4033;">[관리자 권한] 회신 입력 및 수정</div>
-                            <textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${item.replyContent || ''}</textarea>
+                            <div class="admin-reply-editor-label">${editorLabel}</div>
+                            <textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${escapeHtml(item.replyContent || '')}</textarea>
                             <button class="admin-save-btn" onclick="saveAdminReply(${item.id})">회신 내용 저장 및 등록</button>
                         </div>
                     `;
@@ -594,11 +984,12 @@
                                 <span class="badge-dorm ${dormBadgeClass}">${item.dorm}</span>
                                 <span class="category-badge">${item.category}</span>
                                 ${statusBadgeHtml}
+                                ${newBadgeHtml}
                             </div>
                             <span class="card-date">${item.date}</span>
                         </div>
                         <div class="card-body">
-                            <div class="card-content expandable" id="content-${item.id}">${escapeHtml(item.content)}</div>
+                            <div class="card-content expandable" id="content-${item.id}">${highlightText(item.content, rawQuery)}</div>
                             <button class="more-btn" id="btn-more-${item.id}" onclick="toggleCard(${item.id})">더보기</button>
                             ${replyBoxHtml}
                             ${adminEditorHtml}
@@ -608,35 +999,30 @@
             }).join('');
 
             checkContentOverflow();
+            renderStats();
         }
 
-        // 내용이 짧으면 더보기 버튼을 숨기고 길면 접어두는 함수
         function checkContentOverflow() {
             const contents = cardsContainer.querySelectorAll('.card-content');
             contents.forEach(contentEl => {
                 const id = contentEl.id.replace('content-', '');
                 const btn = document.getElementById(`btn-more-${id}`);
-                
-                // 실제 전체 콘텐츠 높이와 제한 높이(95px) 비교
-                // 임시로 expanded를 붙여서 전체 높이 측정
+
                 contentEl.classList.add('expanded');
                 const fullHeight = contentEl.scrollHeight;
                 contentEl.classList.remove('expanded');
 
                 if (fullHeight <= 105) {
-                    // 내용이 짧아서 접을 필요가 없는 경우
                     contentEl.classList.remove('expandable');
                     if (btn) btn.style.display = 'none';
                 } else {
-                    // 내용이 길어서 접어야 하는 경우
                     contentEl.classList.add('expandable');
                     if (btn) btn.style.display = 'inline-block';
                 }
             });
         }
 
-        // 더보기 / 접기 토글 기능
-        window.toggleCard = function(id) {
+        window.toggleCard = function (id) {
             const contentEl = document.getElementById(`content-${id}`);
             const btn = document.getElementById(`btn-more-${id}`);
 
@@ -649,18 +1035,63 @@
             }
         };
 
-        // HTML 태그 이스케이프 함수
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // ── 현황 요약 통계 ────────────────────────────────────────
+        function renderStats() {
+            const dormCounts = {};
+            const categoryCounts = {};
+            petitions.forEach(item => {
+                const dormKey = item.dorm.includes('미래관') ? '미래관' : '청운관';
+                dormCounts[dormKey] = (dormCounts[dormKey] || 0) + 1;
+                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+            });
+
+            const dormOrder = ['미래관', '청운관'];
+            const categoryOrder = ['생활 규정 및 점호', '시설 및 설비', '청소 및 위생', '소음 및 보안', '기타'];
+
+            const maxDorm = Math.max(...dormOrder.map(k => dormCounts[k] || 0), 1);
+            const maxCategory = Math.max(...categoryOrder.map(k => categoryCounts[k] || 0), 1);
+
+            const statsDormEl = document.getElementById('stats-dorm');
+            const statsCategoryEl = document.getElementById('stats-category');
+
+            statsDormEl.innerHTML = dormOrder.map(key => {
+                const count = dormCounts[key] || 0;
+                const pct = Math.round((count / maxDorm) * 100);
+                return `
+                    <div class="stats-bar-row">
+                        <span class="stats-bar-label">${key}</span>
+                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
+                        <span class="stats-bar-count">${count}</span>
+                    </div>`;
+            }).join('');
+
+            statsCategoryEl.innerHTML = categoryOrder.map(key => {
+                const count = categoryCounts[key] || 0;
+                const pct = Math.round((count / maxCategory) * 100);
+                return `
+                    <div class="stats-bar-row">
+                        <span class="stats-bar-label">${key}</span>
+                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
+                        <span class="stats-bar-count">${count}</span>
+                    </div>`;
+            }).join('');
         }
 
-        // Admin 모드 로그인 처리
+        // ── 토스트 알림 ───────────────────────────────────────────
+        function showToast(message, type = 'info', duration = 3800) {
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            const icons = { success: '✅', error: '⚠️', warning: '⚠️', info: 'ℹ️' };
+            el.innerHTML = `<span class="toast-icon">${icons[type] || icons.info}</span><span class="toast-msg">${escapeHtml(message)}</span>`;
+            toastContainer.appendChild(el);
+            requestAnimationFrame(() => el.classList.add('show'));
+            setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => el.remove(), 300);
+            }, duration);
+        }
+
+        // ── 관리자 로그인 ─────────────────────────────────────────
         btnAdminLogin.addEventListener('click', () => {
             if (isAdmin) {
                 if (confirm("관리자 모드를 종료하시겠습니까?")) {
@@ -677,21 +1108,21 @@
                 isAdmin = true;
                 adminIndicator.style.display = 'inline-block';
                 btnAdminLogin.textContent = 'Administrator logout';
-                alert("관리자 인증이 완료되었습니다.\n회신 대기 안건에 대한 회신 작성 기능이 활성화됩니다.");
+                showToast('관리자 인증이 완료되었습니다. 회신 대기·완료 안건에 대한 회신 작성 기능이 활성화됩니다.', 'success');
                 renderCards();
             } else if (pwd !== null) {
-                alert("비밀번호가 올바르지 않습니다.");
+                showToast('비밀번호가 올바르지 않습니다.', 'error');
             }
         });
 
-        // 관리자 회신 저장
-        window.saveAdminReply = function(id) {
+        // ── 관리자 회신 저장 ──────────────────────────────────────
+        window.saveAdminReply = function (id) {
             const textarea = document.getElementById(`admin-textarea-${id}`);
             if (!textarea) return;
             const textVal = textarea.value.trim();
 
             if (!textVal) {
-                alert("회신 내용을 입력해 주세요.");
+                showToast('회신 내용을 입력해 주세요.', 'warning');
                 return;
             }
 
@@ -699,12 +1130,13 @@
             if (target) {
                 target.replyContent = textVal;
                 target.replyStatus = "회신 완료";
-                alert(`안건 #${id}에 대한 회신이 성공적으로 저장 처리되었습니다.`);
+                savePetitions();
+                showToast(`안건 #${id}에 대한 회신이 저장되었습니다.`, 'success');
                 renderCards();
             }
         };
 
-        // Excel 업로드 처리
+        // ── 엑셀 업로드 (파싱 → 미리보기 → 확인 후 반영) ────────────
         btnExcelUpload.addEventListener('click', () => {
             excelFileInput.click();
         });
@@ -714,7 +1146,7 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onload = function (evt) {
                 try {
                     const data = new Uint8Array(evt.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
@@ -723,11 +1155,12 @@
                     const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
                     if (json.length < 2) {
-                        alert("엑셀 파일 내 유효한 데이터가 없습니다.");
+                        showToast('엑셀 파일 내 유효한 데이터가 없습니다.', 'warning');
+                        excelFileInput.value = '';
                         return;
                     }
 
-                    let addedCount = 0;
+                    pendingExcelItems = [];
 
                     for (let i = 1; i < json.length; i++) {
                         const row = json[i];
@@ -751,37 +1184,147 @@
                         else if (rawCat.includes("청소") || rawCat.includes("위생") || rawCat.includes("방역")) categoryStr = "청소 및 위생";
                         else if (rawCat.includes("소음") || rawCat.includes("보안")) categoryStr = "소음 및 보안";
 
-                        const nextId = petitions.length > 0 ? Math.max(...petitions.map(p => p.id)) + 1 : 1;
-
-                        petitions.push({
-                            id: nextId,
+                        pendingExcelItems.push({
                             dorm: dormStr,
                             category: categoryStr,
                             date: String(date),
-                            content: content,
-                            replyStatus: "회신 대기",
-                            replyContent: ""
+                            content: content
                         });
-                        addedCount++;
                     }
 
-                    alert(`엑셀 파일로부터 총 ${addedCount}건의 건의사항이 성공적으로 추가되었습니다.`);
-                    excelFileInput.value = '';
-                    renderCards();
+                    if (pendingExcelItems.length === 0) {
+                        showToast('엑셀 파일 내 유효한 데이터가 없습니다.', 'warning');
+                        excelFileInput.value = '';
+                        return;
+                    }
+
+                    openExcelPreview();
 
                 } catch (err) {
                     console.error(err);
-                    alert("엑셀 파일을 읽는 도중 오류가 발생하였습니다. 파일 형식을 확인하세요.");
+                    showToast('엑셀 파일을 읽는 도중 오류가 발생했습니다. 파일 형식을 확인해 주세요.', 'error');
+                    excelFileInput.value = '';
                 }
             };
             reader.readAsArrayBuffer(file);
         });
 
-        // 실시간 검색 및 필터링 이벤트 리스너 등록
+        const excelPreviewOverlay = document.getElementById('excel-preview-overlay');
+
+        function openExcelPreview() {
+            const summary = document.getElementById('excel-preview-summary');
+            const list = document.getElementById('excel-preview-list');
+
+            summary.textContent = `엑셀 파일에서 총 ${pendingExcelItems.length}건의 새 안건을 찾았습니다. 아래 내용을 확인한 후 적용해 주세요.`;
+
+            list.innerHTML = pendingExcelItems.map((item) => {
+                const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
+                const preview = item.content.length > 90 ? item.content.slice(0, 90) + '…' : item.content;
+                return `
+                    <div class="excel-preview-item">
+                        <div class="excel-preview-meta">
+                            <span class="badge-dorm ${dormBadgeClass}">${escapeHtml(item.dorm)}</span>
+                            <span class="category-badge">${escapeHtml(item.category)}</span>
+                            <span class="card-date">${escapeHtml(item.date)}</span>
+                        </div>
+                        <div class="excel-preview-content">${escapeHtml(preview)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            excelPreviewOverlay.style.display = 'flex';
+        }
+
+        function closeExcelPreview() {
+            excelPreviewOverlay.style.display = 'none';
+            pendingExcelItems = [];
+            excelFileInput.value = '';
+        }
+
+        document.getElementById('btn-excel-preview-close').addEventListener('click', closeExcelPreview);
+        document.getElementById('btn-excel-cancel').addEventListener('click', closeExcelPreview);
+        excelPreviewOverlay.addEventListener('click', (e) => {
+            if (e.target === excelPreviewOverlay) closeExcelPreview();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && excelPreviewOverlay.style.display === 'flex') closeExcelPreview();
+        });
+
+        document.getElementById('btn-excel-confirm').addEventListener('click', () => {
+            if (pendingExcelItems.length === 0) { closeExcelPreview(); return; }
+
+            let addedCount = 0;
+            pendingExcelItems.forEach(item => {
+                const nextId = petitions.length > 0 ? Math.max(...petitions.map(p => p.id)) + 1 : 1;
+                petitions.push({
+                    id: nextId,
+                    dorm: item.dorm,
+                    category: item.category,
+                    date: item.date,
+                    content: item.content,
+                    replyStatus: "회신 대기",
+                    replyContent: "",
+                    isNew: true
+                });
+                addedCount++;
+            });
+
+            savePetitions();
+            showToast(`엑셀 파일로부터 총 ${addedCount}건의 건의사항이 추가되었습니다.`, 'success');
+            excelPreviewOverlay.style.display = 'none';
+            pendingExcelItems = [];
+            excelFileInput.value = '';
+            renderCards();
+        });
+
+        // ── 다크모드 전환 ─────────────────────────────────────────
+        function syncThemeButton() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            // 현재 다크모드면 "Light Mode"(전환 시 갈 곳)를, 현재 라이트모드면 "Dark Mode"를 라벨로 표시
+            btnThemeToggle.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+            btnThemeToggle.setAttribute('aria-label', theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환');
+        }
+        syncThemeButton();
+
+        btnThemeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.style.colorScheme = next;
+            try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* 저장 불가 시 세션 내에서만 유지 */ }
+            syncThemeButton();
+        });
+
+        // ── 맨 위로 버튼 ──────────────────────────────────────────
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                btnBackToTop.classList.add('show');
+            } else {
+                btnBackToTop.classList.remove('show');
+            }
+        });
+        btnBackToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ── 인쇄용 보기 모드 ──────────────────────────────────────
+        function setPrintPreview(active) {
+            document.body.classList.toggle('print-preview-mode', active);
+            printModeBar.style.display = active ? 'flex' : 'none';
+            btnPrintView.textContent = active ? '✕ 일반 화면으로' : '🖨️ 인쇄용 보기';
+        }
+        btnPrintView.addEventListener('click', () => {
+            setPrintPreview(!document.body.classList.contains('print-preview-mode'));
+        });
+        document.getElementById('btn-exit-print').addEventListener('click', () => setPrintPreview(false));
+        document.getElementById('btn-do-print').addEventListener('click', () => window.print());
+
+        // ── 검색 및 필터링 이벤트 리스너 등록 ────────────────────
         searchInput.addEventListener('input', renderCards);
         filterDorm.addEventListener('change', renderCards);
         filterCategory.addEventListener('change', renderCards);
         filterStatus.addEventListener('change', renderCards);
+        filterSort.addEventListener('change', renderCards);
 
         // 최초 실행
         renderCards();
