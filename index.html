@@ -672,8 +672,8 @@
     </header>
 
     <div id="print-mode-bar" class="print-mode-bar">
-        <button id="btn-do-print" class="btn btn-modal-confirm">🖨️ 인쇄하기</button>
-        <button id="btn-exit-print" class="btn btn-modal-cancel">✕ 일반 화면으로</button>
+        <button id="btn-do-print" class="btn btn-modal-confirm">Print</button>
+        <button id="btn-exit-print" class="btn btn-modal-cancel">Exit Print View</button>
     </div>
 
     <!-- 검색 및 필터 컨트롤 패널 -->
@@ -716,7 +716,7 @@
                 <div class="btn-group">
                     <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
                     <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
-                    <button id="btn-print-view" class="btn btn-print">🖨️ 인쇄용 보기</button>
+                    <button id="btn-print-view" class="btn btn-print">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
                 </div>
             </div>
@@ -1311,7 +1311,7 @@
         function setPrintPreview(active) {
             document.body.classList.toggle('print-preview-mode', active);
             printModeBar.style.display = active ? 'flex' : 'none';
-            btnPrintView.textContent = active ? '✕ 일반 화면으로' : '🖨️ 인쇄용 보기';
+            btnPrintView.textContent = active ? 'Exit Print View' : 'Print View';
         }
         btnPrintView.addEventListener('click', () => {
             setPrintPreview(!document.body.classList.contains('print-preview-mode'));
