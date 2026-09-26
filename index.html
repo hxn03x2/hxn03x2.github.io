@@ -1297,6 +1297,85 @@
                 page-break-inside: auto !important;
             }
         }
+
+        /* Unified Print View controls and Administrator button */
+        .print-mode-bar #btn-do-print,
+        .print-mode-bar #btn-exit-print,
+        .btn-public-header {
+            background-color: var(--color-border) !important;
+            color: var(--color-text) !important;
+            border: 1px solid var(--color-border) !important;
+            box-shadow: none !important;
+        }
+        .print-mode-bar #btn-do-print:hover,
+        .print-mode-bar #btn-exit-print:hover,
+        .btn-public-header:hover {
+            background-color: var(--color-border-soft) !important;
+        }
+
+        /* Print toolbar exists only while Print View is active */
+        .print-mode-bar { display: none !important; }
+        body.print-preview-mode .print-mode-bar { display: flex !important; }
+        @media print {
+            .print-mode-bar { display: none !important; }
+        }
+
+        /* Keep each long petition together on one printed page.
+           If it does not fit, start it on the next page rather than
+           splitting the petition through the middle. */
+        @media print {
+            .card {
+                break-inside: avoid-page !important;
+                page-break-inside: avoid !important;
+            }
+            .card-content,
+            .reply-box {
+                break-inside: avoid-page !important;
+                page-break-inside: avoid !important;
+            }
+        }
+
+        /* Administrator button matches Print View only; Light/Dark Mode is untouched */
+        .btn-public-header {
+            background-color: var(--color-border) !important;
+            color: var(--color-text) !important;
+            border: 1px solid var(--color-border) !important;
+            box-shadow: none !important;
+        }
+        .btn-public-header:hover {
+            background-color: var(--color-border-soft) !important;
+        }
+
+        /* Administrator authentication-complete status */
+        .admin-auth-complete,
+        #admin-auth-complete,
+        .auth-complete,
+        .admin-status-success {
+            background-color: var(--color-border) !important;
+            color: var(--color-text) !important;
+            border-color: var(--color-border) !important;
+        }
+
+        /* Public mode: no editing controls or handlers visible/usable */
+        body:not(.admin-mode) .admin-only,
+        body:not(.admin-mode) [data-admin-only="true"],
+        body:not(.admin-mode) .admin-tools,
+        body:not(.admin-mode) .admin-reply-editor {
+            display: none !important;
+            pointer-events: none !important;
+        }
+
+        /* Administrator: exact visual match to Print View controls */
+        .btn-public-header {
+            background: var(--color-border) !important;
+            color: var(--color-text) !important;
+            border: 1px solid var(--color-border) !important;
+            box-shadow: none !important;
+            border-radius: 8px !important;
+        }
+        .btn-public-header:hover {
+            background: var(--color-border-soft) !important;
+        }
 </style>
 </head>
 <body>
@@ -2270,7 +2349,7 @@
                     const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
                     if (error) throw error;
                     if (authData?.user?.id !== ADMIN_SUPABASE_USER_ID) {
-                        await supabase.auth.signOut();
+                        await supabase.auth.signOut(); forcePublicModeUI(); forcePublicModeUI();
                         throw new Error('Unauthorized administrator account.');
                     }
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); closeAdminLoginModal();
@@ -2742,6 +2821,15 @@
         // defer로 로드되는 Supabase SDK가 준비될 때까지 짧게 대기한다.
         // SDK 로드 실패 시에는 로컬 데이터만 유지한다.
         setTimeout(waitForSupabaseAndBootstrap, 0);
-    </script>
+    
+        function forcePublicModeUI() {
+            document.body.classList.remove('admin-mode', 'administrator-mode', 'admin-authenticated');
+            document.querySelectorAll('.admin-only, [data-admin-only="true"], .admin-tools, .admin-reply-editor')
+                .forEach(el => {
+                    el.style.display = 'none';
+                    el.style.pointerEvents = 'none';
+                });
+        }
+</script>
 </body>
 </html>
