@@ -320,18 +320,102 @@
             z-index: 80;
             align-items: center;
             justify-content: center;
-            padding: 28px 20px;
+            padding: 104px 20px 42px;
             box-sizing: border-box;
             background: var(--color-bg);
             color: var(--color-text);
             text-align: center;
+            overflow-y: auto;
+        }
+        .conceal-overlay-card {
+            width: min(680px, 100%);
+            box-sizing: border-box;
+            padding: 34px 34px 30px;
+            border: 1px solid var(--color-border);
+            border-top: 3px solid var(--color-accent);
+            border-radius: 16px;
+            background: var(--color-card-bg);
+            box-shadow: var(--shadow-modal);
+        }
+        .conceal-overlay-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--color-border-soft);
+            color: var(--color-accent-dark);
+            font-size: 24px;
+            line-height: 1;
+        }
+        .conceal-overlay-kicker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 0 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 999px;
+            background: var(--color-bg);
+            color: var(--color-accent-dark);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+        .conceal-overlay-title {
+            margin: 0;
+            color: var(--color-text);
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.45;
+            word-break: keep-all;
+        }
+        .conceal-overlay-divider {
+            width: 44px;
+            height: 2px;
+            margin: 18px auto;
+            border-radius: 2px;
+            background: var(--color-accent);
         }
         .conceal-overlay-message {
-            width: min(720px, 100%);
-            font-size: 15px;
-            font-weight: 700;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
             line-height: 1.9;
+            color: var(--color-text-muted);
             word-break: keep-all;
+        }
+        .conceal-overlay-note {
+            margin: 20px 0 0;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.7;
+            word-break: keep-all;
+        }
+        [data-theme="dark"] .conceal-overlay-card {
+            border-color: var(--color-border);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+        }
+        [data-theme="dark"] .conceal-overlay-icon {
+            background: rgba(139, 106, 71, .18);
+            color: #d8b993;
+        }
+        [data-theme="dark"] .conceal-overlay-kicker {
+            background: var(--color-bg);
+            color: #d8b993;
+        }
+        @media (max-width: 700px) {
+            .conceal-overlay { padding: 94px 14px 28px; }
+            .conceal-overlay-card { padding: 28px 20px 24px; border-radius: 14px; }
+            .conceal-overlay-icon { width: 48px; height: 48px; margin-bottom: 15px; font-size: 21px; }
+            .conceal-overlay-title { font-size: 18px; }
+            .conceal-overlay-message { font-size: 13px; line-height: 1.85; }
         }
         body.conceal-active:not(.admin-mode) .conceal-overlay { display: flex; }
         body.conceal-active:not(.admin-mode) main,
@@ -959,7 +1043,14 @@
     </div>
 
     <div id="conceal-overlay" class="conceal-overlay" aria-live="polite" aria-hidden="true">
-        <div class="conceal-overlay-message">현재 건의사항과 관련된 공식 회신 작성이 이루어지고 있습니다.<br>공식 회신 작성 과정에서 건의사항 열람은 일시 제한되며, 추후 작성 과정 종료 이후 열람할 수 있습니다.</div>
+        <div class="conceal-overlay-card" role="status">
+            <div class="conceal-overlay-icon" aria-hidden="true">i</div>
+            <div class="conceal-overlay-kicker">공식 회신 작성 안내</div>
+            <h2 class="conceal-overlay-title">현재 건의사항 열람이 일시 제한되어 있습니다.</h2>
+            <div class="conceal-overlay-divider" aria-hidden="true"></div>
+            <p class="conceal-overlay-message">현재 건의사항과 관련된 공식 회신 작성이 이루어지고 있습니다.<br>공식 회신 작성 과정에서 건의사항 열람은 일시 제한되며, 추후 작성 과정 종료 이후 열람할 수 있습니다.</p>
+            <p class="conceal-overlay-note">공식 회신 작성이 종료되면 건의사항 열람이 다시 활성화됩니다.</p>
+        </div>
     </div>
 
     <main>
@@ -1436,9 +1527,6 @@
             if (!options.silent && isAdmin) {
                 showToast(concealMode ? 'Conceal mode activated. Public petition viewing is temporarily restricted.' : 'Conceal mode deactivated. Public petition viewing is restored.', 'info', 3200);
             }
-            if (concealChannel && isAdmin && !options.remote) {
-                try { concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } }); } catch(e) {}
-            }
             renderCards();
         }
 
@@ -1446,31 +1534,60 @@
             try { return localStorage.getItem('gjcentral_dorm_conceal_v1') === '1'; } catch(e) { return false; }
         }
 
+        async function loadConcealModeFromCloud(options = {}) {
+            if (!supabase) return false;
+            try {
+                const { data, error } = await supabase
+                    .from('site_settings')
+                    .select('conceal_active, updated_at')
+                    .eq('setting_key', 'main')
+                    .maybeSingle();
+                if (error) throw error;
+                if (data && typeof data.conceal_active === 'boolean') {
+                    applyConcealMode(data.conceal_active, { silent: true, remote: true, cloud: true });
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Conceal cloud state load failed:', e);
+                if (!options.silent) showToast('Conceal 상태를 서버에서 확인하지 못했습니다. 현재 기기의 상태를 유지합니다.', 'warning', 4200);
+                return false;
+            }
+        }
+
+        async function saveConcealModeToCloud(next) {
+            if (!supabase) initializeSupabaseClient();
+            if (!supabase) throw new Error('Supabase client is not initialized.');
+
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!sessionData?.session?.user?.id) throw new Error('Supabase administrator session is missing. Please log in again.');
+
+            const { data, error } = await supabase
+                .from('site_settings')
+                .update({ conceal_active: !!next, updated_at: new Date().toISOString() })
+                .eq('setting_key', 'main')
+                .select('conceal_active, updated_at')
+                .maybeSingle();
+            if (error) throw error;
+            if (!data || typeof data.conceal_active !== 'boolean') throw new Error('The Conceal setting could not be saved or verified.');
+            lastCloudSyncAt = new Date();
+            updateCloudSyncStatus();
+            return data;
+        }
+
         async function setupConcealSubscription() {
             if (!supabase || concealChannel) return;
             concealChannel = supabase.channel('dorm-petitions-conceal-control');
             concealChannel
-                .on('broadcast', { event: 'conceal-state' }, ({ payload }) => {
-                    if (payload && typeof payload.active === 'boolean') {
-                        applyConcealMode(payload.active, { silent: true, remote: true });
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, (payload) => {
+                    const row = payload?.new || payload?.record;
+                    if (row && row.setting_key === 'main' && typeof row.conceal_active === 'boolean') {
+                        applyConcealMode(row.conceal_active, { silent: true, remote: true, cloud: true });
                     }
                 })
-                .on('broadcast', { event: 'conceal-request' }, () => {
-                    if (isAdmin && concealChannel) {
-                        concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } })
-                            .catch(e => console.error('Conceal state response failed:', e));
-                    }
-                })
-                .subscribe(async (status) => {
-                    if (status === 'SUBSCRIBED') {
-                        // Broadcast는 구독 완료 전에 보내면 유실될 수 있으므로,
-                        // 실제 구독이 완료된 뒤 현재 상태를 요청한다.
-                        try {
-                            await concealChannel.send({ type: 'broadcast', event: 'conceal-request', payload: {} });
-                        } catch (e) {
-                            console.error('Conceal state request failed:', e);
-                        }
-                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                .subscribe((status) => {
+                    if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
                         console.warn('Conceal realtime channel status:', status);
                         concealChannel = null;
                         setTimeout(() => {
@@ -1736,9 +1853,19 @@
             if (isAdmin) { logoutAdmin(); return; }
             openAdminLoginModal();
         });
-        if (btnConceal) btnConceal.addEventListener('click', () => {
+        if (btnConceal) btnConceal.addEventListener('click', async () => {
             if (!isAdmin) { showToast('Administrator authentication is required.', 'warning'); return; }
-            applyConcealMode(!concealMode);
+            const next = !concealMode;
+            btnConceal.disabled = true;
+            try {
+                await saveConcealModeToCloud(next);
+                applyConcealMode(next);
+            } catch (e) {
+                console.error('Conceal state save failed:', e);
+                showToast(`Conceal 상태 저장에 실패했습니다: ${e?.message || 'Unknown error'}`, 'error', 7000);
+            } finally {
+                btnConceal.disabled = false;
+            }
         });
         document.getElementById('btn-admin-login-close').addEventListener('click', closeAdminLoginModal);
         document.getElementById('btn-admin-login-cancel').addEventListener('click', closeAdminLoginModal);
@@ -1756,6 +1883,7 @@
                     await refreshFromCloud({ seedIfEmpty: true });
                     await setupCloudSubscription();
                     await setupConcealSubscription();
+                    await loadConcealModeFromCloud({ silent: true });
                     showToast('Administrator authentication successful. Cloud synchronization is active.', 'success');
                     renderCards();
                 } else {
@@ -2134,6 +2262,7 @@
                             btnAdminLogin.textContent = 'Administrator Logout';
                             updateAdminToolsVisibility();
                             await setupConcealSubscription();
+                            await loadConcealModeFromCloud({ silent: true });
                             renderCards();
                         } else if (isAdmin) {
                             isAdmin = false;
@@ -2157,6 +2286,7 @@
                 if (!cloudLoaded) renderCards();
                 await setupCloudSubscription();
                 await setupConcealSubscription();
+                await loadConcealModeFromCloud({ silent: true });
             } catch (e) {
                 console.error('Startup error:', e);
                 cloudBootstrapStarted = false;
