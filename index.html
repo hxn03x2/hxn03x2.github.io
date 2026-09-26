@@ -283,57 +283,7 @@
         .btn-print:hover { background-color: var(--color-border); }
 
         /* 통계 패널 */
-        .stats-panel { gap: 14px; }
-        .stats-panel-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--color-text-muted);
-        }
-        .stats-columns {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
         @media (min-width: 640px) {
-            .stats-columns { grid-template-columns: 1fr 1fr; }
-        }
-        .stats-column-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--color-text-faint);
-            margin-bottom: 8px;
-        }
-        .stats-bars { display: flex; flex-direction: column; gap: 7px; }
-        .stats-bar-row {
-            display: grid;
-            grid-template-columns: 76px 1fr 22px;
-            align-items: center;
-            gap: 8px;
-        }
-        .stats-bar-label {
-            font-size: 11px;
-            color: var(--color-text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .stats-bar-track {
-            height: 7px;
-            border-radius: 4px;
-            background-color: var(--color-border);
-            overflow: hidden;
-        }
-        .stats-bar-fill {
-            height: 100%;
-            background-color: var(--stats-fill);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-        .stats-bar-count {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--color-text);
-            text-align: right;
         }
 
         main {
@@ -404,8 +354,8 @@
             background-color: var(--badge-new-bg); padding: 4px 8px; border-radius: 6px;
             border: 1px solid var(--badge-new-border);
         }
-        .reply-status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .reply-status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
+        .reply-status-badge { background: #fff7df; color: #7a5b00; border: 1px solid #e6cf7a; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .reply-status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
 
         .card-date { font-size: 11px; color: var(--color-text-faint); }
 
@@ -620,10 +570,11 @@
         /* 인쇄용 보기 모드 상단 바 */
         .btn-reset { background-color: var(--color-card-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
         .btn-reset:hover { border-color: var(--color-accent); color: var(--color-accent-dark); }
-        .status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
-        .priority-badge { background: #fff0d9; color: #8a4f00; border: 1px solid #e7c58e; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .status-badge { background: #eaf2ff; color: #315f8f; border: 1px solid #b8cee7; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
+        .priority-badge { background: #eaf2ff; color: #245a9a; border: 1px solid #b9d0ee; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .priority-urgent { background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
+        .priority-priority { background: #fff4c7; color: #7a5b00; border-color: #e6cf7a; }
         .priority-normal { opacity: .85; }
         
         .admin-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
@@ -642,7 +593,7 @@
             .sort-reset-group .btn-reset { flex: 0 0 auto; white-space: nowrap; }
             .btn-group { width: 100%; display: flex; flex-wrap: wrap; }
             .btn-group .btn { flex: 1 1 auto; }
-            .stats-panel, .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
+            .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
             .card-content, .card-footer, .admin-editor { min-width: 0; }
             .admin-field-row-three { grid-template-columns: 1fr; }
         }
@@ -660,7 +611,7 @@
             min-width: 0;
             flex-wrap: wrap;
         }
-        .filter-select, .btn, .search-input, .panel-card, .stats-panel, .card {
+        .filter-select, .btn, .search-input, .panel-card, .card {
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -703,7 +654,7 @@
                 padding-left: 12px !important;
                 padding-right: 12px !important;
             }
-            .panel-card, .stats-panel, .card {
+            .panel-card, .card {
                 width: 100% !important;
                 max-width: 100% !important;
                 min-width: 0 !important;
@@ -759,9 +710,6 @@
             .search-input {
                 width: 100% !important;
                 min-width: 0 !important;
-            }
-            .stats-columns {
-                grid-template-columns: 1fr !important;
             }
             .card-header {
                 min-width: 0;
@@ -840,7 +788,7 @@
 
         @media print {
             .control-panel, .back-to-top, .toast-container, .btn-theme,
-            .print-mode-bar, .more-btn, .admin-reply-editor, .stats-panel, footer {
+            .print-mode-bar, .more-btn, .admin-reply-editor, footer {
                 display: none !important;
             }
             .cards-grid { column-count: 1 !important; }
@@ -849,7 +797,9 @@
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page; page-break-inside: avoid; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; page-break-inside: avoid; }
+            .card-header, .card-meta, .card-content, .reply-section { break-inside: avoid; page-break-inside: avoid; }
+            .card-content { overflow: visible !important; }
         }
     
 </style>
@@ -872,8 +822,9 @@
     <div id="print-mode-bar" class="print-mode-bar">
         <label class="print-range-label" for="print-range-select">인쇄 범위</label>
         <select id="print-range-select" class="filter-select print-range-select">
+            <option value="current">현재 조회 결과</option>
             <option value="pending">조치 미완료 안건</option>
-            <option value="complete">조치 완료 안건</option>
+            <option value="all">조치 완료 안건</option>
         </select>
         <button id="btn-do-print" class="btn btn-modal-confirm">Print</button>
         <button id="btn-exit-print" class="btn btn-modal-cancel">Exit Print View</button>
@@ -905,7 +856,7 @@
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
                         <option value="접수">접수</option>
-                        <option value="학교 전달">학교 전달</option>
+                                                <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
                     
@@ -941,7 +892,7 @@
         </div>
     </div>
 
-    <main>
+    <main id="public-main">
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
         <div id="cards-container" class="cards-grid"></div>
     </main>
@@ -1035,18 +986,9 @@
         const SUPABASE_URL = 'https://nmvjmiktljbxildqmrng.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aswMOj_7uqwj0KjBG7LyGQ_ygtqNsp_';
         const CLOUD_ENABLED = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_YOUR_') && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR_');
-        // Supabase SDK가 CDN에서 로드되지 않아도 화면의 33개 안건은 먼저 표시되도록 안전하게 초기화한다.
-        let supabase = null;
-        try {
-            if (CLOUD_ENABLED && window.supabase && typeof window.supabase.createClient === 'function') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-                    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-                });
-            }
-        } catch (e) {
-            console.error('Supabase SDK initialization failed:', e);
-            supabase = null;
-        }
+        const supabase = CLOUD_ENABLED && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+            auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+        }) : null;
         const STORAGE_KEY = 'gjcentral_dorm_petitions_v3';
         const LEGACY_STORAGE_KEY = 'gjcentral_dorm_petitions_v1';
         const THEME_KEY = 'gjcentral_dorm_theme_v1';
@@ -1061,11 +1003,11 @@
             const copy = { ...item };
             if (!copy.status) copy.status = copy.replyStatus || '접수';
             if (!copy.priority) copy.priority = '미지정';
+            if (copy.priority === '일반') copy.priority = '미지정';
             if (copy.priority === '긴급') copy.priority = '긴급 처리';
-            else if (copy.priority === '우선') copy.priority = '우선 처리';
-            else if (copy.priority === '일반') copy.priority = '미지정';
+            if (copy.priority === '우선') copy.priority = '우선 처리';
             if (!Array.isArray(copy.replyHistory)) copy.replyHistory = [];
-            copy.isNew = false;
+            if (typeof copy.isNew !== 'boolean') copy.isNew = false;
             if (typeof copy.replyContent !== 'string') copy.replyContent = '';
             if (copy.replyStatus === '회신 완료' || copy.status === '회신 완료') {
                 copy.replyStatus = '회신 완료';
@@ -1107,7 +1049,7 @@
             try {
                 const rows = petitions.map(p => ({
                     id: Number(p.id), dorm: p.dorm || '', category: p.category || '', date: p.date || '', content: p.content || '',
-                    status: p.status || '접수', priority: p.priority || '미지정', reply_status: p.replyStatus || null,
+                    status: p.status || '접수', priority: p.priority || '일반', reply_status: p.replyStatus || null,
                     reply_content: p.replyContent || '', reply_history: Array.isArray(p.replyHistory) ? p.replyHistory : [],
                     is_new: !!p.isNew
                 }));
@@ -1140,17 +1082,25 @@
             try {
                 const { data, error } = await supabase.from('petitions').select('*').order('id', { ascending: true });
                 if (error) throw error;
-                if (data && data.length) {
-                    petitions = data.map(cloudRowToPetition);
+                const rows = Array.isArray(data) ? data : [];
+                const petitionRows = rows.filter(row => Number(row.id) > 0);
+                if (petitionRows.length) {
+                    petitions = petitionRows.map(cloudRowToPetition);
                     savePetitionsLocal();
                     renderCards();
                     return true;
                 }
+                // Cloud에 실제 안건 행이 없더라도 로컬의 기존 안건을 비우지 않는다.
+                // 클라우드에 실제 안건 행이 없더라도 로컬의 기존 안건을 유지한다.
+                if (!Array.isArray(petitions) || petitions.length === 0) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                    savePetitionsLocal();
+                }
+                renderCards();
                 if (options.seedIfEmpty && isAdmin && petitions.length) {
                     await savePetitionsCloud();
-                    return true;
                 }
-                return false;
+                return petitions.length > 0;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
@@ -1168,46 +1118,19 @@
         }
 
         async function initializeCloud() {
-            if (!supabase) {
-                if (!Array.isArray(petitions) || petitions.length === 0) {
-                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-                }
-                renderCards();
-                return;
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                isAdmin = true;
+                setAdminSession();
+                adminIndicator.style.display = 'inline-block';
+                btnAdminLogin.textContent = 'Administrator Logout';
             }
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
-                    isAdmin = true;
-                    setAdminSession();
-                    adminIndicator.style.display = 'inline-block';
-                    btnAdminLogin.textContent = 'Administrator Logout';
-                }
-                const loaded = await refreshFromCloud({ seedIfEmpty: !!session });
-                if (!loaded && (!Array.isArray(petitions) || petitions.length === 0)) {
-                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-                    renderCards();
-                } else if (!loaded) {
-                    renderCards();
-                }
-                await setupCloudSubscription();
-            } catch (e) {
-                console.error('Cloud initialization error:', e);
-                if (!Array.isArray(petitions) || petitions.length === 0) {
-                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-                }
-                renderCards();
-                showToast('Cloud connection failed. Showing the 33 saved petitions.', 'warning', 5000);
-            }
+            await refreshFromCloud({ seedIfEmpty: !!session });
+            await setupCloudSubscription();
         }
 
-        // 페이지가 열리는 즉시 원본 33개를 먼저 렌더링한다.
-        // Supabase 조회는 비동기로 진행되므로, 네트워크/인증 상태와 관계없이
-        // 초기 화면이 0건으로 보이지 않도록 한다.
         let petitions = loadPetitions();
-        if (!Array.isArray(petitions) || petitions.length === 0) {
-            petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-        }
         let isAdmin = false;
         let pendingExcelItems = [];
         let printRange = 'current';
@@ -1224,6 +1147,7 @@
         const statsSummary = document.getElementById('stats-summary');
         const btnAdminLogin = document.getElementById('btn-admin-login');
         const adminIndicator = document.getElementById('admin-indicator');
+        const publicMain = document.getElementById('public-main');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1310,15 +1234,16 @@
                 if (statusVal !== 'all') {
                     matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
                 }
-                return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
+                return matchesSearch && matchesDorm && matchesCategory && matchesStatus && matchesPriority;
             });
             filtered.sort((a,b) => compareItems(a,b,filterSort.value));
             return filtered;
         }
 
         function getPrintItems() {
-            if (printRange === 'complete') return petitions.filter(p => p.status === '조치 완료').sort((a,b) => a.id-b.id);
-            return petitions.filter(p => p.status !== '조치 완료').sort((a,b) => a.id-b.id);
+            if (printRange === 'all') return petitions.filter(p => p.status === '조치 완료').sort((a,b) => a.id-b.id);
+            if (printRange === 'pending') return petitions.filter(p => p.status !== '조치 완료').sort((a,b) => a.id-b.id);
+            return getFilteredPetitions();
         }
 
         // ── 카드 렌더링 ───────────────────────────────────────────
@@ -1334,7 +1259,7 @@
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
-                const processStatus = ['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수';
+                const processStatus = item.status === '검토 중' ? '접수' : (['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수');
                 const replyStatus = item.replyStatus === '회신 완료' ? '회신 완료' : (item.replyStatus === '회신 대기' ? '회신 대기' : null);
                 const isReplyDone = replyStatus === '회신 완료';
 
@@ -1365,7 +1290,7 @@
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="priority-${item.id}">우선순위</label><select id="priority-${item.id}">
-                                    ${['긴급 처리','우선 처리','미지정'].map(v => `<option value="${v}" ${(item.priority||'미지정')===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['긴급','우선','일반'].map(v => `<option value="${v}" ${(item.priority||'일반')===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                             </div>
                             ${replyEnabled ? `<textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${escapeHtml(draft !== null ? draft : (item.replyContent || ''))}</textarea>
@@ -1508,6 +1433,10 @@
             isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards(); if (message) showToast(message, 'info');
         }
 
+        btnAdminLogin.addEventListener('click', () => {
+            if (isAdmin) { logoutAdmin(); return; }
+            openAdminLoginModal();
+        });
         document.getElementById('btn-admin-login-close').addEventListener('click', closeAdminLoginModal);
         document.getElementById('btn-admin-login-cancel').addEventListener('click', closeAdminLoginModal);
         adminLoginOverlay.addEventListener('click', e => { if (e.target === adminLoginOverlay) closeAdminLoginModal(); });
@@ -1606,7 +1535,7 @@
             const oldReply = target.replyContent || '';
             const oldProcessStatus = target.status || '접수';
             const oldReplyStatus = target.replyStatus || null;
-            const oldPriority = target.priority || '미지정';
+            const oldPriority = target.priority || '일반';
             const changes = [];
             if (oldReply !== textVal) changes.push('회신 내용 변경');
             if (oldProcessStatus !== newProcessStatus) changes.push(`처리 상태: ${oldProcessStatus} → ${newProcessStatus}`);
@@ -1666,6 +1595,7 @@
             return '기타';
         }
 
+        btnExcelUpload.addEventListener('click', () => excelFileInput.click());
         excelFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -1720,7 +1650,7 @@
             const toAdd=pendingExcelItems.filter(i=>!i.isDuplicate);
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
-            toAdd.forEach(item=>petitions.push({id:nextId++,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'접수',priority:'미지정',replyStatus:null,replyContent:'',replyHistory:[],isNew:false}));
+            toAdd.forEach(item=>petitions.push({id:nextId++,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'접수',priority:'일반',replyStatus:null,replyContent:'',replyHistory:[],isNew:true}));
             savePetitions(); showToast(`엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.`,'success'); closeExcelPreview(); renderCards();
         });
 
@@ -1733,6 +1663,14 @@
         }
         syncThemeButton();
 
+        btnThemeToggle.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.style.colorScheme = next;
+            try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* 저장 불가 시 세션 내에서만 유지 */ }
+            syncThemeButton();
+        });
 
         // ── 맨 위로 버튼 ──────────────────────────────────────────
         window.addEventListener('scroll', () => {
@@ -1754,10 +1692,12 @@
             if (active) { printRange = printRangeSelect.value; renderCards(); }
             else renderCards();
         }
+        btnPrintView.addEventListener('click',()=>setPrintPreview(!document.body.classList.contains('print-preview-mode')));
         document.getElementById('btn-exit-print').addEventListener('click',()=>setPrintPreview(false));
         document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
 
+        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
         searchInput.addEventListener('input',renderCards);
         filterDorm.addEventListener('change',renderCards);
         filterCategory.addEventListener('change',renderCards);
@@ -1766,55 +1706,20 @@
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
-
-        // 버튼 동작 보장: 기존 이벤트와 동일한 기능만 직접 연결한다.
-        // 한 번만 연결되도록 data-bound 속성을 사용한다.
-        function bindCoreButton(id, handler) {
-            const el = document.getElementById(id);
-            if (!el || el.dataset.coreBound === '1') return;
-            el.addEventListener('click', handler);
-            el.dataset.coreBound = '1';
-        }
-        bindCoreButton('btn-theme-toggle', () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            document.documentElement.style.colorScheme = next;
-            try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
-            syncThemeButton();
-        });
-        bindCoreButton('btn-admin-login', () => {
-            if (isAdmin) logoutAdmin();
-            else openAdminLoginModal();
-        });
-        bindCoreButton('btn-excel-upload', () => {
-            if (!isAdmin) { openAdminLoginModal(); return; }
-            excelFileInput.click();
-        });
-        bindCoreButton('btn-print-view', () => setPrintPreview(!document.body.classList.contains('print-preview-mode')));
-        bindCoreButton('btn-reset-filters', () => {
-            searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards();
-        });
-
+        // 첫 화면은 클라우드 인증/동기화를 기다리지 않고 즉시 기본 안건을 표시한다.
+        // Supabase가 느리거나 일시적으로 응답하지 않아도 초기 목록이 0건으로 보이지 않도록 한다.
         updateAdminLoginMode();
-
-        // 최초 화면은 로컬에 확보된 33개 안건으로 즉시 표시한다.
-        // 이후 관리자 세션 확인 및 Supabase 동기화를 비동기로 수행한다.
         renderCards();
 
-        restoreAdminSession().then(() => {
-            if (!Array.isArray(petitions) || petitions.length === 0) {
-                petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-            }
-            renderCards();
-            return initializeCloud();
-        }).catch(e => {
-            console.error('Startup error:', e);
-            if (!Array.isArray(petitions) || petitions.length === 0) {
-                petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-            }
-            renderCards();
-        });
+        restoreAdminSession()
+            .then(() => {
+                renderCards();
+                if (supabase) return initializeCloud();
+            })
+            .catch((e) => {
+                console.error('초기 관리자 세션 확인 오류:', e);
+                renderCards();
+            });
     </script>
 </body>
 </html>
