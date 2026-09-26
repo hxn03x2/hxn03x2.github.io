@@ -282,6 +282,7 @@
         .btn-print { background-color: transparent; color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
         .btn-print:hover { background-color: var(--color-border); }
 
+
         main {
             max-width: 1150px;
             margin: 0 auto;
@@ -570,7 +571,7 @@
         .btn-reset:hover { border-color: var(--color-accent); color: var(--color-accent-dark); }
         .status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
-        .priority-badge { order: 99; background: #f7e7a8; color: #6f5a00; border: 1px solid #d8c36a; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .priority-badge { order: 99; background: #f4d35e; color: #6b5200; border: 1px solid #d8b83f; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .priority-urgent { order: 99; background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
         .priority-normal { opacity: .85; }
         
@@ -780,6 +781,7 @@
             display: none !important;
         }
         body.print-preview-mode .cards-grid { column-count: 1 !important; }
+        body.print-preview-mode .card { break-inside: avoid-page !important; page-break-inside: avoid !important; }
         body.print-preview-mode .card-content { max-height: none !important; overflow: visible !important; }
         body.print-preview-mode .card-content.expandable::after { display: none !important; }
         /* 인쇄 미리보기 중에도 상단 인쇄 바와 겹치지 않도록 헤더만 고정 해제, 색상은 현재 테마(라이트/다크)를 그대로 따름 */
@@ -797,8 +799,7 @@
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page !important; page-break-inside: avoid !important; }
-            .card-content, .card-header, .reply-box { break-inside: avoid-page !important; page-break-inside: avoid !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
         }
     
 </style>
@@ -821,9 +822,8 @@
     <div id="print-mode-bar" class="print-mode-bar">
         <label class="print-range-label" for="print-range-select">인쇄 범위</label>
         <select id="print-range-select" class="filter-select print-range-select">
-            <option value="current">현재 조회 결과</option>
-            <option value="pending">회신 대기 안건</option>
-            <option value="all">전체 안건</option>
+            <option value="pending">조치 미완료 안건</option>
+            <option value="complete">조치 완료 안건</option>
         </select>
         <button id="btn-do-print" class="btn btn-modal-confirm">Print</button>
         <button id="btn-exit-print" class="btn btn-modal-cancel">Exit Print View</button>
@@ -885,7 +885,8 @@
         </div>
     </div>
 
-    <main>
+    <!-- 현황 요약 통계 패널 -->
+    <div class="control-panel">
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
         <div id="cards-container" class="cards-grid"></div>
     </main>
@@ -1004,10 +1005,7 @@
         function normalizePetition(item) {
             const copy = { ...item };
             if (!copy.status) copy.status = copy.replyStatus || '접수';
-            if (!copy.priority) copy.priority = '미지정';
-            if (copy.priority === '긴급') copy.priority = '긴급 처리';
-            if (copy.priority === '우선') copy.priority = '우선 처리';
-            if (copy.priority === '일반') copy.priority = '미지정';
+            if (!copy.priority) copy.priority = '일반';
             if (!Array.isArray(copy.replyHistory)) copy.replyHistory = [];
             if (typeof copy.isNew !== 'boolean') copy.isNew = false;
             if (typeof copy.replyContent !== 'string') copy.replyContent = '';
@@ -1258,9 +1256,8 @@
         }
 
         function getPrintItems() {
-            if (printRange === 'all') return [...petitions].sort((a,b) => a.id-b.id);
-            if (printRange === 'pending') return petitions.filter(p => p.status !== '회신 완료' && p.status !== '조치 완료');
-            return getFilteredPetitions();
+            if (printRange === 'complete') return petitions.filter(p => p.status === '조치 완료');
+            return petitions.filter(p => p.status !== '조치 완료');
         }
 
         // ── 카드 렌더링 ───────────────────────────────────────────
@@ -1277,12 +1274,11 @@
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
-                const processStatus = ['접수','검토 중','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수';
+                const processStatus = ['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수';
                 const replyStatus = item.replyStatus === '회신 완료' ? '회신 완료' : (item.replyStatus === '회신 대기' ? '회신 대기' : null);
                 const isReplyDone = replyStatus === '회신 완료';
 
-                const newBadgeHtml = '';
-                const priorityBadgeHtml = item.priority && item.priority !== '미지정' ? `<span class="priority-badge ${item.priority === '긴급 처리' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
+                const priorityBadgeHtml = item.priority && item.priority !== '일반' ? `<span class="priority-badge ${item.priority === '긴급' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
                 const statusBadgeHtml = `<span class="status-badge ${processStatus === '조치 완료' ? 'status-done' : ''}">${escapeHtml(processStatus)}</span>`;
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
@@ -1302,13 +1298,13 @@
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
                             <div class="admin-field-row admin-field-row-three">
                                 <div class="admin-field"><label for="process-status-${item.id}">처리 상태</label><select id="process-status-${item.id}">
-                                    ${['접수','검토 중','학교 전달','조치 예정','조치 완료'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['접수','학교 전달','조치 예정','조치 완료'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="reply-status-${item.id}">회신 상태</label><select id="reply-status-${item.id}">
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="priority-${item.id}">우선순위</label><select id="priority-${item.id}">
-                                    ${['긴급 처리','우선 처리','미지정'].map(v => `<option value="${v}" ${(item.priority||'미지정')===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['긴급','우선','일반'].map(v => `<option value="${v}" ${(item.priority||'일반')===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                             </div>
                             ${replyEnabled ? `<textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${escapeHtml(draft !== null ? draft : (item.replyContent || ''))}</textarea>
@@ -1383,7 +1379,7 @@
             }
         };
 
-        // ── 현황 요약 통계는 제거됨 ─────────────────────────────
+        // ── 현황 요약 통계 ────────────────────────────────────────
         function renderStats() {}
 
         // ── 토스트 알림 ───────────────────────────────────────────
