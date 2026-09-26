@@ -1159,6 +1159,83 @@
                 height: auto !important;
             }
         }
+
+        /* Public Administrator button: match the theme button in both themes */
+        .btn-public-header {
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background-color: rgba(255, 255, 255, 0.06) !important;
+            color: var(--color-header-text) !important;
+            box-shadow: none !important;
+        }
+        .btn-public-header:hover {
+            background-color: rgba(255, 255, 255, 0.14) !important;
+        }
+
+        /* Print and Exit Print View use the same visual treatment */
+        .print-mode-bar #btn-do-print,
+        .print-mode-bar #btn-exit-print {
+            background-color: rgba(255,255,255,0.18) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+        }
+        .print-mode-bar #btn-do-print:hover,
+        .print-mode-bar #btn-exit-print:hover {
+            background-color: rgba(255,255,255,0.28) !important;
+        }
+
+        /* Keep every petition text fully expanded while printing/previewing */
+        body.print-preview-mode .card-content,
+        body.print-preview-mode .card-content.expanded,
+        body.print-preview-mode .reply-content {
+            max-height: none !important;
+            height: auto !important;
+            overflow: visible !important;
+            clip-path: none !important;
+            -webkit-line-clamp: unset !important;
+        }
+
+        @media print {
+            .card-content,
+            .reply-content,
+            .reply-box {
+                break-inside: auto !important;
+                page-break-inside: auto !important;
+                orphans: 4 !important;
+                widows: 4 !important;
+            }
+            .card-content {
+                max-height: none !important;
+                height: auto !important;
+                overflow: visible !important;
+                clip-path: none !important;
+                -webkit-line-clamp: unset !important;
+            }
+            .card-content.expandable::after {
+                display: none !important;
+            }
+        }
+
+        .print-mode-bar > * {
+            align-self: center !important;
+        }
+
+        /* Center the print-range notice vertically within its bar */
+        .print-mode-bar {
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .print-mode-bar .print-range,
+        .print-mode-bar .print-range-label,
+        .print-mode-bar .print-scope,
+        .print-mode-bar .print-scope-label {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100% !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
 </style>
 </head>
 <body>
@@ -2498,7 +2575,13 @@
             setPrintPreview(!document.body.classList.contains('print-preview-mode'));
         });
         document.getElementById('btn-exit-print').addEventListener('click',()=>setPrintPreview(false));
-        document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
+        document.getElementById('btn-do-print').addEventListener('click',()=>{
+            if (document.body.classList.contains('print-preview-mode')) {
+                cardsContainer.querySelectorAll('.card-content').forEach(el => el.classList.add('expanded'));
+                cardsContainer.querySelectorAll('.more-btn').forEach(btn => btn.style.display = 'none');
+            }
+            requestAnimationFrame(() => window.print());
+        });
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
 
         btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
