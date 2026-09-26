@@ -291,6 +291,41 @@
         .btn-excel:hover { background-color: var(--color-excel-hover); }
         .btn-print { background-color: transparent; color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
         .btn-print:hover { background-color: var(--color-border); }
+        .btn-conceal { background-color: #8b6f47; color: #fffaf2; }
+        .btn-conceal:hover { background-color: #765b38; }
+        .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
+
+        .conceal-overlay {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 80;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 20px;
+            box-sizing: border-box;
+            background: var(--color-bg);
+            color: var(--color-text);
+            text-align: center;
+        }
+        .conceal-overlay-message {
+            width: min(720px, 100%);
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.9;
+            word-break: keep-all;
+        }
+        body.conceal-active:not(.admin-mode) .conceal-overlay { display: flex; }
+        body.conceal-active:not(.admin-mode) main,
+        body.conceal-active:not(.admin-mode) footer { visibility: hidden; }
+        body.conceal-active:not(.admin-mode) .control-panel { position: relative; z-index: 90; }
+        body.conceal-active:not(.admin-mode) .search-bar-wrap,
+        body.conceal-active:not(.admin-mode) .filter-row { display: none !important; }
+        body.conceal-active:not(.admin-mode) .panel-card { box-shadow: none; gap: 0; padding: 10px 12px; }
+        body.admin-mode .conceal-overlay { display: none !important; }
 
         main {
             max-width: 1150px;
@@ -896,6 +931,7 @@
                     <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
                     <div id="admin-tools" style="display: none;">
                         <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
+                        <button id="btn-conceal" class="btn btn-conceal" type="button">Conceal</button>
                     </div>
                     <button id="btn-print-view" class="btn btn-print">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
@@ -904,7 +940,9 @@
         </div>
     </div>
 
-    
+    <div id="conceal-overlay" class="conceal-overlay" aria-live="polite" aria-hidden="true">
+        <div class="conceal-overlay-message">현재 건의사항과 관련된 공식 회신 작성이 이루어지고 있습니다.<br>공식 회신 작성 과정에서 건의사항 열람은 일시 제한되며, 추후 작성 과정 종료 이후 열람할 수 있습니다.</div>
+    </div>
 
     <main>
         <div id="cards-container" class="cards-grid"></div>
@@ -1240,6 +1278,7 @@
                     renderCards();
                 }
                 await setupCloudSubscription();
+                await setupConcealSubscription();
             } catch (e) {
                 console.error('Cloud initialization error:', e);
                 if (!Array.isArray(petitions) || petitions.length === 0) {
@@ -1258,6 +1297,8 @@
             petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
         }
         let isAdmin = false;
+        let concealMode = false;
+        let concealChannel = null;
         let pendingExcelItems = [];
         let printRange = 'current';
         let draftSaveTimers = {};
@@ -1274,6 +1315,8 @@
         const adminIndicator = document.getElementById('admin-indicator');
         const adminTools = document.getElementById('admin-tools');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
+        const btnConceal = document.getElementById('btn-conceal');
+        const concealOverlay = document.getElementById('conceal-overlay');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
         const btnBackToTop = document.getElementById('btn-back-to-top');
@@ -1343,7 +1386,52 @@
             }
         }
 
+        function applyConcealMode(next, options = {}) {
+            concealMode = !!next;
+            document.body.classList.toggle('conceal-active', concealMode);
+            document.body.classList.toggle('admin-mode', isAdmin);
+            if (btnConceal) {
+                btnConceal.classList.toggle('active', concealMode);
+                btnConceal.textContent = concealMode ? 'Conceal On' : 'Conceal';
+                btnConceal.setAttribute('aria-pressed', concealMode ? 'true' : 'false');
+            }
+            if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
+            try { localStorage.setItem('gjcentral_dorm_conceal_v1', concealMode ? '1' : '0'); } catch(e) {}
+            if (!options.silent && isAdmin) {
+                showToast(concealMode ? 'Conceal mode activated. Public petition viewing is temporarily restricted.' : 'Conceal mode deactivated. Public petition viewing is restored.', 'info', 3200);
+            }
+            if (concealChannel && isAdmin && !options.remote) {
+                try { concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } }); } catch(e) {}
+            }
+            renderCards();
+        }
+
+        function loadConcealModeLocal() {
+            try { return localStorage.getItem('gjcentral_dorm_conceal_v1') === '1'; } catch(e) { return false; }
+        }
+
+        async function setupConcealSubscription() {
+            if (!supabase || concealChannel) return;
+            concealChannel = supabase.channel('dorm-petitions-conceal-control');
+            concealChannel
+                .on('broadcast', { event: 'conceal-state' }, ({ payload }) => {
+                    if (payload && typeof payload.active === 'boolean') applyConcealMode(payload.active, { silent: true, remote: true });
+                })
+                .on('broadcast', { event: 'conceal-request' }, () => {
+                    if (isAdmin) {
+                        try { concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } }); } catch(e) {}
+                    }
+                })
+                .subscribe();
+            try {
+                await concealChannel.send({ type: 'broadcast', event: 'conceal-request', payload: {} });
+            } catch(e) {}
+        }
+
         function getFilteredPetitions() {
+            if (isAdmin && concealMode) {
+                return [...petitions].sort((a,b) => compareItems(a,b,filterSort.value));
+            }
             const query = searchInput.value.trim().toLowerCase();
             const dormVal = filterDorm.value;
             const categoryVal = filterCategory.value;
@@ -1373,6 +1461,7 @@
 
         // ── 카드 렌더링 ───────────────────────────────────────────
         function renderCards() {
+            document.body.classList.toggle('admin-mode', isAdmin);
             const rawQuery = searchInput.value.trim();
             const filtered = document.body.classList.contains('print-preview-mode') ? getPrintItems() : getFilteredPetitions();
 
@@ -1510,6 +1599,13 @@
 
         function updateAdminToolsVisibility() {
             if (adminTools) adminTools.style.display = isAdmin ? 'block' : 'none';
+            document.body.classList.toggle('admin-mode', isAdmin);
+            if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
+            if (btnConceal) {
+                btnConceal.classList.toggle('active', concealMode);
+                btnConceal.textContent = concealMode ? 'Conceal On' : 'Conceal';
+                btnConceal.setAttribute('aria-pressed', concealMode ? 'true' : 'false');
+            }
         }
 
         function updateAdminLoginMode() {
@@ -1581,6 +1677,10 @@
         btnAdminLogin.addEventListener('click', () => {
             if (isAdmin) { logoutAdmin(); return; }
             openAdminLoginModal();
+        });
+        if (btnConceal) btnConceal.addEventListener('click', () => {
+            if (!isAdmin) { showToast('Administrator authentication is required.', 'warning'); return; }
+            applyConcealMode(!concealMode);
         });
         document.getElementById('btn-admin-login-close').addEventListener('click', closeAdminLoginModal);
         document.getElementById('btn-admin-login-cancel').addEventListener('click', closeAdminLoginModal);
@@ -1920,6 +2020,8 @@
 
         // 최초 화면은 로컬 데이터로 즉시 표시하되, 최종 데이터의 기준은 Supabase로 둔다.
         // Supabase SDK가 준비되는 즉시 클라우드 데이터를 먼저 조회하여 현재 기기의 오래된 로컬 데이터와 교체한다.
+        concealMode = loadConcealModeLocal();
+        updateAdminToolsVisibility();
         renderCards();
 
         let cloudBootstrapStarted = false;
@@ -1945,6 +2047,8 @@
                             setAdminSession();
                             adminIndicator.style.display = 'inline-block';
                             btnAdminLogin.textContent = 'Administrator Logout';
+                            updateAdminToolsVisibility();
+                            renderCards();
                         } else if (isAdmin) {
                             isAdmin = false;
                             clearAdminSession();
@@ -1958,6 +2062,7 @@
 
                 await restoreAdminSession();
                 updateAdminLoginMode();
+                updateAdminToolsVisibility();
 
                 // 로그인 여부와 관계없이 먼저 Supabase를 조회한다.
                 // 따라서 다른 기기에서도 로컬에 남아 있는 예전 데이터가 아니라
