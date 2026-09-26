@@ -301,20 +301,6 @@
             align-items: center;
             min-width: 92px;
         }
-        .cloud-sync-status {
-            display: none;
-            flex: 0 0 100%;
-            min-height: 14px;
-            margin-top: 2px;
-            padding: 0 2px;
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--color-text-muted);
-            white-space: nowrap;
-            text-align: right;
-            pointer-events: none;
-        }
-        body.admin-mode .cloud-sync-status { display: block; }
         .conceal-public-actions {
             display: none;
             align-items: center;
@@ -340,7 +326,6 @@
         @media (max-width: 700px) {
             .panel-card { padding-bottom: 16px !important; }
             .theme-status-wrap { align-items: center; min-width: auto; }
-            .cloud-sync-status { flex-basis: 100%; font-size: 8px; text-align: right; }
             .header-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
             body.conceal-active:not(.admin-mode) .conceal-public-actions { display: flex; }
         }
@@ -1017,7 +1002,7 @@
         body.print-preview-mode footer { display: none; }
 
         @media print {
-            .control-panel, .back-to-top, .toast-container, .btn-theme, .conceal-public-actions, .cloud-sync-status,
+            .control-panel, .back-to-top, .toast-container, .btn-theme, .conceal-public-actions,
             .print-mode-bar, .more-btn, .admin-reply-editor, footer {
                 display: none !important;
             }
@@ -1084,7 +1069,6 @@
                     <button id="btn-public-print" class="btn-public-header" type="button">Print View</button>
                 </div>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
-                <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
             </div>
         </div>
     </header>
@@ -1402,8 +1386,6 @@
 
                 window.__lastCloudSaveError = '';
                 savePetitionsLocal();
-                lastCloudSyncAt = new Date();
-                updateCloudSyncStatus();
                 return true;
             } catch (e) {
                 console.error('Supabase 안건 저장 오류:', e);
@@ -1463,8 +1445,6 @@
                 if (data && data.length) {
                     petitions = data.map(cloudRowToPetition);
                     savePetitionsLocal();
-                    lastCloudSyncAt = new Date();
-                    updateCloudSyncStatus();
                     renderCards();
                     return true;
                 }
@@ -1475,7 +1455,6 @@
                 return false;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
-                updateCloudSyncStatus('Cloud sync: error');
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
                 return false;
             }
@@ -1545,18 +1524,6 @@
         let pendingExcelItems = [];
         let printRange = 'current';
         let draftSaveTimers = {};
-        let lastCloudSyncAt = null;
-
-        function updateCloudSyncStatus(message = '') {
-            if (!cloudSyncStatus) return;
-            if (message) {
-                cloudSyncStatus.textContent = message;
-                return;
-            }
-            cloudSyncStatus.textContent = lastCloudSyncAt
-                ? `Cloud sync: ${lastCloudSyncAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
-                : 'Cloud sync: waiting';
-        }
 
         // DOM 요소
         const cardsContainer = document.getElementById('cards-container');
@@ -1571,7 +1538,6 @@
         const adminTools = document.getElementById('admin-tools');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const btnConceal = document.getElementById('btn-conceal');
-        const cloudSyncStatus = document.getElementById('cloud-sync-status');
         const concealPublicActions = document.getElementById('conceal-public-actions');
         const btnPublicAdmin = document.getElementById('btn-public-admin');
         const btnPublicPrint = document.getElementById('btn-public-print');
@@ -1704,8 +1670,6 @@
                 .maybeSingle();
             if (error) throw error;
             if (!data || typeof data.conceal_active !== 'boolean') throw new Error('The Conceal setting could not be saved or verified.');
-            lastCloudSyncAt = new Date();
-            updateCloudSyncStatus();
             return data;
         }
 
@@ -2431,7 +2395,6 @@
         // Supabase SDK가 준비되는 즉시 클라우드 데이터를 먼저 조회하여 현재 기기의 오래된 로컬 데이터와 교체한다.
         concealMode = loadConcealModeLocal();
         updateAdminToolsVisibility();
-        updateCloudSyncStatus();
         renderCards();
 
         let cloudBootstrapStarted = false;
