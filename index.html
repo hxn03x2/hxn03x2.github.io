@@ -1508,10 +1508,6 @@
             isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards(); if (message) showToast(message, 'info');
         }
 
-        btnAdminLogin.addEventListener('click', () => {
-            if (isAdmin) { logoutAdmin(); return; }
-            openAdminLoginModal();
-        });
         document.getElementById('btn-admin-login-close').addEventListener('click', closeAdminLoginModal);
         document.getElementById('btn-admin-login-cancel').addEventListener('click', closeAdminLoginModal);
         adminLoginOverlay.addEventListener('click', e => { if (e.target === adminLoginOverlay) closeAdminLoginModal(); });
@@ -1670,7 +1666,6 @@
             return '기타';
         }
 
-        btnExcelUpload.addEventListener('click', () => excelFileInput.click());
         excelFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -1738,14 +1733,6 @@
         }
         syncThemeButton();
 
-        btnThemeToggle.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            document.documentElement.style.colorScheme = next;
-            try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* 저장 불가 시 세션 내에서만 유지 */ }
-            syncThemeButton();
-        });
 
         // ── 맨 위로 버튼 ──────────────────────────────────────────
         window.addEventListener('scroll', () => {
@@ -1767,19 +1754,48 @@
             if (active) { printRange = printRangeSelect.value; renderCards(); }
             else renderCards();
         }
-        btnPrintView.addEventListener('click',()=>setPrintPreview(!document.body.classList.contains('print-preview-mode')));
         document.getElementById('btn-exit-print').addEventListener('click',()=>setPrintPreview(false));
         document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
 
-        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
         searchInput.addEventListener('input',renderCards);
         filterDorm.addEventListener('change',renderCards);
         filterCategory.addEventListener('change',renderCards);
         filterStatus.addEventListener('change',renderCards);
+        filterPriority.addEventListener('change',renderCards);
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
+
+        // 버튼 동작 보장: 기존 이벤트와 동일한 기능만 직접 연결한다.
+        // 한 번만 연결되도록 data-bound 속성을 사용한다.
+        function bindCoreButton(id, handler) {
+            const el = document.getElementById(id);
+            if (!el || el.dataset.coreBound === '1') return;
+            el.addEventListener('click', handler);
+            el.dataset.coreBound = '1';
+        }
+        bindCoreButton('btn-theme-toggle', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.style.colorScheme = next;
+            try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+            syncThemeButton();
+        });
+        bindCoreButton('btn-admin-login', () => {
+            if (isAdmin) logoutAdmin();
+            else openAdminLoginModal();
+        });
+        bindCoreButton('btn-excel-upload', () => {
+            if (!isAdmin) { openAdminLoginModal(); return; }
+            excelFileInput.click();
+        });
+        bindCoreButton('btn-print-view', () => setPrintPreview(!document.body.classList.contains('print-preview-mode')));
+        bindCoreButton('btn-reset-filters', () => {
+            searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards();
+        });
+
         updateAdminLoginMode();
 
         // 최초 화면은 로컬에 확보된 33개 안건으로 즉시 표시한다.
