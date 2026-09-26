@@ -282,6 +282,59 @@
         .btn-print { background-color: transparent; color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
         .btn-print:hover { background-color: var(--color-border); }
 
+        /* 통계 패널 */
+        .stats-panel { gap: 14px; }
+        .stats-panel-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+        }
+        .stats-columns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 640px) {
+            .stats-columns { grid-template-columns: 1fr 1fr; }
+        }
+        .stats-column-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-faint);
+            margin-bottom: 8px;
+        }
+        .stats-bars { display: flex; flex-direction: column; gap: 7px; }
+        .stats-bar-row {
+            display: grid;
+            grid-template-columns: 76px 1fr 22px;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-bar-label {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stats-bar-track {
+            height: 7px;
+            border-radius: 4px;
+            background-color: var(--color-border);
+            overflow: hidden;
+        }
+        .stats-bar-fill {
+            height: 100%;
+            background-color: var(--stats-fill);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .stats-bar-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text);
+            text-align: right;
+        }
 
         main {
             max-width: 1150px;
@@ -301,8 +354,6 @@
         @media (min-width: 768px) { .cards-grid { column-count: 2; } }
 
         .card {
-            break-inside: avoid-page;
-            page-break-inside: avoid-page;
             background-color: var(--color-card-bg);
             border: 1px solid var(--color-border);
             border-radius: 12px;
@@ -311,7 +362,7 @@
             display: flex;
             flex-direction: column;
             margin-bottom: 16px;
-            break-inside: avoid-page;
+            break-inside: avoid;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s ease, border-color 0.2s ease;
         }
         .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
@@ -571,8 +622,8 @@
         .btn-reset:hover { border-color: var(--color-accent); color: var(--color-accent-dark); }
         .status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
-        .priority-badge { order: 99; background: #f4d35e; color: #6b5200; border: 1px solid #d8b83f; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .priority-urgent { order: 99; background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
+        .priority-badge { background: #fff0d9; color: #8a4f00; border: 1px solid #e7c58e; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .priority-urgent { background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
         .priority-normal { opacity: .85; }
         
         .admin-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
@@ -591,7 +642,7 @@
             .sort-reset-group .btn-reset { flex: 0 0 auto; white-space: nowrap; }
             .btn-group { width: 100%; display: flex; flex-wrap: wrap; }
             .btn-group .btn { flex: 1 1 auto; }
-            .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
+            .stats-panel, .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
             .card-content, .card-footer, .admin-editor { min-width: 0; }
             .admin-field-row-three { grid-template-columns: 1fr; }
         }
@@ -609,7 +660,7 @@
             min-width: 0;
             flex-wrap: wrap;
         }
-        .filter-select, .btn, .search-input, .panel-card, .card {
+        .filter-select, .btn, .search-input, .panel-card, .stats-panel, .card {
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -652,7 +703,7 @@
                 padding-left: 12px !important;
                 padding-right: 12px !important;
             }
-            .panel-card, .card {
+            .panel-card, .stats-panel, .card {
                 width: 100% !important;
                 max-width: 100% !important;
                 min-width: 0 !important;
@@ -781,7 +832,6 @@
             display: none !important;
         }
         body.print-preview-mode .cards-grid { column-count: 1 !important; }
-        body.print-preview-mode .card { break-inside: avoid-page !important; page-break-inside: avoid !important; }
         body.print-preview-mode .card-content { max-height: none !important; overflow: visible !important; }
         body.print-preview-mode .card-content.expandable::after { display: none !important; }
         /* 인쇄 미리보기 중에도 상단 인쇄 바와 겹치지 않도록 헤더만 고정 해제, 색상은 현재 테마(라이트/다크)를 그대로 따름 */
@@ -790,7 +840,7 @@
 
         @media print {
             .control-panel, .back-to-top, .toast-container, .btn-theme,
-            .print-mode-bar, .more-btn, .admin-reply-editor, footer {
+            .print-mode-bar, .more-btn, .admin-reply-editor, .stats-panel, footer {
                 display: none !important;
             }
             .cards-grid { column-count: 1 !important; }
@@ -799,7 +849,7 @@
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page; page-break-inside: avoid; }
         }
     
 </style>
@@ -891,8 +941,7 @@
         </div>
     </div>
 
-    <!-- 현황 요약 통계 패널 -->
-    <div class="control-panel">
+    <main>
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
         <div id="cards-container" class="cards-grid"></div>
     </main>
@@ -1058,7 +1107,7 @@
             try {
                 const rows = petitions.map(p => ({
                     id: Number(p.id), dorm: p.dorm || '', category: p.category || '', date: p.date || '', content: p.content || '',
-                    status: p.status || '접수', priority: p.priority || '일반', reply_status: p.replyStatus || null,
+                    status: p.status || '접수', priority: p.priority || '미지정', reply_status: p.replyStatus || null,
                     reply_content: p.replyContent || '', reply_history: Array.isArray(p.replyHistory) ? p.replyHistory : [],
                     is_new: !!p.isNew
                 }));
@@ -1256,20 +1305,20 @@
                 const matchesSearch = !query || searchTarget.includes(query);
                 const matchesDorm = dormVal === 'all' || item.dorm.includes(dormVal);
                 const matchesCategory = categoryVal === 'all' || item.category === categoryVal;
+                const matchesPriority = priorityVal === 'all' || item.priority === priorityVal;
                 let matchesStatus = true;
                 if (statusVal !== 'all') {
                     matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
                 }
-                const matchesPriority = priorityVal === 'all' || item.priority === priorityVal;
-                return matchesSearch && matchesDorm && matchesCategory && matchesStatus && matchesPriority;
+                return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
             });
             filtered.sort((a,b) => compareItems(a,b,filterSort.value));
             return filtered;
         }
 
         function getPrintItems() {
-            if (printRange === 'complete') return petitions.filter(p => p.status === '조치 완료');
-            return petitions.filter(p => p.status !== '조치 완료');
+            if (printRange === 'complete') return petitions.filter(p => p.status === '조치 완료').sort((a,b) => a.id-b.id);
+            return petitions.filter(p => p.status !== '조치 완료').sort((a,b) => a.id-b.id);
         }
 
         // ── 카드 렌더링 ───────────────────────────────────────────
@@ -1289,6 +1338,7 @@
                 const replyStatus = item.replyStatus === '회신 완료' ? '회신 완료' : (item.replyStatus === '회신 대기' ? '회신 대기' : null);
                 const isReplyDone = replyStatus === '회신 완료';
 
+                const newBadgeHtml = '';
                 const priorityBadgeHtml = item.priority && item.priority !== '미지정' ? `<span class="priority-badge ${item.priority === '긴급 처리' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
                 const statusBadgeHtml = `<span class="status-badge ${processStatus === '조치 완료' ? 'status-done' : ''}">${escapeHtml(processStatus)}</span>`;
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
@@ -1560,7 +1610,7 @@
             const oldReply = target.replyContent || '';
             const oldProcessStatus = target.status || '접수';
             const oldReplyStatus = target.replyStatus || null;
-            const oldPriority = target.priority || '일반';
+            const oldPriority = target.priority || '미지정';
             const changes = [];
             if (oldReply !== textVal) changes.push('회신 내용 변경');
             if (oldProcessStatus !== newProcessStatus) changes.push(`처리 상태: ${oldProcessStatus} → ${newProcessStatus}`);
@@ -1722,12 +1772,11 @@
         document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
 
-        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
+        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
         searchInput.addEventListener('input',renderCards);
         filterDorm.addEventListener('change',renderCards);
         filterCategory.addEventListener('change',renderCards);
         filterStatus.addEventListener('change',renderCards);
-        filterPriority.addEventListener('change',renderCards);
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
