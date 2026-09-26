@@ -224,7 +224,7 @@
         }
         .control-panel + .control-panel { margin-top: 12px; }
 
-        .panel-card {
+        .panel-card { position: relative;
             background: var(--color-card-bg);
             border: 1px solid var(--color-border);
             border-radius: 12px;
@@ -274,7 +274,9 @@
         }
         .filter-select:focus { border-color: var(--color-accent); }
 
-        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-width: 0; }
+        .admin-tools { display: none; gap: 8px; flex-wrap: wrap; align-items: center; min-width: 0; }
+        .admin-tools.is-visible { display: flex !important; }
         .btn {
             padding: 8px 14px;
             font-size: 12px;
@@ -295,20 +297,28 @@
         .btn-conceal:hover { background-color: #765b38; }
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
         .cloud-sync-status {
+            position: absolute;
+            right: 14px;
+            bottom: 7px;
             display: inline-flex;
             align-items: center;
-            min-height: 32px;
-            padding: 0 8px;
+            min-height: 18px;
+            padding: 0 4px;
             border-radius: 6px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: var(--color-text-muted);
             white-space: nowrap;
+            pointer-events: none;
         }
         [data-theme="dark"] .cloud-sync-status { color: var(--color-text-muted); }
         [data-theme="dark"] .btn-conceal { background-color: #6f5538; color: #f5eee4; }
         [data-theme="dark"] .btn-conceal:hover { background-color: #826547; }
         [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
+        @media (max-width: 700px) {
+            .panel-card { padding-bottom: 28px !important; }
+            .cloud-sync-status { right: 12px; bottom: 7px; }
+        }
 
         .conceal-overlay {
             display: none;
@@ -425,7 +435,7 @@
         body.conceal-active:not(.admin-mode) .filter-group { display: none !important; }
         body.conceal-active:not(.admin-mode) .filter-row { display: flex !important; }
         body.conceal-active:not(.admin-mode) .btn-group { display: flex !important; }
-        body.conceal-active:not(.admin-mode) .panel-card { box-shadow: none; gap: 0; padding: 10px 12px; }
+        body.conceal-active:not(.admin-mode) .panel-card { position: relative; box-shadow: none; gap: 0; padding: 10px 12px; }
         body.admin-mode .conceal-overlay { display: none !important; }
 
         main {
@@ -727,8 +737,10 @@
             .sort-reset-group { width: 100%; display: flex; align-items: stretch; gap: 8px; min-width: 0; }
             .sort-reset-group .filter-select { flex: 1 1 auto; min-width: 0; width: auto; }
             .sort-reset-group .btn-reset { flex: 0 0 auto; white-space: nowrap; }
-            .btn-group { width: 100%; display: flex; flex-wrap: wrap; }
-            .btn-group .btn { flex: 1 1 auto; }
+            .btn-group { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .btn-group .btn { width: 100%; min-width: 0; }
+            .admin-tools { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
+            .admin-tools .btn { width: 100%; }
             .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
             .card-content, .card-footer, .admin-editor { min-width: 0; }
             .admin-field-row-three { grid-template-columns: 1fr; }
@@ -834,7 +846,7 @@
                 width: 100% !important;
                 min-width: 0 !important;
                 display: grid !important;
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 gap: 8px !important;
             }
             .btn-group .btn {
@@ -870,6 +882,10 @@
                 grid-template-columns: 1fr !important;
             }
             .btn-group {
+                grid-template-columns: 1fr !important;
+            }
+            .admin-tools {
+                grid-column: 1 / -1 !important;
                 grid-template-columns: 1fr !important;
             }
             .header-title {
@@ -1029,14 +1045,14 @@
                 </div>
 
                 <div class="btn-group">
-                    <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
-                    <div id="admin-tools" style="display: none;">
-                        <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
+                    <button id="btn-admin-login" class="btn btn-admin" type="button">Administrator</button>
+                    <div id="admin-tools" class="admin-tools" aria-hidden="true">
+                        <button id="btn-excel-upload" class="btn btn-excel" type="button">Excel file Upload</button>
                         <button id="btn-conceal" class="btn btn-conceal" type="button">Activate Conceal</button>
-                        <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
                     </div>
-                    <button id="btn-print-view" class="btn btn-print">Print View</button>
+                    <button id="btn-print-view" class="btn btn-print" type="button">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+                <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
                 </div>
             </div>
         </div>
@@ -1170,6 +1186,7 @@
         const ADMIN_SESSION_KEY = 'gjcentral_dorm_admin_session_v1';
         const ADMIN_SESSION_MS = 30 * 60 * 1000;
         const ADMIN_PASSWORD_HASH = '1a1024939ae1a1395ad5675ee62113f77267b55f46a805b15ccc0bbe7773aacb';
+        const ADMIN_SUPABASE_USER_ID = 'a064bec7-5506-4418-9f93-44df1cac6a37';
         let cloudSubscription = null;
         let cloudSyncInProgress = false;
 
@@ -1378,11 +1395,15 @@
             }
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
+                if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
                     isAdmin = true;
                     setAdminSession();
                     adminIndicator.style.display = 'inline-block';
                     btnAdminLogin.textContent = 'Administrator Logout';
+                    updateAdminToolsVisibility();
+                } else {
+                    isAdmin = false;
+                    updateAdminToolsVisibility();
                 }
                 const loaded = await refreshFromCloud({ seedIfEmpty: !!session });
                 if (!loaded && (!Array.isArray(petitions) || petitions.length === 0)) {
@@ -1393,6 +1414,9 @@
                 }
                 await setupCloudSubscription();
                 await setupConcealSubscription();
+                await loadConcealModeFromCloud({ silent: true });
+                await refreshFromCloud({ silent: true });
+                renderCards();
             } catch (e) {
                 console.error('Cloud initialization error:', e);
                 if (!Array.isArray(petitions) || petitions.length === 0) {
@@ -1518,6 +1542,7 @@
             document.body.classList.toggle('conceal-active', concealMode);
             document.body.classList.toggle('admin-mode', isAdmin);
             if (btnConceal) {
+                btnConceal.disabled = false;
                 btnConceal.classList.toggle('active', concealMode);
                 btnConceal.textContent = concealMode ? 'Deactivate Conceal' : 'Activate Conceal';
                 btnConceal.setAttribute('aria-pressed', concealMode ? 'true' : 'false');
@@ -1773,7 +1798,10 @@
         }
 
         function updateAdminToolsVisibility() {
-            if (adminTools) adminTools.style.display = isAdmin ? 'block' : 'none';
+            if (adminTools) {
+                adminTools.classList.toggle('is-visible', isAdmin);
+                adminTools.setAttribute('aria-hidden', isAdmin ? 'false' : 'true');
+            }
             document.body.classList.toggle('admin-mode', isAdmin);
             if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
             if (btnConceal) {
@@ -1830,9 +1858,12 @@
             try {
                 if (supabase) {
                     const { data: { session } } = await supabase.auth.getSession();
-                    if (session) {
-                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); return true;
+                    if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
+                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility();
+                        await loadConcealModeFromCloud({ silent: true });
+                        return true;
                     }
+                    isAdmin = false; updateAdminToolsVisibility();
                     return false;
                 }
                 const expires = Number(sessionStorage.getItem(ADMIN_SESSION_KEY));
@@ -1877,8 +1908,12 @@
                 if (!supabase) await waitForSupabaseClient(4000);
                 if (supabase) {
                     const email = 'hxn.03x2@gmail.com';
-                    const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+                    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
                     if (error) throw error;
+                    if (authData?.user?.id !== ADMIN_SUPABASE_USER_ID) {
+                        await supabase.auth.signOut();
+                        throw new Error('Unauthorized administrator account.');
+                    }
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); closeAdminLoginModal();
                     await refreshFromCloud({ seedIfEmpty: true });
                     await setupCloudSubscription();
@@ -1902,9 +1937,12 @@
 
         if (supabase) {
             supabase.auth.onAuthStateChange(async (_event, session) => {
-                if (session) {
+                if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility();
+                    await setupCloudSubscription();
                     await setupConcealSubscription();
+                    await loadConcealModeFromCloud({ silent: true });
+                    await refreshFromCloud({ silent: true });
                 } else if (isAdmin) {
                     isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); renderCards();
                 }
@@ -1918,6 +1956,23 @@
                 if (isAdmin && (!expires || expires <= Date.now())) logoutAdmin('Administrator session expired.');
             } catch(e) {}
         }, 15000);
+
+
+        window.addEventListener('pageshow', async () => {
+            try {
+                if (supabase) {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const validAdmin = session?.user?.id === ADMIN_SUPABASE_USER_ID;
+                    if (validAdmin) {
+                        isAdmin = true;
+                        updateAdminToolsVisibility();
+                        await loadConcealModeFromCloud({ silent: true });
+                        await refreshFromCloud({ silent: true });
+                        renderCards();
+                    }
+                }
+            } catch (e) { console.warn('Page state restore failed:', e); }
+        });
 
         // ── 회신 초안 자동 저장 ─────────────────────────────────
         function readDrafts() { try { return JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || '{}'); } catch(e) { return {}; } }
