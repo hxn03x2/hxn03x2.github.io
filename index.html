@@ -904,7 +904,6 @@
 
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
-                        <option value="검토 중">검토 중</option>
                         <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
@@ -943,22 +942,7 @@
         </div>
     </div>
 
-    <!-- 현황 요약 통계 패널 -->
-    <div class="control-panel">
-        <div class="panel-card stats-panel">
-            <div class="stats-panel-title">현황 요약 (전체 기준)</div>
-            <div class="stats-columns">
-                <div>
-                    <div class="stats-column-label">기숙사별 건수</div>
-                    <div id="stats-dorm" class="stats-bars"></div>
-                </div>
-                <div>
-                    <div class="stats-column-label">카테고리별 건수</div>
-                    <div id="stats-category" class="stats-bars"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <main>
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
@@ -1467,7 +1451,7 @@
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
                             <div class="admin-field-row admin-field-row-three">
                                 <div class="admin-field"><label for="process-status-${item.id}">처리 상태</label><select id="process-status-${item.id}">
-                                    ${['미지정','검토 중','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['미지정','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="reply-status-${item.id}">회신 상태</label><select id="reply-status-${item.id}">
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
@@ -1547,48 +1531,6 @@
                 btn.textContent = '접기';
             }
         };
-
-        // ── 현황 요약 통계 ────────────────────────────────────────
-        function renderStats() {
-            const dormCounts = {};
-            const categoryCounts = {};
-            petitions.forEach(item => {
-                const dormKey = item.dorm.includes('미래관') ? '미래관' : '청운관';
-                dormCounts[dormKey] = (dormCounts[dormKey] || 0) + 1;
-                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
-            });
-
-            const dormOrder = ['미래관', '청운관'];
-            const categoryOrder = ['생활 규정 및 점호', '시설 및 설비', '청소 및 위생', '소음 및 보안', '기타'];
-
-            const maxDorm = Math.max(...dormOrder.map(k => dormCounts[k] || 0), 1);
-            const maxCategory = Math.max(...categoryOrder.map(k => categoryCounts[k] || 0), 1);
-
-            const statsDormEl = document.getElementById('stats-dorm');
-            const statsCategoryEl = document.getElementById('stats-category');
-
-            statsDormEl.innerHTML = dormOrder.map(key => {
-                const count = dormCounts[key] || 0;
-                const pct = Math.round((count / maxDorm) * 100);
-                return `
-                    <div class="stats-bar-row">
-                        <span class="stats-bar-label">${key}</span>
-                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
-                        <span class="stats-bar-count">${count}</span>
-                    </div>`;
-            }).join('');
-
-            statsCategoryEl.innerHTML = categoryOrder.map(key => {
-                const count = categoryCounts[key] || 0;
-                const pct = Math.round((count / maxCategory) * 100);
-                return `
-                    <div class="stats-bar-row">
-                        <span class="stats-bar-label">${key}</span>
-                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
-                        <span class="stats-bar-count">${count}</span>
-                    </div>`;
-            }).join('');
-        }
 
         // ── 토스트 알림 ───────────────────────────────────────────
         function showToast(message, type = 'info', duration = 3800) {
