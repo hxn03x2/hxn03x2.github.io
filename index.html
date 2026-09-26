@@ -298,30 +298,51 @@
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
         .theme-status-wrap {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
+            align-items: center;
             min-width: 92px;
         }
         .cloud-sync-status {
             display: none;
-            align-items: center;
-            min-height: 16px;
-            padding: 0 3px;
-            font-size: 9px;
+            flex: 0 0 100%;
+            min-height: 14px;
+            margin-top: 2px;
+            padding: 0 2px;
+            font-size: 8px;
             font-weight: 700;
             color: var(--color-text-muted);
             white-space: nowrap;
+            text-align: right;
             pointer-events: none;
         }
-        body.admin-mode .cloud-sync-status { display: inline-flex; }
+        body.admin-mode .cloud-sync-status { display: block; }
+        .conceal-public-actions {
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-public-header {
+            padding: 7px 11px;
+            border-radius: 999px;
+            border: 1px solid var(--color-border-soft);
+            background: var(--color-card-bg);
+            color: var(--color-text);
+            font: 700 11px/1.1 inherit;
+            white-space: nowrap;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .btn-public-header:hover { border-color: var(--color-accent); }
+        body.conceal-active:not(.admin-mode) .conceal-public-actions { display: flex; }
+        body.conceal-active:not(.admin-mode) .btn-public-header { pointer-events: auto; }
         [data-theme="dark"] .btn-conceal { background-color: #6f5538; color: #f5eee4; }
         [data-theme="dark"] .btn-conceal:hover { background-color: #826547; }
         [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
         @media (max-width: 700px) {
             .panel-card { padding-bottom: 16px !important; }
-            .theme-status-wrap { align-items: flex-end; min-width: 86px; }
-            .cloud-sync-status { font-size: 8px; }
+            .theme-status-wrap { align-items: center; min-width: auto; }
+            .cloud-sync-status { flex-basis: 100%; font-size: 8px; text-align: right; }
+            .header-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+            body.conceal-active:not(.admin-mode) .conceal-public-actions { display: flex; }
         }
 
         .conceal-overlay {
@@ -737,6 +758,26 @@
             padding: 14px 18px;
             border-top: 1px solid var(--color-border);
         }
+
+        @media (max-width: 1024px) {
+            body.conceal-active:not(.admin-mode) .control-panel {
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+            body.conceal-active:not(.admin-mode) .btn-group,
+            body.conceal-active:not(.admin-mode) .admin-tools {
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+            body.conceal-active:not(.admin-mode) .conceal-overlay {
+                z-index: 80 !important;
+                padding-top: 110px;
+            }
+            body.conceal-active:not(.admin-mode) .conceal-overlay-card {
+                margin-top: 26px;
+            }
+        }
+
         .btn-modal-cancel { background-color: var(--color-border); color: var(--color-text); }
         .btn-modal-cancel:hover { background-color: var(--color-border-soft); }
         .btn-modal-confirm { background-color: var(--color-excel); color: #ffffff; }
@@ -976,29 +1017,49 @@
         body.print-preview-mode footer { display: none; }
 
         @media print {
-            .control-panel, .back-to-top, .toast-container, .btn-theme,
+            .control-panel, .back-to-top, .toast-container, .btn-theme, .conceal-public-actions, .cloud-sync-status,
             .print-mode-bar, .more-btn, .admin-reply-editor, footer {
                 display: none !important;
             }
-            .cards-grid { column-count: 1 !important; }
+            .cards-grid {
+                display: block !important;
+                column-count: 1 !important;
+                columns: auto !important;
+                width: 100% !important;
+            }
             .card {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
                 box-shadow: none !important;
                 border: 1px solid #ccc !important;
                 break-inside: auto !important;
                 page-break-inside: auto !important;
                 overflow: visible !important;
+                transform: none !important;
+            }
+            .card-body {
+                display: block !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
             }
             .card-content, .card-content.expanded, .card-body, .reply-box, .reply-content {
                 max-height: none !important;
                 height: auto !important;
+                min-height: 0 !important;
                 overflow: visible !important;
                 clip-path: none !important;
+                contain: none !important;
             }
             .card-content {
                 display: block !important;
                 white-space: pre-wrap !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
             }
             .card-content.expandable::after { display: none !important; }
+            .reply-content { white-space: pre-wrap !important; overflow-wrap: anywhere !important; word-break: break-word !important; }
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
@@ -1017,9 +1078,13 @@
             <div class="header-actions">
                 <div class="theme-status-wrap">
                     <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
-                    <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
+                </div>
+                <div id="conceal-public-actions" class="conceal-public-actions" aria-hidden="true">
+                    <button id="btn-public-admin" class="btn-public-header" type="button">Administrator</button>
+                    <button id="btn-public-print" class="btn-public-header" type="button">Print View</button>
                 </div>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
+                <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
             </div>
         </div>
     </header>
@@ -1507,6 +1572,9 @@
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const btnConceal = document.getElementById('btn-conceal');
         const cloudSyncStatus = document.getElementById('cloud-sync-status');
+        const concealPublicActions = document.getElementById('conceal-public-actions');
+        const btnPublicAdmin = document.getElementById('btn-public-admin');
+        const btnPublicPrint = document.getElementById('btn-public-print');
         const concealOverlay = document.getElementById('conceal-overlay');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1843,6 +1911,10 @@
                 adminTools.setAttribute('aria-hidden', isAdmin ? 'false' : 'true');
             }
             document.body.classList.toggle('admin-mode', isAdmin);
+            if (concealPublicActions) {
+                const showPublicActions = concealMode && !isAdmin && window.matchMedia('(max-width: 1024px)').matches;
+                concealPublicActions.setAttribute('aria-hidden', showPublicActions ? 'false' : 'true');
+            }
             if (concealOverlay) {
                 concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
                 concealOverlay.style.pointerEvents = (concealMode && !isAdmin) ? 'auto' : 'none';
@@ -1902,16 +1974,23 @@
                 if (supabase) {
                     const { data: { session } } = await supabase.auth.getSession();
                     if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
-                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility();
-                        await setupCloudSubscription();
-                        await setupConcealSubscription();
+                        isAdmin = true;
+                        setAdminSession();
+                        adminIndicator.style.display = 'inline-block';
+                        btnAdminLogin.textContent = 'Administrator Logout';
+                        updateAdminToolsVisibility();
+                        renderCards();
+                        await Promise.allSettled([setupCloudSubscription(), setupConcealSubscription()]);
                         await loadConcealModeFromCloud({ silent: true });
                         await refreshFromCloud({ silent: true });
                         updateAdminToolsVisibility();
                         renderCards();
                         return true;
                     }
-                    isAdmin = false; updateAdminToolsVisibility();
+                    isAdmin = false;
+                    adminIndicator.style.display = 'none';
+                    btnAdminLogin.textContent = 'Administrator';
+                    updateAdminToolsVisibility();
                     return false;
                 }
                 const expires = Number(sessionStorage.getItem(ADMIN_SESSION_KEY));
@@ -1938,6 +2017,8 @@
             if (isAdmin) { logoutAdmin(); return; }
             openAdminLoginModal();
         });
+        if (btnPublicAdmin) btnPublicAdmin.addEventListener('click', () => btnAdminLogin.click());
+        if (btnPublicPrint) btnPublicPrint.addEventListener('click', () => btnPrintView.click());
         if (btnConceal) btnConceal.addEventListener('click', async () => {
             if (!isAdmin) { showToast('Administrator authentication is required.', 'warning'); return; }
             const next = !concealMode;
@@ -2019,9 +2100,15 @@
                     const validAdmin = session?.user?.id === ADMIN_SUPABASE_USER_ID;
                     if (validAdmin) {
                         isAdmin = true;
+                        setAdminSession();
+                        adminIndicator.style.display = 'inline-block';
+                        btnAdminLogin.textContent = 'Administrator Logout';
                         updateAdminToolsVisibility();
+                        renderCards();
+                        await Promise.allSettled([setupCloudSubscription(), setupConcealSubscription()]);
                         await loadConcealModeFromCloud({ silent: true });
                         await refreshFromCloud({ silent: true });
+                        updateAdminToolsVisibility();
                         renderCards();
                     }
                 }
@@ -2337,6 +2424,7 @@
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
+        window.addEventListener('resize', () => updateAdminToolsVisibility());
         updateAdminLoginMode();
 
         // 최초 화면은 로컬 데이터로 즉시 표시하되, 최종 데이터의 기준은 Supabase로 둔다.
@@ -2363,17 +2451,22 @@
 
                 if (!window.__supabaseAuthListenerBound) {
                     window.__supabaseAuthListenerBound = true;
-                    supabase.auth.onAuthStateChange(async (_event, session) => {
-                        if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
+                    supabase.auth.onAuthStateChange((_event, session) => {
+                        const validAdmin = session?.user?.id === ADMIN_SUPABASE_USER_ID;
+                        if (validAdmin) {
                             isAdmin = true;
                             setAdminSession();
                             adminIndicator.style.display = 'inline-block';
                             btnAdminLogin.textContent = 'Administrator Logout';
                             updateAdminToolsVisibility();
-                            await setupConcealSubscription();
-                            await loadConcealModeFromCloud({ silent: true });
-                            await refreshFromCloud({ silent: true });
                             renderCards();
+                            setTimeout(async () => {
+                                await Promise.allSettled([setupCloudSubscription(), setupConcealSubscription()]);
+                                await loadConcealModeFromCloud({ silent: true });
+                                await refreshFromCloud({ silent: true });
+                                updateAdminToolsVisibility();
+                                renderCards();
+                            }, 0);
                         } else if (isAdmin) {
                             isAdmin = false;
                             clearAdminSession();
