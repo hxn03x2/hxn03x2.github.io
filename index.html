@@ -1795,50 +1795,5 @@
                 renderCards();
             });
     </script>
-<script>
-(function(){
-  function bindFallback(){
-    const byId=id=>document.getElementById(id);
-    const theme=byId('btn-theme-toggle');
-    if(theme && !theme.dataset.fallbackBound){
-      theme.dataset.fallbackBound='1';
-      theme.addEventListener('click',function(){
-        const root=document.documentElement;
-        const next=(root.getAttribute('data-theme')||'light')==='dark'?'light':'dark';
-        root.setAttribute('data-theme',next); root.style.colorScheme=next;
-        try{localStorage.setItem('petition_theme',next);}catch(e){}
-        this.textContent=next==='dark'?'Light Mode':'Dark Mode';
-      },true);
-    }
-    const print=byId('btn-print-view');
-    if(print && !print.dataset.fallbackBound){
-      print.dataset.fallbackBound='1';
-      print.addEventListener('click',function(){
-        if(typeof window.setPrintPreview==='function') window.setPrintPreview(!document.body.classList.contains('print-preview-mode'));
-        else document.body.classList.toggle('print-preview-mode');
-      },true);
-    }
-    const admin=byId('btn-admin-login');
-    if(admin && !admin.dataset.fallbackBound){
-      admin.dataset.fallbackBound='1';
-      admin.addEventListener('click',function(){
-        if(typeof window.logoutAdmin==='function' && window.isAdmin) return window.logoutAdmin();
-        if(typeof window.openAdminLoginModal==='function') return window.openAdminLoginModal();
-        const overlay=byId('admin-login-overlay'); if(overlay) overlay.style.display='flex';
-      },true);
-    }
-    const reset=byId('btn-reset-filters');
-    if(reset && !reset.dataset.fallbackBound){
-      reset.dataset.fallbackBound='1';
-      reset.addEventListener('click',function(){
-        ['search-input'].forEach(id=>{const e=byId(id);if(e)e.value='';});
-        ['filter-dorm','filter-category','filter-status','filter-priority','filter-sort'].forEach(id=>{const e=byId(id);if(e)e.value=id==='filter-sort'?'id_asc':'all';});
-        if(typeof window.renderCards==='function') window.renderCards();
-      },true);
-    }
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindFallback); else bindFallback();
-})();
-</script>
 </body>
 </html>
