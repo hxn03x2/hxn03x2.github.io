@@ -294,6 +294,21 @@
         .btn-conceal { background-color: #8b6f47; color: #fffaf2; }
         .btn-conceal:hover { background-color: #765b38; }
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
+        .cloud-sync-status {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 0 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .cloud-sync-status { color: var(--color-text-muted); }
+        [data-theme="dark"] .btn-conceal { background-color: #6f5538; color: #f5eee4; }
+        [data-theme="dark"] .btn-conceal:hover { background-color: #826547; }
+        [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
 
         .conceal-overlay {
             display: none;
@@ -323,7 +338,9 @@
         body.conceal-active:not(.admin-mode) footer { visibility: hidden; }
         body.conceal-active:not(.admin-mode) .control-panel { position: relative; z-index: 90; }
         body.conceal-active:not(.admin-mode) .search-bar-wrap,
-        body.conceal-active:not(.admin-mode) .filter-row { display: none !important; }
+        body.conceal-active:not(.admin-mode) .filter-group { display: none !important; }
+        body.conceal-active:not(.admin-mode) .filter-row { display: flex !important; }
+        body.conceal-active:not(.admin-mode) .btn-group { display: flex !important; }
         body.conceal-active:not(.admin-mode) .panel-card { box-shadow: none; gap: 0; padding: 10px 12px; }
         body.admin-mode .conceal-overlay { display: none !important; }
 
@@ -931,7 +948,8 @@
                     <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
                     <div id="admin-tools" style="display: none;">
                         <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
-                        <button id="btn-conceal" class="btn btn-conceal" type="button">Conceal</button>
+                        <button id="btn-conceal" class="btn btn-conceal" type="button">Activate Conceal</button>
+                        <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
                     </div>
                     <button id="btn-print-view" class="btn btn-print">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
@@ -1171,6 +1189,8 @@
 
                 window.__lastCloudSaveError = '';
                 savePetitionsLocal();
+                lastCloudSyncAt = new Date();
+                updateCloudSyncStatus();
                 return true;
             } catch (e) {
                 console.error('Supabase 안건 저장 오류:', e);
@@ -1230,6 +1250,8 @@
                 if (data && data.length) {
                     petitions = data.map(cloudRowToPetition);
                     savePetitionsLocal();
+                    lastCloudSyncAt = new Date();
+                    updateCloudSyncStatus();
                     renderCards();
                     return true;
                 }
@@ -1240,6 +1262,7 @@
                 return false;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
+                updateCloudSyncStatus('Cloud sync: error');
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
                 return false;
             }
@@ -1302,6 +1325,18 @@
         let pendingExcelItems = [];
         let printRange = 'current';
         let draftSaveTimers = {};
+        let lastCloudSyncAt = null;
+
+        function updateCloudSyncStatus(message = '') {
+            if (!cloudSyncStatus) return;
+            if (message) {
+                cloudSyncStatus.textContent = message;
+                return;
+            }
+            cloudSyncStatus.textContent = lastCloudSyncAt
+                ? `Cloud sync: ${lastCloudSyncAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                : 'Cloud sync: waiting';
+        }
 
         // DOM 요소
         const cardsContainer = document.getElementById('cards-container');
@@ -1316,6 +1351,7 @@
         const adminTools = document.getElementById('admin-tools');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const btnConceal = document.getElementById('btn-conceal');
+        const cloudSyncStatus = document.getElementById('cloud-sync-status');
         const concealOverlay = document.getElementById('conceal-overlay');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1392,7 +1428,7 @@
             document.body.classList.toggle('admin-mode', isAdmin);
             if (btnConceal) {
                 btnConceal.classList.toggle('active', concealMode);
-                btnConceal.textContent = concealMode ? 'Conceal On' : 'Conceal';
+                btnConceal.textContent = concealMode ? 'Deactivate Conceal' : 'Activate Conceal';
                 btnConceal.setAttribute('aria-pressed', concealMode ? 'true' : 'false');
             }
             if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
@@ -1415,17 +1451,33 @@
             concealChannel = supabase.channel('dorm-petitions-conceal-control');
             concealChannel
                 .on('broadcast', { event: 'conceal-state' }, ({ payload }) => {
-                    if (payload && typeof payload.active === 'boolean') applyConcealMode(payload.active, { silent: true, remote: true });
-                })
-                .on('broadcast', { event: 'conceal-request' }, () => {
-                    if (isAdmin) {
-                        try { concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } }); } catch(e) {}
+                    if (payload && typeof payload.active === 'boolean') {
+                        applyConcealMode(payload.active, { silent: true, remote: true });
                     }
                 })
-                .subscribe();
-            try {
-                await concealChannel.send({ type: 'broadcast', event: 'conceal-request', payload: {} });
-            } catch(e) {}
+                .on('broadcast', { event: 'conceal-request' }, () => {
+                    if (isAdmin && concealChannel) {
+                        concealChannel.send({ type: 'broadcast', event: 'conceal-state', payload: { active: concealMode } })
+                            .catch(e => console.error('Conceal state response failed:', e));
+                    }
+                })
+                .subscribe(async (status) => {
+                    if (status === 'SUBSCRIBED') {
+                        // Broadcast는 구독 완료 전에 보내면 유실될 수 있으므로,
+                        // 실제 구독이 완료된 뒤 현재 상태를 요청한다.
+                        try {
+                            await concealChannel.send({ type: 'broadcast', event: 'conceal-request', payload: {} });
+                        } catch (e) {
+                            console.error('Conceal state request failed:', e);
+                        }
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                        console.warn('Conceal realtime channel status:', status);
+                        concealChannel = null;
+                        setTimeout(() => {
+                            if (supabase && !concealChannel) setupConcealSubscription().catch(err => console.error('Conceal channel reconnect failed:', err));
+                        }, 2000);
+                    }
+                });
         }
 
         function getFilteredPetitions() {
@@ -1463,6 +1515,12 @@
         function renderCards() {
             document.body.classList.toggle('admin-mode', isAdmin);
             const rawQuery = searchInput.value.trim();
+            // Conceal 상태의 공개 사용자는 일반 보기뿐 아니라 인쇄 미리보기/인쇄에서도
+            // 안건 데이터가 노출되지 않도록 렌더링 자체를 차단한다.
+            if (concealMode && !isAdmin) {
+                cardsContainer.innerHTML = '';
+                return;
+            }
             const filtered = document.body.classList.contains('print-preview-mode') ? getPrintItems() : getFilteredPetitions();
 
             if (filtered.length === 0) {
@@ -1603,7 +1661,7 @@
             if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
             if (btnConceal) {
                 btnConceal.classList.toggle('active', concealMode);
-                btnConceal.textContent = concealMode ? 'Conceal On' : 'Conceal';
+                btnConceal.textContent = concealMode ? 'Deactivate Conceal' : 'Activate Conceal';
                 btnConceal.setAttribute('aria-pressed', concealMode ? 'true' : 'false');
             }
         }
@@ -1671,7 +1729,7 @@
             if (supabase) {
                 try { await supabase.auth.signOut(); } catch(e) { console.error(e); }
             }
-            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); renderCards(); if (message) showToast(message, 'info');
+            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); applyConcealMode(concealMode, { silent: true, remote: true }); renderCards(); if (message) showToast(message, 'info');
         }
 
         btnAdminLogin.addEventListener('click', () => {
@@ -1697,6 +1755,7 @@
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); closeAdminLoginModal();
                     await refreshFromCloud({ seedIfEmpty: true });
                     await setupCloudSubscription();
+                    await setupConcealSubscription();
                     showToast('Administrator authentication successful. Cloud synchronization is active.', 'success');
                     renderCards();
                 } else {
@@ -1716,9 +1775,10 @@
         if (supabase) {
             supabase.auth.onAuthStateChange(async (_event, session) => {
                 if (session) {
-                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout';
+                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility();
+                    await setupConcealSubscription();
                 } else if (isAdmin) {
-                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards();
+                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); renderCards();
                 }
             });
         }
@@ -1802,6 +1862,14 @@
             const oldReplyStatus = target.replyStatus || null;
             const oldPriority = target.priority || '미지정';
             const changes = [];
+
+            const isPublishingReply = newReplyStatus === '회신 완료' && oldReplyStatus !== '회신 완료';
+            const isCompletingProcess = newProcessStatus === '조치 완료' && oldProcessStatus !== '조치 완료';
+            if ((isPublishingReply || isCompletingProcess) && !window.confirm(
+                `안건 #${id}의 변경사항을 저장하시겠습니까?\n\n${isPublishingReply ? '회신 완료 상태가 공개될 수 있습니다.' : ''}${isPublishingReply && isCompletingProcess ? '\n' : ''}${isCompletingProcess ? '조치 완료 상태가 저장됩니다.' : ''}`
+            )) {
+                return;
+            }
 
             if (oldReply !== textVal) changes.push('회신 내용 변경');
             if (oldProcessStatus !== newProcessStatus) changes.push(`처리 상태: ${oldProcessStatus} → ${newProcessStatus}`);
@@ -1994,6 +2062,16 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
+
+        window.addEventListener('beforeunload', e => {
+            if (!isAdmin) return;
+            const drafts = readDrafts();
+            if (drafts && Object.keys(drafts).length > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
         // ── 인쇄용 보기 모드 ──────────────────────────────────────
         function setPrintPreview(active) {
             document.body.classList.toggle('print-preview-mode', active);
@@ -2002,7 +2080,13 @@
             if (active) { printRange = printRangeSelect.value; renderCards(); }
             else renderCards();
         }
-        btnPrintView.addEventListener('click',()=>setPrintPreview(!document.body.classList.contains('print-preview-mode')));
+        btnPrintView.addEventListener('click',()=>{
+            if (concealMode && !isAdmin) {
+                showToast('현재 건의사항 열람이 일시 제한되어 인쇄 보기를 사용할 수 없습니다.', 'warning', 3200);
+                return;
+            }
+            setPrintPreview(!document.body.classList.contains('print-preview-mode'));
+        });
         document.getElementById('btn-exit-print').addEventListener('click',()=>setPrintPreview(false));
         document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
@@ -2022,6 +2106,7 @@
         // Supabase SDK가 준비되는 즉시 클라우드 데이터를 먼저 조회하여 현재 기기의 오래된 로컬 데이터와 교체한다.
         concealMode = loadConcealModeLocal();
         updateAdminToolsVisibility();
+        updateCloudSyncStatus();
         renderCards();
 
         let cloudBootstrapStarted = false;
@@ -2048,6 +2133,7 @@
                             adminIndicator.style.display = 'inline-block';
                             btnAdminLogin.textContent = 'Administrator Logout';
                             updateAdminToolsVisibility();
+                            await setupConcealSubscription();
                             renderCards();
                         } else if (isAdmin) {
                             isAdmin = false;
@@ -2070,6 +2156,7 @@
                 const cloudLoaded = await refreshFromCloud({ seedIfEmpty: isAdmin });
                 if (!cloudLoaded) renderCards();
                 await setupCloudSubscription();
+                await setupConcealSubscription();
             } catch (e) {
                 console.error('Startup error:', e);
                 cloudBootstrapStarted = false;
