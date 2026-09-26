@@ -1044,9 +1044,18 @@
         const SUPABASE_URL = 'https://nmvjmiktljbxildqmrng.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aswMOj_7uqwj0KjBG7LyGQ_ygtqNsp_';
         const CLOUD_ENABLED = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_YOUR_') && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR_');
-        const supabase = CLOUD_ENABLED && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-            auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-        }) : null;
+        // Supabase 초기화가 실패해도 공개 안건 화면과 기본 버튼 기능은 계속 실행되도록 한다.
+        let supabase = null;
+        if (CLOUD_ENABLED && window.supabase && typeof window.supabase.createClient === 'function') {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+                });
+            } catch (e) {
+                console.error('Supabase 초기화 오류:', e);
+                supabase = null;
+            }
+        }
         const STORAGE_KEY = 'gjcentral_dorm_petitions_v3';
         const LEGACY_STORAGE_KEY = 'gjcentral_dorm_petitions_v1';
         const THEME_KEY = 'gjcentral_dorm_theme_v1';
