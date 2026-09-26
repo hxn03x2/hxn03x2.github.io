@@ -196,53 +196,6 @@
         }
         .btn-theme:hover { background-color: rgba(255, 255, 255, 0.14); }
 
-        .btn-conceal {
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            background-color: rgba(255, 255, 255, 0.06);
-            color: var(--color-header-text);
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
-        }
-        .btn-conceal:hover { background-color: rgba(255, 255, 255, 0.14); }
-        .conceal-screen {
-            min-height: calc(100vh - 150px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 48px 20px 80px;
-            box-sizing: border-box;
-        }
-        .conceal-message {
-            width: min(100%, 720px);
-            text-align: center;
-            padding: 44px 34px;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-border);
-            border-radius: 14px;
-            box-shadow: var(--shadow-card);
-        }
-        .conceal-message h2 {
-            margin: 0 0 16px;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--color-text);
-            word-break: keep-all;
-        }
-        .conceal-message p {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.9;
-            color: var(--color-text-muted);
-            word-break: keep-all;
-        }
-
         .admin-status {
             font-size: 12px;
             background-color: var(--color-accent-dark);
@@ -329,9 +282,6 @@
         .btn-print { background-color: transparent; color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
         .btn-print:hover { background-color: var(--color-border); }
 
-        /* 통계 패널 */
-        @media (min-width: 640px) {
-        }
 
         main {
             max-width: 1150px;
@@ -351,6 +301,8 @@
         @media (min-width: 768px) { .cards-grid { column-count: 2; } }
 
         .card {
+            break-inside: avoid-page;
+            page-break-inside: avoid-page;
             background-color: var(--color-card-bg);
             border: 1px solid var(--color-border);
             border-radius: 12px;
@@ -359,7 +311,7 @@
             display: flex;
             flex-direction: column;
             margin-bottom: 16px;
-            break-inside: avoid;
+            break-inside: avoid-page;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s ease, border-color 0.2s ease;
         }
         .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
@@ -401,8 +353,8 @@
             background-color: var(--badge-new-bg); padding: 4px 8px; border-radius: 6px;
             border: 1px solid var(--badge-new-border);
         }
-        .reply-status-badge { background: #fff7df; color: #7a5b00; border: 1px solid #e6cf7a; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .reply-status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
+        .reply-status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .reply-status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
 
         .card-date { font-size: 11px; color: var(--color-text-faint); }
 
@@ -617,11 +569,10 @@
         /* 인쇄용 보기 모드 상단 바 */
         .btn-reset { background-color: var(--color-card-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
         .btn-reset:hover { border-color: var(--color-accent); color: var(--color-accent-dark); }
-        .status-badge { background: #eaf2ff; color: #315f8f; border: 1px solid #b8cee7; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
-        .priority-badge { background: #f7e7a8; color: #705a12; border: 1px solid #dfca70; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .priority-urgent { background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
-        .priority-priority { background: #fff4c7; color: #7a5b00; border-color: #e6cf7a; }
+        .status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
+        .priority-badge { order: 99; background: #f4d35e; color: #6b5200; border: 1px solid #d8b83f; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .priority-urgent { order: 99; background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
         .priority-normal { opacity: .85; }
         
         .admin-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
@@ -758,6 +709,9 @@
                 width: 100% !important;
                 min-width: 0 !important;
             }
+            .stats-columns {
+                grid-template-columns: 1fr !important;
+            }
             .card-header {
                 min-width: 0;
             }
@@ -827,6 +781,7 @@
             display: none !important;
         }
         body.print-preview-mode .cards-grid { column-count: 1 !important; }
+        body.print-preview-mode .card { break-inside: avoid-page !important; page-break-inside: avoid !important; }
         body.print-preview-mode .card-content { max-height: none !important; overflow: visible !important; }
         body.print-preview-mode .card-content.expandable::after { display: none !important; }
         /* 인쇄 미리보기 중에도 상단 인쇄 바와 겹치지 않도록 헤더만 고정 해제, 색상은 현재 테마(라이트/다크)를 그대로 따름 */
@@ -834,7 +789,6 @@
         body.print-preview-mode footer { display: none; }
 
         @media print {
-            .card { break-inside: avoid-page; page-break-inside: avoid; }
             .control-panel, .back-to-top, .toast-container, .btn-theme,
             .print-mode-bar, .more-btn, .admin-reply-editor, footer {
                 display: none !important;
@@ -845,9 +799,7 @@
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; page-break-inside: avoid; }
-            .card-header, .card-meta, .card-content, .reply-section { break-inside: avoid; page-break-inside: avoid; }
-            .card-content { overflow: visible !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page; }
         }
     
 </style>
@@ -862,7 +814,6 @@
             </div>
             <div class="header-actions">
                 <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
-                <button id="btn-conceal" class="btn-conceal" type="button" style="display: none;">Conceal</button>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
             </div>
         </div>
@@ -871,9 +822,8 @@
     <div id="print-mode-bar" class="print-mode-bar">
         <label class="print-range-label" for="print-range-select">인쇄 범위</label>
         <select id="print-range-select" class="filter-select print-range-select">
-            <option value="current">현재 조회 결과</option>
-            <option value="pending">회신 대기 안건</option>
-            <option value="all">전체 안건</option>
+            <option value="pending">조치 미완료 안건</option>
+            <option value="complete">조치 완료 안건</option>
         </select>
         <button id="btn-do-print" class="btn btn-modal-confirm">Print</button>
         <button id="btn-exit-print" class="btn btn-modal-cancel">Exit Print View</button>
@@ -905,7 +855,7 @@
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
                         <option value="접수">접수</option>
-                                                <option value="학교 전달">학교 전달</option>
+                        <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
                     
@@ -941,19 +891,10 @@
         </div>
     </div>
 
-    <main id="public-main">
+    <!-- 현황 요약 통계 패널 -->
+    <div class="control-panel">
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
         <div id="cards-container" class="cards-grid"></div>
-    </main>
-
-    <main id="conceal-screen" class="conceal-screen" style="display: none;">
-        <section class="conceal-message" aria-live="polite">
-            <h2>현재 공식 건의사항 회신 과정이 진행 중에 있습니다.</h2>
-            <p>현재 접수된 건의사항에 대한 공식 회신 내용을 정리하고 검토하는 과정이 진행되고 있습니다.<br>
-            회신 내용의 정확한 확인 및 일괄적인 공개를 위해, 해당 과정이 완료될 때까지 일시적으로 열람이 제한됩니다.<br>
-            회신 과정이 완료되는 즉시 다시 정상적으로 열람하실 수 있도록 조치하겠습니다.<br><br>
-            이용에 불편을 드리는 점 양해 부탁드립니다.</p>
-        </section>
     </main>
 
     <footer>
@@ -1038,7 +979,6 @@
             { id: 32, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 13:38:25", content: "불편사항을 쓰라고 했으니 이왕 하는거 툭 까놓고 다 말씀드릴게요.\n지금부터는 의무적으로 고쳐야된다고 생각하는 것들입니다.\n청소기 좀 새로 사주세요 제발요. 저희가 무선청소기를 바랍니까 다이슨을 바랍니까 그냥 잘 빨아들이는 좋은거 구비하는걸 원하는 건데 그게 어려워서 우리 할머니도 안쓸것같은 개무거운 유선청소기로 청소를 어떻게 제대로 하라는거에요. 진짜 잘 작동되기라도 하면 말 안했겠죠, 끝부분 빠져있어가지고 작은 통구멍으로 힘겹게 청소하는데 흡입력도 세질 않아서 빨아들이면 다시 뱉잖아요. 이게 맞아요? 몇십만원 주고 생활하는 곳에서 최소한 집만큼의 시설은 구비가 되어있어야지 또 샤워실 바닥 청소주기는 왜이래요? 하루에 열댓명이 몸씻고 더러운 맨발로 밟으면서 옷 갈아입고, 신발신고 올라가기도 하는데 물기 남아있으면 기분 더럽고 털도 다 남아있어서 이게맞나 싶습니다. 공용공간인데도 더 철저히 관리도 안하고 위생수준이 가정집 화장실 바닥만도 못하네요.\n지금부터는 권장드리는 것들입니다.\n기숙사 점호 및 통금 시간, 벌점에 대해 불만이 매우 큽니다. 아침 7시에 깨우는 건 이해할 수 있으나 문제는 강제로 1층으로 내려오는 겁니다. 3학년은 방문 앞에서 점호를 하지만 1-2학년들은 아침점호로 1층에 내려와야 하는데, 노래틀고 3분 딱 기다려주고 내려오라 하면 잠이 덜 깨거나 비몽사몽한 학생들이 헐레벌떡 계단을 통해 내려오다가 넘어져 다칠 수 있는 경우가 있습니다. 아직까지 그런 적이 없긴 하지만, 이로 인한 심각한 사고가 발생할 경우 기숙사의 방침을 탓할 수밖에 없을 것 같네요. 또 기숙사는 정기외출증을 쓰더라도 10시 30분까지 들어와야 하는데 상식적으로 4시반에 학교끝나고 5시에 밥먹고, 학원 1-2개 갔다오면 훌쩍 10시가 넘는데 30분 안에 밥을 어떻게 해결합니까? 저녁을 5시에 주니까 당연히 10시넘으면 배고프죠. 편의점에서 라면이나 먹고와라 이겁니까? 설령 학원이 없다고 해도 중간에 쉬는시간이 꼴랑 30분인것도 이해가 안간다고 진짜. 그 시간에 도대체 뭘 할 수 있습니까? 학교 근처에 음식점이라고는 편의점이나 롯데리아뿐인데 그거 안먹고 다른데 갔다오면 늦어서 혼낸다는게 '뭐 어찌되든 나는 상관없다~'는 것 같다는 마인드네요. 이게 가장 잘 드러나는게 벌점에 관해서입니다. 상식적으로 기숙사는 놀러온 곳이 아니지, 멀리서 사는 학생들을 위해 먹여주고 재워주는 거잖습니까. 근데 벌점 상태가 왜이렇죠? 점호지각 한번에 5점이요? 소등 후 잡담에 10점이요? 저희 20점이면 퇴소당하는데 4번만 지각해도 일주일 퇴소네요? 싫으면 걸리지 말라고 하는데 그건 멀리서 통학하는 어려움을 몰라서 그렇게 말하는거죠. 벌점도 타방 출입&잡담으로 한번에 20점씩 주는 경우가 비일비재한데 잡담인지 자기전에 잘자라고 말하는건지 어떻게 판단합니까? 자기 일 아니라고 벌점을 막 주는게 눈에 보여요. 심지어 어떨 때는 사감쌤이랑 친하다고, 처음 걸렸다고 안주는 경우도 있는데 저희가 뭐 사감쌤한테 잘보이려고 아부까지 해야됩니까? 눈밖에 나면 남들 다 봐주는 것도 나한테만 엄격한데 이게 독재가 아니면 뭡니까? 벌점 강도를 낮추던가 사감을 바꾸던가 해야죠. 참고로 저는 현재 벌점 0점이고 한번도 퇴소당해본 적 없습니다. 그런 제가 보기에도 시스템이 너무 썩었어요, 고쳐주세요 좀.\n지금부터는 참을 순 있지만 불편한 점들입니다.\n사감쌤이 저녁점호 끝내고 12시 넘어서 방문열고 확인하던데 특정 선생님은 완전 방 한가운데까지 들어오더라고요? 불편합니다. 새벽에 침대에 누워있다가 조명키고 문 벌컥벌컥 열고 구석구석까지 점검하는데 과한 것 같아요, 프라이버시가 존중되지 않는 느낌입니다. 굳이 그렇게까지 해서 득볼게 있나 싶기도 하고 어떤 생각인지 모르겠네요.\n이상입니다. 제발 좀 고칠 건 고쳐주세요.", replyStatus: "회신 대기", replyContent: "" },
             { id: 33, dorm: "미래관, 남성 기숙사", category: "시설 및 설비", date: "2026-09-23 16:00:11", content: "샤위기가 너무 별로입니다 제가 써본 샤워기 중에 진짜 제일 안 좋아요. 비데가 없는 곳이 너무 별로다", replyStatus: null, replyContent: "" }
         ];
-        window.__initialPetitions = initialPetitions;
 
         // ── 저장소 및 Supabase 클라우드 연동 ─────────────────────────
         // 아래 두 값을 Supabase 프로젝트의 Connect 정보로 입력하면 다른 기기와 데이터가 공유됩니다.
@@ -1046,9 +986,18 @@
         const SUPABASE_URL = 'https://nmvjmiktljbxildqmrng.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aswMOj_7uqwj0KjBG7LyGQ_ygtqNsp_';
         const CLOUD_ENABLED = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_YOUR_') && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR_');
-        const supabase = CLOUD_ENABLED && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-            auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-        }) : null;
+        // Supabase SDK가 CDN에서 로드되지 않아도 화면의 33개 안건은 먼저 표시되도록 안전하게 초기화한다.
+        let supabase = null;
+        try {
+            if (CLOUD_ENABLED && window.supabase && typeof window.supabase.createClient === 'function') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+                });
+            }
+        } catch (e) {
+            console.error('Supabase SDK initialization failed:', e);
+            supabase = null;
+        }
         const STORAGE_KEY = 'gjcentral_dorm_petitions_v3';
         const LEGACY_STORAGE_KEY = 'gjcentral_dorm_petitions_v1';
         const THEME_KEY = 'gjcentral_dorm_theme_v1';
@@ -1058,23 +1007,16 @@
         const ADMIN_PASSWORD_HASH = '1a1024939ae1a1395ad5675ee62113f77267b55f46a805b15ccc0bbe7773aacb';
         let cloudSubscription = null;
         let cloudSyncInProgress = false;
-        let isConcealed = false;
 
         function normalizePetition(item) {
             const copy = { ...item };
-            // 저장소/클라우드 데이터에 null 또는 숫자 값이 섞여 있어도
-            // 화면 렌더링이 중단되지 않도록 기본 필드를 문자열로 정규화한다.
-            copy.id = Number.isFinite(Number(copy.id)) ? Number(copy.id) : 0;
-            copy.dorm = copy.dorm == null ? '' : String(copy.dorm);
-            copy.category = copy.category == null ? '' : String(copy.category);
-            copy.date = copy.date == null ? '' : String(copy.date);
-            copy.content = copy.content == null ? '' : String(copy.content);
             if (!copy.status) copy.status = copy.replyStatus || '접수';
-            if (!copy.priority) copy.priority = '일반';
+            if (!copy.priority) copy.priority = '미지정';
             if (copy.priority === '긴급') copy.priority = '긴급 처리';
             else if (copy.priority === '우선') copy.priority = '우선 처리';
+            else if (copy.priority === '일반') copy.priority = '미지정';
             if (!Array.isArray(copy.replyHistory)) copy.replyHistory = [];
-            if (typeof copy.isNew !== 'boolean') copy.isNew = false;
+            copy.isNew = false;
             if (typeof copy.replyContent !== 'string') copy.replyContent = '';
             if (copy.replyStatus === '회신 완료' || copy.status === '회신 완료') {
                 copy.replyStatus = '회신 완료';
@@ -1149,29 +1091,17 @@
             try {
                 const { data, error } = await supabase.from('petitions').select('*').order('id', { ascending: true });
                 if (error) throw error;
-                const rows = Array.isArray(data) ? data : [];
-                const concealRow = rows.find(row => Number(row.id) === 0);
-                isConcealed = concealRow?.status === 'SITE_CONCEALED' && concealRow?.priority === 'SITE_CONTROL' && String(concealRow.content || '').toLowerCase() === 'true';
-                const petitionRows = rows.filter(row => Number(row.id) > 0);
-                if (petitionRows.length) {
-                    petitions = petitionRows.map(cloudRowToPetition);
+                if (data && data.length) {
+                    petitions = data.map(cloudRowToPetition);
                     savePetitionsLocal();
                     renderCards();
-                    updateConcealView();
                     return true;
                 }
-                // Cloud에 실제 안건 행이 없더라도 로컬의 기존 안건을 비우지 않는다.
-                // Conceal용 메타 행(id=0)만 남아 있는 경우에도 기존 안건을 그대로 표시한다.
-                if (!Array.isArray(petitions) || petitions.length === 0) {
-                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-                    savePetitionsLocal();
-                }
-                renderCards();
-                updateConcealView();
                 if (options.seedIfEmpty && isAdmin && petitions.length) {
                     await savePetitionsCloud();
+                    return true;
                 }
-                return petitions.length > 0;
+                return false;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
@@ -1189,19 +1119,46 @@
         }
 
         async function initializeCloud() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                isAdmin = true;
-                setAdminSession();
-                adminIndicator.style.display = 'inline-block';
-                btnAdminLogin.textContent = 'Administrator Logout';
+            if (!supabase) {
+                if (!Array.isArray(petitions) || petitions.length === 0) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                }
+                renderCards();
+                return;
             }
-            await refreshFromCloud({ seedIfEmpty: !!session });
-            await setupCloudSubscription();
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    isAdmin = true;
+                    setAdminSession();
+                    adminIndicator.style.display = 'inline-block';
+                    btnAdminLogin.textContent = 'Administrator Logout';
+                }
+                const loaded = await refreshFromCloud({ seedIfEmpty: !!session });
+                if (!loaded && (!Array.isArray(petitions) || petitions.length === 0)) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                    renderCards();
+                } else if (!loaded) {
+                    renderCards();
+                }
+                await setupCloudSubscription();
+            } catch (e) {
+                console.error('Cloud initialization error:', e);
+                if (!Array.isArray(petitions) || petitions.length === 0) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                }
+                renderCards();
+                showToast('Cloud connection failed. Showing the 33 saved petitions.', 'warning', 5000);
+            }
         }
 
+        // 페이지가 열리는 즉시 원본 33개를 먼저 렌더링한다.
+        // Supabase 조회는 비동기로 진행되므로, 네트워크/인증 상태와 관계없이
+        // 초기 화면이 0건으로 보이지 않도록 한다.
         let petitions = loadPetitions();
+        if (!Array.isArray(petitions) || petitions.length === 0) {
+            petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+        }
         let isAdmin = false;
         let pendingExcelItems = [];
         let printRange = 'current';
@@ -1218,9 +1175,6 @@
         const statsSummary = document.getElementById('stats-summary');
         const btnAdminLogin = document.getElementById('btn-admin-login');
         const adminIndicator = document.getElementById('admin-indicator');
-        const btnConceal = document.getElementById('btn-conceal');
-        const publicMain = document.getElementById('public-main');
-        const concealScreen = document.getElementById('conceal-screen');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1239,8 +1193,6 @@
 
         // ── 유틸 함수 ─────────────────────────────────────────────
         function escapeHtml(str) {
-            if (str == null) return '';
-            str = String(str);
             if (!str) return '';
             return str
                 .replace(/&/g, "&amp;")
@@ -1298,60 +1250,27 @@
             const dormVal = filterDorm.value;
             const categoryVal = filterCategory.value;
             const statusVal = filterStatus.value;
+            const priorityVal = filterPriority.value;
             const filtered = petitions.filter(item => {
                 const searchTarget = `${item.id} ${item.dorm} ${item.category} ${item.date} ${item.content} ${item.status || ''} ${item.replyStatus || ''} ${item.priority || ''} ${item.replyContent || ''}`.toLowerCase();
                 const matchesSearch = !query || searchTarget.includes(query);
                 const matchesDorm = dormVal === 'all' || item.dorm.includes(dormVal);
                 const matchesCategory = categoryVal === 'all' || item.category === categoryVal;
-                const matchesPriority = filterPriority.value === 'all' || item.priority === filterPriority.value;
                 let matchesStatus = true;
                 if (statusVal !== 'all') {
                     matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
                 }
-                return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
+                const matchesPriority = priorityVal === 'all' || item.priority === priorityVal;
+                return matchesSearch && matchesDorm && matchesCategory && matchesStatus && matchesPriority;
             });
             filtered.sort((a,b) => compareItems(a,b,filterSort.value));
             return filtered;
         }
 
         function getPrintItems() {
-            if (printRange === 'all') return [...petitions].sort((a,b) => a.id-b.id);
-            if (printRange === 'pending') return petitions.filter(p => p.status !== '회신 완료' && p.status !== '조치 완료');
-            return getFilteredPetitions();
+            if (printRange === 'complete') return petitions.filter(p => p.status === '조치 완료');
+            return petitions.filter(p => p.status !== '조치 완료');
         }
-
-        function updateConcealView() {
-            // Conceal은 공개 방문자에게만 적용한다. 관리자 세션이 확인되면
-            // 안건 목록과 관리 기능은 항상 그대로 보이도록 한다.
-            const concealedForPublic = Boolean(isConcealed) && !Boolean(isAdmin);
-            publicMain.style.display = concealedForPublic ? 'none' : '';
-            concealScreen.style.display = concealedForPublic ? 'flex' : 'none';
-            btnConceal.style.display = isAdmin ? 'inline-block' : 'none';
-            btnConceal.textContent = isConcealed ? 'Reveal' : 'Conceal';
-            btnConceal.setAttribute('aria-label', isConcealed ? 'Reveal public page' : 'Conceal public page');
-        }
-
-        async function setConcealState(nextState) {
-            if (!isAdmin || !supabase) return;
-            const next = Boolean(nextState);
-            try {
-                // id=0은 공개 상태 전용 메타 행이다. 실제 안건(id>0)은 절대 수정하거나 삭제하지 않는다.
-                const { error } = await supabase.from('petitions').upsert({
-                    id: 0, dorm: '', category: '', date: '', content: next ? 'true' : 'false',
-                    status: 'SITE_CONCEALED', priority: 'SITE_CONTROL', reply_status: null, reply_content: '',
-                    reply_history: [], is_new: false, updated_at: new Date().toISOString()
-                }, { onConflict: 'id' });
-                if (error) throw error;
-                isConcealed = next;
-                updateConcealView();
-                showToast(next ? 'Public page has been concealed.' : 'Public page has been revealed.', 'success');
-            } catch (e) {
-                console.error('Conceal 상태 저장 오류:', e);
-                showToast('Conceal state could not be saved.', 'error');
-            }
-        }
-
-        btnConceal.addEventListener('click', () => setConcealState(!isConcealed));
 
         // ── 카드 렌더링 ───────────────────────────────────────────
         function renderCards() {
@@ -1366,12 +1285,11 @@
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
-                const processStatus = item.status === '검토 중' ? '접수' : (['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수');
+                const processStatus = ['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수';
                 const replyStatus = item.replyStatus === '회신 완료' ? '회신 완료' : (item.replyStatus === '회신 대기' ? '회신 대기' : null);
                 const isReplyDone = replyStatus === '회신 완료';
 
-                const newBadgeHtml = '';
-                const priorityBadgeHtml = item.priority && item.priority !== '일반' ? `<span class="priority-badge ${item.priority === '긴급 처리' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
+                const priorityBadgeHtml = item.priority && item.priority !== '미지정' ? `<span class="priority-badge ${item.priority === '긴급 처리' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
                 const statusBadgeHtml = `<span class="status-badge ${processStatus === '조치 완료' ? 'status-done' : ''}">${escapeHtml(processStatus)}</span>`;
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
@@ -1397,7 +1315,7 @@
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="priority-${item.id}">우선순위</label><select id="priority-${item.id}">
-                                    ${['긴급','우선','일반'].map(v => `<option value="${v}" ${(item.priority||'일반')===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['긴급 처리','우선 처리','미지정'].map(v => `<option value="${v}" ${(item.priority||'미지정')===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                             </div>
                             ${replyEnabled ? `<textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${escapeHtml(draft !== null ? draft : (item.replyContent || ''))}</textarea>
@@ -1522,7 +1440,7 @@
                 if (supabase) {
                     const { data: { session } } = await supabase.auth.getSession();
                     if (session) {
-                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateConcealView(); updateConcealView(); return true;
+                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; return true;
                     }
                     return false;
                 }
@@ -1537,7 +1455,7 @@
             if (supabase) {
                 try { await supabase.auth.signOut(); } catch(e) { console.error(e); }
             }
-            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateConcealView(); renderCards(); if (message) showToast(message, 'info');
+            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards(); if (message) showToast(message, 'info');
         }
 
         btnAdminLogin.addEventListener('click', () => {
@@ -1556,7 +1474,7 @@
                     if (!email) { adminLoginError.textContent = 'Please enter the administrator email.'; adminEmailInput.focus(); return; }
                     const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
                     if (error) throw error;
-                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateConcealView(); closeAdminLoginModal();
+                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; closeAdminLoginModal();
                     await refreshFromCloud({ seedIfEmpty: true });
                     await setupCloudSubscription();
                     showToast('Administrator authentication successful. Cloud synchronization is active.', 'success');
@@ -1580,7 +1498,7 @@
                 if (session) {
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout';
                 } else if (isAdmin) {
-                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateConcealView(); renderCards();
+                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards();
                 }
             });
         }
@@ -1757,7 +1675,7 @@
             const toAdd=pendingExcelItems.filter(i=>!i.isDuplicate);
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
-            toAdd.forEach(item=>petitions.push({id:nextId++,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'접수',priority:'일반',replyStatus:null,replyContent:'',replyHistory:[],isNew:true}));
+            toAdd.forEach(item=>petitions.push({id:nextId++,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'접수',priority:'미지정',replyStatus:null,replyContent:'',replyHistory:[],isNew:false}));
             savePetitions(); showToast(`엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.`,'success'); closeExcelPreview(); renderCards();
         });
 
@@ -1813,64 +1731,24 @@
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
-        // 첫 화면은 클라우드 인증/동기화를 기다리지 않고 즉시 기본 안건을 표시한다.
-        // Supabase가 느리거나 일시적으로 응답하지 않아도 초기 목록이 0건으로 보이지 않도록 한다.
         updateAdminLoginMode();
-        updateConcealView();
+
+        // 최초 화면은 로컬에 확보된 33개 안건으로 즉시 표시한다.
+        // 이후 관리자 세션 확인 및 Supabase 동기화를 비동기로 수행한다.
         renderCards();
 
-        restoreAdminSession()
-            .then(() => {
-                updateConcealView();
-                renderCards();
-                if (supabase) return initializeCloud();
-            })
-            .catch((e) => {
-                console.error('초기 관리자 세션 확인 오류:', e);
-                updateConcealView();
-                renderCards();
-            });
-    </script>
-<script>
-        // 최종 화면 안전장치: 기존 렌더링 과정에서 예외가 발생해도
-        // 초기 33개 안건이 빈 화면으로 남지 않도록 한다.
-        window.addEventListener('load', function () {
-            setTimeout(function () {
-                try {
-                    const container = document.getElementById('cards-container');
-                    const summary = document.getElementById('stats-summary');
-                    if (!container) return;
-                    if (container.querySelector('.card')) return;
-
-                    // 정상 렌더링을 한 번 더 시도한다.
-                    if (typeof window.renderCards === 'function') {
-                        try { window.renderCards(); } catch (e) { console.error('renderCards 재시도 오류:', e); }
-                    }
-                    if (container.querySelector('.card')) return;
-
-                    // 마지막 fallback: 내장된 원본 33건을 직접 표시한다.
-                    if (Array.isArray(window.__initialPetitions) && window.__initialPetitions.length) {
-                        const items = window.__initialPetitions;
-                        container.innerHTML = items.map(function(item) {
-                            const dorm = item.dorm == null ? '' : String(item.dorm);
-                            const category = item.category == null ? '' : String(item.category);
-                            const date = item.date == null ? '' : String(item.date);
-                            const content = item.content == null ? '' : String(item.content);
-                            return '<div class="card" data-id="' + String(item.id) + '">' +
-                                '<div class="card-header"><div class="badge-group">' +
-                                '<span class="badge-id">#' + String(item.id) + '</span>' +
-                                '<span class="badge-dorm">' + dorm.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
-                                '<span class="category-badge">' + category.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
-                                '</div><span class="card-date">' + date.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span></div>' +
-                                '<div class="card-body"><div class="card-content expandable">' + content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>') + '</div></div>' +
-                                '</div>';
-                        }).join('');
-                        if (summary) summary.textContent = '조회된 안건 : ' + items.length + '건 (총 ' + items.length + '건 중)';
-                    }
-                } catch (e) {
-                    console.error('최종 화면 안전장치 오류:', e);
-                }
-            }, 150);
+        restoreAdminSession().then(() => {
+            if (!Array.isArray(petitions) || petitions.length === 0) {
+                petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+            }
+            renderCards();
+            return initializeCloud();
+        }).catch(e => {
+            console.error('Startup error:', e);
+            if (!Array.isArray(petitions) || petitions.length === 0) {
+                petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+            }
+            renderCards();
         });
     </script>
 </body>
