@@ -1076,6 +1076,89 @@
             .header-title, .header-subtitle { color: #000 !important; }
         }
     
+
+        /* Final print/theme corrections */
+        [data-theme="dark"] .print-mode-bar .btn-modal-confirm {
+            background-color: var(--color-accent) !important;
+            color: var(--color-bg) !important;
+            border-color: var(--color-accent) !important;
+        }
+
+        @media print {
+            @page { margin: 12mm; }
+
+            html, body, body.print-preview-mode {
+                width: auto !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+                position: static !important;
+            }
+
+            main, .cards-grid, .card, .card-header, .card-body,
+            .card-content, .reply-box, .reply-content {
+                position: static !important;
+                float: none !important;
+                transform: none !important;
+                contain: none !important;
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                min-height: 0 !important;
+            }
+
+            main {
+                display: block !important;
+                width: auto !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .cards-grid {
+                display: block !important;
+                width: auto !important;
+                max-width: none !important;
+                columns: auto !important;
+                column-count: 1 !important;
+                column-gap: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .card {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                margin: 0 0 10mm 0 !important;
+                padding: 6mm !important;
+                break-inside: auto !important;
+                page-break-inside: auto !important;
+            }
+
+            .card-body, .card-content, .reply-box, .reply-content {
+                display: block !important;
+                width: auto !important;
+                box-sizing: border-box !important;
+            }
+
+            .card-content, .reply-content {
+                white-space: pre-wrap !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
+
+            .card-content.expandable::after,
+            .more-btn {
+                display: none !important;
+            }
+
+            .reply-box, .reply-content, .admin-reply-editor {
+                overflow: visible !important;
+                max-height: none !important;
+                height: auto !important;
+            }
+        }
 </style>
 </head>
 <body>
