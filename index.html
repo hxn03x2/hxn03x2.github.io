@@ -1061,6 +1061,13 @@
 
         function normalizePetition(item) {
             const copy = { ...item };
+            // 저장소/클라우드 데이터에 null 또는 숫자 값이 섞여 있어도
+            // 화면 렌더링이 중단되지 않도록 기본 필드를 문자열로 정규화한다.
+            copy.id = Number.isFinite(Number(copy.id)) ? Number(copy.id) : 0;
+            copy.dorm = copy.dorm == null ? '' : String(copy.dorm);
+            copy.category = copy.category == null ? '' : String(copy.category);
+            copy.date = copy.date == null ? '' : String(copy.date);
+            copy.content = copy.content == null ? '' : String(copy.content);
             if (!copy.status) copy.status = copy.replyStatus || '접수';
             if (!copy.priority) copy.priority = '일반';
             if (copy.priority === '긴급') copy.priority = '긴급 처리';
@@ -1231,6 +1238,8 @@
 
         // ── 유틸 함수 ─────────────────────────────────────────────
         function escapeHtml(str) {
+            if (str == null) return '';
+            str = String(str);
             if (!str) return '';
             return str
                 .replace(/&/g, "&amp;")
