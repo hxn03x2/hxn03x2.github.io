@@ -8,9 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
     <!-- SheetJS 라이브러리 (엑셀 업로드 파싱용) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Supabase client (다른 기기와 데이터 동기화용) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
 
     <!-- 테마 깜빡임 방지를 위해 CSS 적용 전에 먼저 저장된 테마를 반영 -->
     <script>
@@ -196,53 +196,6 @@
         }
         .btn-theme:hover { background-color: rgba(255, 255, 255, 0.14); }
 
-        .btn-conceal {
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            background-color: rgba(255, 255, 255, 0.06);
-            color: var(--color-header-text);
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
-        }
-        .btn-conceal:hover { background-color: rgba(255, 255, 255, 0.14); }
-        .conceal-screen {
-            min-height: calc(100vh - 150px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 48px 20px 80px;
-            box-sizing: border-box;
-        }
-        .conceal-message {
-            width: min(100%, 720px);
-            text-align: center;
-            padding: 44px 34px;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-border);
-            border-radius: 14px;
-            box-shadow: var(--shadow-card);
-        }
-        .conceal-message h2 {
-            margin: 0 0 16px;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--color-text);
-            word-break: keep-all;
-        }
-        .conceal-message p {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.9;
-            color: var(--color-text-muted);
-            word-break: keep-all;
-        }
-
         .admin-status {
             font-size: 12px;
             background-color: var(--color-accent-dark);
@@ -330,7 +283,57 @@
         .btn-print:hover { background-color: var(--color-border); }
 
         /* 통계 패널 */
+        .stats-panel { gap: 14px; }
+        .stats-panel-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+        }
+        .stats-columns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
         @media (min-width: 640px) {
+            .stats-columns { grid-template-columns: 1fr 1fr; }
+        }
+        .stats-column-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-faint);
+            margin-bottom: 8px;
+        }
+        .stats-bars { display: flex; flex-direction: column; gap: 7px; }
+        .stats-bar-row {
+            display: grid;
+            grid-template-columns: 76px 1fr 22px;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-bar-label {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stats-bar-track {
+            height: 7px;
+            border-radius: 4px;
+            background-color: var(--color-border);
+            overflow: hidden;
+        }
+        .stats-bar-fill {
+            height: 100%;
+            background-color: var(--stats-fill);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .stats-bar-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text);
+            text-align: right;
         }
 
         main {
@@ -401,8 +404,8 @@
             background-color: var(--badge-new-bg); padding: 4px 8px; border-radius: 6px;
             border: 1px solid var(--badge-new-border);
         }
-        .reply-status-badge { background: #fff7df; color: #7a5b00; border: 1px solid #e6cf7a; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .reply-status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
+        .reply-status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .reply-status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
 
         .card-date { font-size: 11px; color: var(--color-text-faint); }
 
@@ -617,11 +620,10 @@
         /* 인쇄용 보기 모드 상단 바 */
         .btn-reset { background-color: var(--color-card-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
         .btn-reset:hover { border-color: var(--color-accent); color: var(--color-accent-dark); }
-        .status-badge { background: #eaf2ff; color: #315f8f; border: 1px solid #b8cee7; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .status-done { background: #e7f5ec; color: #28734a; border-color: #a9d7bb; }
-        .priority-badge { background: #eaf2ff; color: #245a9a; border: 1px solid #b9d0ee; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .priority-urgent { background: #fde6e2; color: #a13a2c; border-color: #edb7ae; }
-        .priority-priority { background: #fff4c7; color: #7a5b00; border-color: #e6cf7a; }
+        .status-badge { background: var(--badge-reply-bg); color: var(--badge-reply-text); border: 1px solid var(--badge-reply-border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .status-done { background: var(--badge-done-bg); color: var(--badge-done-text); border-color: var(--badge-done-border); }
+        .priority-badge { background: #fff3bf; color: #7a5a00; border: 1px solid #e3c45f; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .priority-urgent { background: #ffe1e1; color: #b42318; border-color: #e5a3a3; }
         .priority-normal { opacity: .85; }
         
         .admin-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
@@ -640,7 +642,7 @@
             .sort-reset-group .btn-reset { flex: 0 0 auto; white-space: nowrap; }
             .btn-group { width: 100%; display: flex; flex-wrap: wrap; }
             .btn-group .btn { flex: 1 1 auto; }
-            .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
+            .stats-panel, .petition-grid, .cards-grid, .card { width: 100%; box-sizing: border-box; min-width: 0; }
             .card-content, .card-footer, .admin-editor { min-width: 0; }
             .admin-field-row-three { grid-template-columns: 1fr; }
         }
@@ -658,7 +660,7 @@
             min-width: 0;
             flex-wrap: wrap;
         }
-        .filter-select, .btn, .search-input, .panel-card, .card {
+        .filter-select, .btn, .search-input, .panel-card, .stats-panel, .card {
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -701,7 +703,7 @@
                 padding-left: 12px !important;
                 padding-right: 12px !important;
             }
-            .panel-card, .card {
+            .panel-card, .stats-panel, .card {
                 width: 100% !important;
                 max-width: 100% !important;
                 min-width: 0 !important;
@@ -757,6 +759,9 @@
             .search-input {
                 width: 100% !important;
                 min-width: 0 !important;
+            }
+            .stats-columns {
+                grid-template-columns: 1fr !important;
             }
             .card-header {
                 min-width: 0;
@@ -835,7 +840,7 @@
 
         @media print {
             .control-panel, .back-to-top, .toast-container, .btn-theme,
-            .print-mode-bar, .more-btn, .admin-reply-editor, footer {
+            .print-mode-bar, .more-btn, .admin-reply-editor, .stats-panel, footer {
                 display: none !important;
             }
             .cards-grid { column-count: 1 !important; }
@@ -844,9 +849,7 @@
             body { background: #ffffff !important; color: #000000 !important; }
             header { position: static !important; box-shadow: none !important; background: #ffffff !important; color: #000 !important; border-bottom: 1px solid #ccc; }
             .header-title, .header-subtitle { color: #000 !important; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; page-break-inside: avoid; }
-            .card-header, .card-meta, .card-content, .reply-section { break-inside: avoid; page-break-inside: avoid; }
-            .card-content { overflow: visible !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
         }
     
 </style>
@@ -861,7 +864,6 @@
             </div>
             <div class="header-actions">
                 <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
-                <button id="btn-conceal" class="btn-conceal" type="button" style="display: none;">Conceal</button>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
             </div>
         </div>
@@ -870,9 +872,8 @@
     <div id="print-mode-bar" class="print-mode-bar">
         <label class="print-range-label" for="print-range-select">인쇄 범위</label>
         <select id="print-range-select" class="filter-select print-range-select">
-            <option value="current">현재 조회 결과</option>
-            <option value="pending">회신 대기 안건</option>
-            <option value="all">전체 안건</option>
+            <option value="incomplete">조치 미완료 안건</option>
+            <option value="complete">조치 완료 안건</option>
         </select>
         <button id="btn-do-print" class="btn btn-modal-confirm">Print</button>
         <button id="btn-exit-print" class="btn btn-modal-cancel">Exit Print View</button>
@@ -901,16 +902,10 @@
                         <option value="기타">기타</option>
                     </select>
 
-                    <select id="filter-priority" class="filter-select">
-                        <option value="all">우선순위 전체</option>
-                        <option value="긴급 처리">긴급 처리</option>
-                        <option value="우선 처리">우선 처리</option>
-                    </select>
-
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
-                        <option value="접수">접수</option>
-                                                <option value="학교 전달">학교 전달</option>
+                        <option value="검토 중">검토 중</option>
+                        <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
                     
@@ -918,6 +913,12 @@
                             <option value="회신 대기">회신 대기</option>
                             <option value="회신 완료">회신 완료</option>
                         </optgroup></select>
+
+                    <select id="filter-priority" class="filter-select">
+                        <option value="all">우선순위 전체</option>
+                        <option value="긴급 처리">긴급 처리</option>
+                        <option value="우선 처리">우선 처리</option>
+                    </select>
 
                     <div class="sort-reset-group">
                         <select id="filter-sort" class="filter-select">
@@ -932,7 +933,9 @@
 
                 <div class="btn-group">
                     <button id="btn-admin-login" class="btn btn-admin">Administrator</button>
-                    <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
+                    <div id="admin-tools" style="display: none;">
+                        <button id="btn-excel-upload" class="btn btn-excel">Excel file Upload</button>
+                    </div>
                     <button id="btn-print-view" class="btn btn-print">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
                 </div>
@@ -940,19 +943,26 @@
         </div>
     </div>
 
-    <main id="public-main">
+    <!-- 현황 요약 통계 패널 -->
+    <div class="control-panel">
+        <div class="panel-card stats-panel">
+            <div class="stats-panel-title">현황 요약 (전체 기준)</div>
+            <div class="stats-columns">
+                <div>
+                    <div class="stats-column-label">기숙사별 건수</div>
+                    <div id="stats-dorm" class="stats-bars"></div>
+                </div>
+                <div>
+                    <div class="stats-column-label">카테고리별 건수</div>
+                    <div id="stats-category" class="stats-bars"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main>
         <div id="stats-summary" class="stats-summary">조회된 안건 : 0건 (총 0건 중)</div>
         <div id="cards-container" class="cards-grid"></div>
-    </main>
-
-    <main id="conceal-screen" class="conceal-screen" style="display: none;">
-        <section class="conceal-message" aria-live="polite">
-            <h2>현재 공식 건의사항 회신 과정이 진행 중에 있습니다.</h2>
-            <p>현재 접수된 건의사항에 대한 공식 회신 내용을 정리하고 검토하는 과정이 진행되고 있습니다.<br>
-            회신 내용의 정확한 확인 및 일괄적인 공개를 위해, 해당 과정이 완료될 때까지 일시적으로 열람이 제한됩니다.<br>
-            회신 과정이 완료되는 즉시 다시 정상적으로 열람하실 수 있도록 조치하겠습니다.<br><br>
-            이용에 불편을 드리는 점 양해 부탁드립니다.</p>
-        </section>
     </main>
 
     <footer>
@@ -1044,17 +1054,22 @@
         const SUPABASE_URL = 'https://nmvjmiktljbxildqmrng.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_aswMOj_7uqwj0KjBG7LyGQ_ygtqNsp_';
         const CLOUD_ENABLED = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('PASTE_YOUR_') && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR_');
-        // Supabase 초기화가 실패해도 공개 안건 화면과 기본 버튼 기능은 계속 실행되도록 한다.
+        // 외부 SDK는 defer로 로드되므로 페이지의 기본 기능을 막지 않는다.
+        // SDK가 준비되면 bootstrap 단계에서 Supabase 클라이언트를 초기화한다.
         let supabase = null;
-        if (CLOUD_ENABLED && window.supabase && typeof window.supabase.createClient === 'function') {
+        function initializeSupabaseClient() {
+            if (supabase || !CLOUD_ENABLED) return !!supabase;
             try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-                    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-                });
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                        auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+                    });
+                    return true;
+                }
             } catch (e) {
-                console.error('Supabase 초기화 오류:', e);
-                supabase = null;
+                console.error('Supabase SDK initialization failed:', e);
             }
+            return false;
         }
         const STORAGE_KEY = 'gjcentral_dorm_petitions_v3';
         const LEGACY_STORAGE_KEY = 'gjcentral_dorm_petitions_v1';
@@ -1065,14 +1080,15 @@
         const ADMIN_PASSWORD_HASH = '1a1024939ae1a1395ad5675ee62113f77267b55f46a805b15ccc0bbe7773aacb';
         let cloudSubscription = null;
         let cloudSyncInProgress = false;
-        let isConcealed = false;
 
         function normalizePetition(item) {
             const copy = { ...item };
-            if (!copy.status) copy.status = copy.replyStatus || '접수';
-            if (!copy.priority) copy.priority = '일반';
+            if (!copy.status || copy.status === '접수') copy.status = copy.replyStatus || '미지정';
+            if (copy.priority === '긴급') copy.priority = '긴급 처리';
+            else if (copy.priority === '우선') copy.priority = '우선 처리';
+            else if (!copy.priority || copy.priority === '일반') copy.priority = '미지정';
             if (!Array.isArray(copy.replyHistory)) copy.replyHistory = [];
-            if (typeof copy.isNew !== 'boolean') copy.isNew = false;
+            copy.isNew = false;
             if (typeof copy.replyContent !== 'string') copy.replyContent = '';
             if (copy.replyStatus === '회신 완료' || copy.status === '회신 완료') {
                 copy.replyStatus = '회신 완료';
@@ -1108,36 +1124,117 @@
             }
         }
 
-        async function savePetitionsCloud() {
-            if (!supabase || !isAdmin || cloudSyncInProgress) return;
-            cloudSyncInProgress = true;
+        // 수정한 안건 하나만 Supabase에 저장한다.
+        // 기존 안건은 UPDATE를 우선 사용해 upsert/RLS의 INSERT 검사 문제를 피한다.
+        async function savePetitionCloud(id) {
+            if (!supabase) initializeSupabaseClient();
+            if (!supabase) {
+                window.__lastCloudSaveError = 'Supabase client is not initialized.';
+                return false;
+            }
+
+            const target = petitions.find(p => String(p.id) === String(id));
+            if (!target) {
+                window.__lastCloudSaveError = `Petition #${id} was not found in local data.`;
+                return false;
+            }
+
             try {
-                const rows = petitions.map(p => ({
-                    id: Number(p.id), dorm: p.dorm || '', category: p.category || '', date: p.date || '', content: p.content || '',
-                    status: p.status || '접수', priority: p.priority || '일반', reply_status: p.replyStatus || null,
-                    reply_content: p.replyContent || '', reply_history: Array.isArray(p.replyHistory) ? p.replyHistory : [],
-                    is_new: !!p.isNew
-                }));
-                const { error } = await supabase.from('petitions').upsert(rows, { onConflict: 'id' });
-                if (error) throw error;
+                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw sessionError;
+                const session = sessionData?.session;
+                if (!session?.access_token) {
+                    isAdmin = false;
+                    throw new Error('Supabase administrator session is missing. Please log in again.');
+                }
+
+                const row = {
+                    id: Number(target.id),
+                    dorm: target.dorm || '',
+                    category: target.category || '',
+                    date: target.date || '',
+                    content: target.content || '',
+                    status: target.status && target.status !== '접수' ? target.status : '미지정',
+                    priority: target.priority || '미지정',
+                    reply_status: target.replyStatus || null,
+                    reply_content: target.replyContent || '',
+                    reply_history: Array.isArray(target.replyHistory) ? target.replyHistory : [],
+                    is_new: !!target.isNew
+                };
+
+                // 현재 33개 안건처럼 이미 서버에 존재하는 안건은 UPDATE한다.
+                const { data: updatedRows, error: updateError } = await supabase
+                    .from('petitions')
+                    .update(row)
+                    .eq('id', Number(target.id))
+                    .select('id');
+                if (updateError) throw updateError;
+
+                // Excel로 새로 추가된 안건처럼 서버에 아직 없는 경우에만 INSERT한다.
+                if (!updatedRows || updatedRows.length === 0) {
+                    const { error: insertError } = await supabase
+                        .from('petitions')
+                        .insert([row]);
+                    if (insertError) throw insertError;
+                }
+
+                const { data: verified, error: verifyError } = await supabase
+                    .from('petitions')
+                    .select('id, status, priority, reply_status, reply_content, reply_history, is_new')
+                    .eq('id', Number(target.id))
+                    .maybeSingle();
+                if (verifyError) throw verifyError;
+                if (!verified) throw new Error('Cloud save verification failed: the petition was not found after saving.');
+
+                window.__lastCloudSaveError = '';
                 savePetitionsLocal();
+                return true;
             } catch (e) {
-                console.error('Supabase 저장 오류:', e);
-                showToast('Cloud save failed. Check the Supabase connection.', 'error', 4200);
-            } finally {
-                cloudSyncInProgress = false;
+                console.error('Supabase 안건 저장 오류:', e);
+                const detailParts = [
+                    e?.message,
+                    e?.code ? `code=${e.code}` : '',
+                    e?.status ? `status=${e.status}` : '',
+                    e?.details ? `details=${e.details}` : '',
+                    e?.hint ? `hint=${e.hint}` : ''
+                ].filter(Boolean);
+                let detail = detailParts.join(' | ');
+                if (!detail) {
+                    try { detail = JSON.stringify(e); } catch (_) {}
+                }
+                if (!detail || detail === '{}') detail = String(e || 'Unknown Supabase error');
+                window.__lastCloudSaveError = detail;
+                return false;
             }
         }
 
-        function savePetitions() {
+        async function savePetitions(ids = []) {
             savePetitionsLocal();
-            if (supabase && isAdmin) savePetitionsCloud();
+            window.__lastCloudSaveError = '';
+            if (!supabase) initializeSupabaseClient();
+            if (!supabase) {
+                window.__lastCloudSaveError = 'Supabase client is not initialized. The Supabase JavaScript SDK may not have loaded.';
+                return false;
+            }
+            const uniqueIds = [...new Set((Array.isArray(ids) ? ids : [ids]).map(String))];
+            if (!uniqueIds.length) return true;
+            let allSaved = true;
+            window.__lastCloudSaveError = '';
+            for (const id of uniqueIds) {
+                const ok = await savePetitionCloud(id);
+                if (!ok) allSaved = false;
+            }
+            if (!allSaved) {
+                const detail = window.__lastCloudSaveError || 'unknown error';
+                showToast(`Cloud save failed: ${detail}`, 'error', 12000);
+            }
+            return allSaved;
         }
 
         function cloudRowToPetition(row) {
             return normalizePetition({
                 id: row.id, dorm: row.dorm, category: row.category, date: row.date, content: row.content,
-                status: row.status, priority: row.priority, replyStatus: row.reply_status,
+                status: row.status === '접수' ? '미지정' : row.status, priority: row.priority, replyStatus: row.reply_status,
                 replyContent: row.reply_content, replyHistory: row.reply_history, isNew: row.is_new
             });
         }
@@ -1147,27 +1244,17 @@
             try {
                 const { data, error } = await supabase.from('petitions').select('*').order('id', { ascending: true });
                 if (error) throw error;
-                const rows = Array.isArray(data) ? data : [];
-                const petitionRows = rows.filter(row => Number(row.id) > 0);
-                if (petitionRows.length) {
-                    petitions = petitionRows.map(cloudRowToPetition);
+                if (data && data.length) {
+                    petitions = data.map(cloudRowToPetition);
                     savePetitionsLocal();
                     renderCards();
-                    updateConcealView();
                     return true;
                 }
-                // Cloud에 실제 안건 행이 없더라도 로컬의 기존 안건을 비우지 않는다.
-                // Conceal용 메타 행(id=0)만 남아 있는 경우에도 기존 안건을 그대로 표시한다.
-                if (!Array.isArray(petitions) || petitions.length === 0) {
-                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
-                    savePetitionsLocal();
-                }
-                renderCards();
-                updateConcealView();
                 if (options.seedIfEmpty && isAdmin && petitions.length) {
-                    await savePetitionsCloud();
+                    for (const petition of petitions) await savePetitionCloud(petition.id);
+                    return true;
                 }
-                return petitions.length > 0;
+                return false;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
@@ -1185,19 +1272,46 @@
         }
 
         async function initializeCloud() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                isAdmin = true;
-                setAdminSession();
-                adminIndicator.style.display = 'inline-block';
-                btnAdminLogin.textContent = 'Administrator Logout';
+            if (!supabase) {
+                if (!Array.isArray(petitions) || petitions.length === 0) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                }
+                renderCards();
+                return;
             }
-            await refreshFromCloud({ seedIfEmpty: !!session });
-            await setupCloudSubscription();
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    isAdmin = true;
+                    setAdminSession();
+                    adminIndicator.style.display = 'inline-block';
+                    btnAdminLogin.textContent = 'Administrator Logout';
+                }
+                const loaded = await refreshFromCloud({ seedIfEmpty: !!session });
+                if (!loaded && (!Array.isArray(petitions) || petitions.length === 0)) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                    renderCards();
+                } else if (!loaded) {
+                    renderCards();
+                }
+                await setupCloudSubscription();
+            } catch (e) {
+                console.error('Cloud initialization error:', e);
+                if (!Array.isArray(petitions) || petitions.length === 0) {
+                    petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+                }
+                renderCards();
+                showToast('Cloud connection failed. Showing the 33 saved petitions.', 'warning', 5000);
+            }
         }
 
+        // 페이지가 열리는 즉시 원본 33개를 먼저 렌더링한다.
+        // Supabase 조회는 비동기로 진행되므로, 네트워크/인증 상태와 관계없이
+        // 초기 화면이 0건으로 보이지 않도록 한다.
         let petitions = loadPetitions();
+        if (!Array.isArray(petitions) || petitions.length === 0) {
+            petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+        }
         let isAdmin = false;
         let pendingExcelItems = [];
         let printRange = 'current';
@@ -1214,9 +1328,7 @@
         const statsSummary = document.getElementById('stats-summary');
         const btnAdminLogin = document.getElementById('btn-admin-login');
         const adminIndicator = document.getElementById('admin-indicator');
-        const btnConceal = document.getElementById('btn-conceal');
-        const publicMain = document.getElementById('public-main');
-        const concealScreen = document.getElementById('conceal-screen');
+        const adminTools = document.getElementById('admin-tools');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1297,34 +1409,23 @@
                 const matchesSearch = !query || searchTarget.includes(query);
                 const matchesDorm = dormVal === 'all' || item.dorm.includes(dormVal);
                 const matchesCategory = categoryVal === 'all' || item.category === categoryVal;
+                const matchesPriority = filterPriority.value === 'all' || item.priority === filterPriority.value;
                 let matchesStatus = true;
                 if (statusVal !== 'all') {
                     matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
                 }
-                return matchesSearch && matchesDorm && matchesCategory && matchesStatus;
+                return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
             });
             filtered.sort((a,b) => compareItems(a,b,filterSort.value));
             return filtered;
         }
 
         function getPrintItems() {
-            if (printRange === 'all') return [...petitions].sort((a,b) => a.id-b.id);
-            if (printRange === 'pending') return petitions.filter(p => p.status !== '회신 완료' && p.status !== '조치 완료');
-            return getFilteredPetitions();
+            if (printRange === 'complete') {
+                return petitions.filter(p => p.status === '조치 완료').sort((a,b) => a.id-b.id);
+            }
+            return petitions.filter(p => p.status !== '조치 완료').sort((a,b) => a.id-b.id);
         }
-
-        function updateConcealView() {
-            // 공개 안건 화면은 항상 표시한다. (기존 Conceal 메타데이터에 의해 전체 화면이 숨겨지는 문제 방지)
-            if (publicMain) publicMain.style.display = '';
-            if (concealScreen) concealScreen.style.display = 'none';
-        }
-
-        async function setConcealState(nextState) {
-            // 구버전 호환용 no-op. 공개 화면을 숨기지 않는다.
-            updateConcealView();
-            return false;
-        }
-        btnConceal.addEventListener('click', () => setConcealState(!isConcealed));
 
         // ── 카드 렌더링 ───────────────────────────────────────────
         function renderCards() {
@@ -1334,18 +1435,20 @@
 
             if (filtered.length === 0) {
                 cardsContainer.innerHTML = `<div class="no-result">검색 또는 필터 조건에 부합하는 안건이 존재하지 않습니다.</div>`;
+                renderStats();
                 return;
             }
 
             cardsContainer.innerHTML = filtered.map(item => {
                 const dormBadgeClass = item.dorm.includes('미래관') ? 'badge-mirae' : 'badge-cheongun';
-                const processStatus = item.status === '검토 중' ? '접수' : (['접수','학교 전달','조치 예정','조치 완료'].includes(item.status) ? item.status : '접수');
+                const processStatus = ['미지정','검토 중','학교 전달','조치 예정','조치 완료','반려'].includes(item.status) ? item.status : '접수';
                 const replyStatus = item.replyStatus === '회신 완료' ? '회신 완료' : (item.replyStatus === '회신 대기' ? '회신 대기' : null);
                 const isReplyDone = replyStatus === '회신 완료';
 
-                const newBadgeHtml = '';
-                const priorityBadgeHtml = item.priority && item.priority !== '일반' ? `<span class="priority-badge ${item.priority === '긴급' ? 'priority-urgent' : ''}">${escapeHtml(item.priority)}</span>` : '';
-                const statusBadgeHtml = `<span class="status-badge ${processStatus === '조치 완료' ? 'status-done' : ''}">${escapeHtml(processStatus)}</span>`;
+                const priorityBadgeHtml = (item.priority === '긴급 처리' || item.priority === '우선 처리')
+                    ? `<span class="priority-badge ${item.priority === '긴급 처리' ? 'priority-urgent' : 'priority-priority'}">${escapeHtml(item.priority)}</span>`
+                    : '';
+                const statusBadgeHtml = processStatus && processStatus !== '미지정' ? `<span class="status-badge ${processStatus === '조치 완료' ? 'status-done' : ''}">${escapeHtml(processStatus)}</span>` : '';
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
                     <div class="reply-box">
@@ -1364,13 +1467,13 @@
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
                             <div class="admin-field-row admin-field-row-three">
                                 <div class="admin-field"><label for="process-status-${item.id}">처리 상태</label><select id="process-status-${item.id}">
-                                    ${['접수','학교 전달','조치 예정','조치 완료'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['미지정','검토 중','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="reply-status-${item.id}">회신 상태</label><select id="reply-status-${item.id}">
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="priority-${item.id}">우선순위</label><select id="priority-${item.id}">
-                                    ${['긴급','우선','일반'].map(v => `<option value="${v}" ${(item.priority||'일반')===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['긴급 처리','우선 처리','미지정'].map(v => `<option value="${v}" ${(item.priority||'미지정')===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                             </div>
                             ${replyEnabled ? `<textarea id="admin-textarea-${item.id}" class="admin-reply-textarea" placeholder="건의사항에 대한 자치위원회 공식 회신문을 작성하세요...">${escapeHtml(draft !== null ? draft : (item.replyContent || ''))}</textarea>
@@ -1388,8 +1491,8 @@
                                 <span class="badge-dorm ${dormBadgeClass}">${escapeHtml(item.dorm)}</span>
                                 <span class="category-badge">${escapeHtml(item.category)}</span>
                                 ${statusBadgeHtml}
-                                ${replyStatusBadgeHtml}
                                 ${priorityBadgeHtml}
+                                ${replyStatusBadgeHtml}
                             </div>
                             <span class="card-date">${escapeHtml(item.date)}</span>
                         </div>
@@ -1409,6 +1512,7 @@
                 });
             }
             checkContentOverflow();
+            renderStats();
         }
 
         function checkContentOverflow() {
@@ -1444,6 +1548,48 @@
             }
         };
 
+        // ── 현황 요약 통계 ────────────────────────────────────────
+        function renderStats() {
+            const dormCounts = {};
+            const categoryCounts = {};
+            petitions.forEach(item => {
+                const dormKey = item.dorm.includes('미래관') ? '미래관' : '청운관';
+                dormCounts[dormKey] = (dormCounts[dormKey] || 0) + 1;
+                categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+            });
+
+            const dormOrder = ['미래관', '청운관'];
+            const categoryOrder = ['생활 규정 및 점호', '시설 및 설비', '청소 및 위생', '소음 및 보안', '기타'];
+
+            const maxDorm = Math.max(...dormOrder.map(k => dormCounts[k] || 0), 1);
+            const maxCategory = Math.max(...categoryOrder.map(k => categoryCounts[k] || 0), 1);
+
+            const statsDormEl = document.getElementById('stats-dorm');
+            const statsCategoryEl = document.getElementById('stats-category');
+
+            statsDormEl.innerHTML = dormOrder.map(key => {
+                const count = dormCounts[key] || 0;
+                const pct = Math.round((count / maxDorm) * 100);
+                return `
+                    <div class="stats-bar-row">
+                        <span class="stats-bar-label">${key}</span>
+                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
+                        <span class="stats-bar-count">${count}</span>
+                    </div>`;
+            }).join('');
+
+            statsCategoryEl.innerHTML = categoryOrder.map(key => {
+                const count = categoryCounts[key] || 0;
+                const pct = Math.round((count / maxCategory) * 100);
+                return `
+                    <div class="stats-bar-row">
+                        <span class="stats-bar-label">${key}</span>
+                        <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div>
+                        <span class="stats-bar-count">${count}</span>
+                    </div>`;
+            }).join('');
+        }
+
         // ── 토스트 알림 ───────────────────────────────────────────
         function showToast(message, type = 'info', duration = 3800) {
             const el = document.createElement('div');
@@ -1463,12 +1609,14 @@
             return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join(''));
         }
 
+        function updateAdminToolsVisibility() {
+            if (adminTools) adminTools.style.display = isAdmin ? 'block' : 'none';
+        }
+
         function updateAdminLoginMode() {
-            const cloudMode = !!supabase;
-            adminEmailInput.style.display = cloudMode ? 'block' : 'none';
-            adminLoginSummary.textContent = cloudMode
-                ? 'Enter the administrator email and password to access administrative features.'
-                : 'Enter the administrator password to access administrative features.';
+            updateAdminToolsVisibility();
+            adminEmailInput.style.display = 'none';
+            adminLoginSummary.textContent = 'Enter the administrator password to access administrative features.';
         }
 
         function closeAdminLoginModal() {
@@ -1481,7 +1629,7 @@
             updateAdminLoginMode();
             adminLoginOverlay.style.display = 'flex';
             adminLoginError.textContent = '';
-            setTimeout(() => (supabase ? adminEmailInput : adminPasswordInput).focus(), 50);
+            setTimeout(() => adminPasswordInput.focus(), 50);
         }
 
         function setAdminSession() {
@@ -1490,17 +1638,35 @@
 
         function clearAdminSession() { try { sessionStorage.removeItem(ADMIN_SESSION_KEY); } catch(e) {} }
 
+        function waitForSupabaseClient(timeoutMs = 4000) {
+            return new Promise(resolve => {
+                const started = Date.now();
+                const check = () => {
+                    if (initializeSupabaseClient() && supabase) {
+                        resolve(true);
+                        return;
+                    }
+                    if (Date.now() - started >= timeoutMs) {
+                        resolve(false);
+                        return;
+                    }
+                    setTimeout(check, 100);
+                };
+                check();
+            });
+        }
+
         async function restoreAdminSession() {
             try {
                 if (supabase) {
                     const { data: { session } } = await supabase.auth.getSession();
                     if (session) {
-                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateConcealView(); updateConcealView(); return true;
+                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); return true;
                     }
                     return false;
                 }
                 const expires = Number(sessionStorage.getItem(ADMIN_SESSION_KEY));
-                if (expires && expires > Date.now()) { isAdmin = true; adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; return true; }
+                if (expires && expires > Date.now()) { isAdmin = true; adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); return true; }
                 sessionStorage.removeItem(ADMIN_SESSION_KEY);
             } catch(e) {}
             return false;
@@ -1510,7 +1676,7 @@
             if (supabase) {
                 try { await supabase.auth.signOut(); } catch(e) { console.error(e); }
             }
-            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateConcealView(); renderCards(); if (message) showToast(message, 'info');
+            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); renderCards(); if (message) showToast(message, 'info');
         }
 
         btnAdminLogin.addEventListener('click', () => {
@@ -1524,12 +1690,12 @@
             const pwd = adminPasswordInput.value;
             if (!pwd) { adminLoginError.textContent = 'Please enter the administrator password.'; return; }
             try {
+                if (!supabase) await waitForSupabaseClient(4000);
                 if (supabase) {
-                    const email = adminEmailInput.value.trim();
-                    if (!email) { adminLoginError.textContent = 'Please enter the administrator email.'; adminEmailInput.focus(); return; }
+                    const email = 'hxn.03x2@gmail.com';
                     const { error } = await supabase.auth.signInWithPassword({ email, password: pwd });
                     if (error) throw error;
-                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateConcealView(); closeAdminLoginModal();
+                    isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); closeAdminLoginModal();
                     await refreshFromCloud({ seedIfEmpty: true });
                     await setupCloudSubscription();
                     showToast('Administrator authentication successful. Cloud synchronization is active.', 'success');
@@ -1537,12 +1703,12 @@
                 } else {
                     const hash = await hashText(pwd);
                     if (hash === ADMIN_PASSWORD_HASH) {
-                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; closeAdminLoginModal(); showToast('Administrator authentication successful. Session valid for 30 minutes.', 'success'); renderCards();
+                        isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility(); closeAdminLoginModal(); showToast('Administrator authentication successful. Session valid for 30 minutes.', 'success'); renderCards();
                     } else { adminLoginError.textContent = 'Incorrect password.'; adminPasswordInput.select(); }
                 }
             } catch(e) {
                 console.error(e);
-                adminLoginError.textContent = supabase ? 'Authentication failed. Check your email and password.' : 'Browser authentication is unavailable.';
+                adminLoginError.textContent = (e && e.message === 'Cloud connection unavailable') ? 'Cloud connection is unavailable. Please check the internet connection and try again.' : 'Authentication failed. Check your password and try again.';
             }
         });
         adminPasswordInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-admin-login-submit').click(); if (e.key === 'Escape') closeAdminLoginModal(); });
@@ -1553,7 +1719,7 @@
                 if (session) {
                     isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout';
                 } else if (isAdmin) {
-                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateConcealView(); renderCards();
+                    isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; renderCards();
                 }
             });
         }
@@ -1591,53 +1757,109 @@
             if (!target) return;
             if (!confirm('Clear the reply processing change history for this petition?')) return;
             target.replyHistory = [];
-            savePetitions();
-            renderCards();
+            savePetitions([id]).then(ok => {
+                renderCards();
+                showToast(ok ? 'Reply processing history cleared.' : 'History was cleared locally, but cloud synchronization failed.', ok ? 'success' : 'warning');
+            });
             showToast('Reply processing history cleared.', 'success');
         };
 
-        window.saveAdminReply = function (id) {
-            if (!isAdmin) { showToast('Administrator authentication is required.', 'warning'); return; }
+        window.saveAdminReply = async function (id) {
+            if (!isAdmin) {
+                showToast('Administrator authentication is required.', 'warning');
+                return;
+            }
+
             const textarea = document.getElementById(`admin-textarea-${id}`);
             const processStatusSelect = document.getElementById(`process-status-${id}`);
             const replyStatusSelect = document.getElementById(`reply-status-${id}`);
             const prioritySelect = document.getElementById(`priority-${id}`);
-            if (!processStatusSelect || !replyStatusSelect || !prioritySelect) return;
-            const target = petitions.find(p => p.id === id);
-            if (!target) return;
+            if (!processStatusSelect || !replyStatusSelect || !prioritySelect) {
+                showToast('The administrator controls could not be found.', 'error');
+                return;
+            }
+
+            const target = petitions.find(p => String(p.id) === String(id));
+            if (!target) {
+                showToast(`Petition #${id} could not be found.`, 'error');
+                return;
+            }
+
+            // 클릭 자체가 정상적으로 실행되었는지 즉시 알려준다.
+            showToast(`안건 #${id} 저장 중...`, 'info', 12000);
+
             const newProcessStatus = processStatusSelect.value;
             const newReplyStatus = replyStatusSelect.value || null;
             const newPriority = prioritySelect.value;
             const textVal = textarea ? textarea.value.trim() : (target.replyContent || '');
+
             if (newReplyStatus === '회신 완료' && !textVal) {
-                showToast('회신 완료로 변경하려면 회신 내용을 입력해 주세요.', 'warning'); return;
+                showToast('회신 완료로 변경하려면 회신 내용을 입력해 주세요.', 'warning');
+                return;
             }
+
             const oldReply = target.replyContent || '';
             const oldProcessStatus = target.status || '접수';
             const oldReplyStatus = target.replyStatus || null;
-            const oldPriority = target.priority || '일반';
+            const oldPriority = target.priority || '미지정';
             const changes = [];
+
             if (oldReply !== textVal) changes.push('회신 내용 변경');
             if (oldProcessStatus !== newProcessStatus) changes.push(`처리 상태: ${oldProcessStatus} → ${newProcessStatus}`);
-            if (oldReplyStatus !== newReplyStatus) changes.push(`회신 상태: ${oldReplyStatus} → ${newReplyStatus}`);
+            if (oldReplyStatus !== newReplyStatus) changes.push(`회신 상태: ${oldReplyStatus || '미지정'} → ${newReplyStatus || '미지정'}`);
             if (oldPriority !== newPriority) changes.push(`우선순위: ${oldPriority} → ${newPriority}`);
+
             target.replyContent = textVal;
             target.status = newProcessStatus;
             target.replyStatus = newReplyStatus;
             target.priority = newPriority;
+
             if (changes.length) {
                 target.replyHistory = Array.isArray(target.replyHistory) ? target.replyHistory : [];
-                target.replyHistory.push({ at: new Date().toLocaleString('ko-KR'), summary: changes.join(' · ') });
+                target.replyHistory.push({
+                    at: new Date().toLocaleString('ko-KR'),
+                    summary: changes.join(' · ')
+                });
             }
+
             target.isNew = false;
             clearDraft(id);
-            savePetitions();
-            showToast(`안건 #${id}의 처리 내용이 저장되었습니다.`, 'success');
-            renderCards();
+
+            try {
+                const savePromise = savePetitions([id]);
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Cloud save timed out after 12 seconds.')), 12000);
+                });
+                const ok = await Promise.race([savePromise, timeoutPromise]);
+
+                if (ok) {
+                    showToast(`안건 #${id}의 처리 내용이 저장되었습니다.`, 'success', 4500);
+                } else {
+                    const detail = window.__lastCloudSaveError || 'Supabase 저장 오류의 상세 내용이 확인되지 않았습니다.';
+                    showToast(`안건 #${id} 저장 실패: ${detail}`, 'error', 15000);
+                    console.error(`안건 #${id} 클라우드 저장 실패:`, detail);
+                }
+            } catch (e) {
+                console.error('관리자 회신 저장 처리 오류:', e);
+                const detail = [
+                    e?.message,
+                    e?.code ? `code=${e.code}` : '',
+                    e?.status ? `status=${e.status}` : '',
+                    e?.details ? `details=${e.details}` : '',
+                    e?.hint ? `hint=${e.hint}` : ''
+                ].filter(Boolean).join(' | ');
+                showToast(`Cloud save failed: ${detail || 'unknown error'}`, 'error', 10000);
+            } finally {
+                renderCards();
+            }
         };
 
         // ── 엑셀 업로드 (파싱 → 미리보기 → 확인 후 반영) ────────────
         btnExcelUpload.addEventListener('click', () => {
+            if (!isAdmin) {
+                showToast('Administrator authentication is required.', 'warning');
+                return;
+            }
             excelFileInput.click();
         });
 
@@ -1675,8 +1897,12 @@
             return '기타';
         }
 
-        btnExcelUpload.addEventListener('click', () => excelFileInput.click());
         excelFileInput.addEventListener('change', (e) => {
+            if (!isAdmin) {
+                excelFileInput.value = '';
+                showToast('Administrator authentication is required.', 'warning');
+                return;
+            }
             const file = e.target.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(evt) {
@@ -1730,8 +1956,13 @@
             const toAdd=pendingExcelItems.filter(i=>!i.isDuplicate);
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
-            toAdd.forEach(item=>petitions.push({id:nextId++,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'접수',priority:'일반',replyStatus:null,replyContent:'',replyHistory:[],isNew:true}));
-            savePetitions(); showToast(`엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.`,'success'); closeExcelPreview(); renderCards();
+            const addedIds=[];
+            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'미지정',priority:'미지정',replyStatus:null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
+            savePetitions(addedIds).then(ok => {
+                showToast(ok ? `엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.` : '일부 안건의 클라우드 동기화에 실패했습니다.','warning');
+                closeExcelPreview();
+                renderCards();
+            });
         });
 
         // ── 다크모드 전환 ─────────────────────────────────────────
@@ -1777,32 +2008,87 @@
         document.getElementById('btn-do-print').addEventListener('click',()=>window.print());
         printRangeSelect.addEventListener('change',()=>{printRange=printRangeSelect.value; if(document.body.classList.contains('print-preview-mode')) renderCards();});
 
-        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; if (filterPriority) filterPriority.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
+        btnResetFilters.addEventListener('click',()=>{ searchInput.value=''; filterDorm.value='all'; filterCategory.value='all'; filterStatus.value='all'; filterPriority.value='all'; filterSort.value='id_asc'; renderCards(); showToast('검색 및 필터 조건을 초기화했습니다.','info',2200); });
         searchInput.addEventListener('input',renderCards);
         filterDorm.addEventListener('change',renderCards);
         filterCategory.addEventListener('change',renderCards);
         filterStatus.addEventListener('change',renderCards);
-        if (filterPriority) filterPriority.addEventListener('change',renderCards);
+        filterPriority.addEventListener('change',renderCards);
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
-        // 첫 화면은 클라우드 인증/동기화를 기다리지 않고 즉시 기본 안건을 표시한다.
-        // Supabase가 느리거나 일시적으로 응답하지 않아도 초기 목록이 0건으로 보이지 않도록 한다.
         updateAdminLoginMode();
-        updateConcealView();
+
+        // 최초 화면은 로컬 데이터로 즉시 표시하되, 최종 데이터의 기준은 Supabase로 둔다.
+        // Supabase SDK가 준비되는 즉시 클라우드 데이터를 먼저 조회하여 현재 기기의 오래된 로컬 데이터와 교체한다.
         renderCards();
 
-        restoreAdminSession()
-            .then(() => {
-                updateConcealView();
+        let cloudBootstrapStarted = false;
+        let cloudSdkWaitTimer = null;
+
+        async function bootstrapApp() {
+            if (cloudBootstrapStarted) return;
+            cloudBootstrapStarted = true;
+            try {
+                const initialized = initializeSupabaseClient();
+                updateAdminLoginMode();
+
+                if (!initialized || !supabase) {
+                    cloudBootstrapStarted = false;
+                    return;
+                }
+
+                if (!window.__supabaseAuthListenerBound) {
+                    window.__supabaseAuthListenerBound = true;
+                    supabase.auth.onAuthStateChange(async (_event, session) => {
+                        if (session) {
+                            isAdmin = true;
+                            setAdminSession();
+                            adminIndicator.style.display = 'inline-block';
+                            btnAdminLogin.textContent = 'Administrator Logout';
+                        } else if (isAdmin) {
+                            isAdmin = false;
+                            clearAdminSession();
+                            adminIndicator.style.display = 'none';
+                            btnAdminLogin.textContent = 'Administrator';
+                            updateAdminToolsVisibility();
+                            renderCards();
+                        }
+                    });
+                }
+
+                await restoreAdminSession();
+                updateAdminLoginMode();
+
+                // 로그인 여부와 관계없이 먼저 Supabase를 조회한다.
+                // 따라서 다른 기기에서도 로컬에 남아 있는 예전 데이터가 아니라
+                // 서버에 저장된 최신 데이터를 표시한다.
+                const cloudLoaded = await refreshFromCloud({ seedIfEmpty: isAdmin });
+                if (!cloudLoaded) renderCards();
+                await setupCloudSubscription();
+            } catch (e) {
+                console.error('Startup error:', e);
+                cloudBootstrapStarted = false;
                 renderCards();
-                if (supabase) return initializeCloud();
-            })
-            .catch((e) => {
-                console.error('초기 관리자 세션 확인 오류:', e);
-                updateConcealView();
-                renderCards();
-            });
+            }
+        }
+
+        function waitForSupabaseAndBootstrap() {
+            if (supabase) {
+                bootstrapApp();
+                return;
+            }
+            if (initializeSupabaseClient()) {
+                bootstrapApp();
+                return;
+            }
+            if (cloudSdkWaitTimer) clearTimeout(cloudSdkWaitTimer);
+            cloudSdkWaitTimer = setTimeout(waitForSupabaseAndBootstrap, 150);
+        }
+
+        // defer로 로드되는 Supabase SDK가 준비될 때까지 짧게 대기한다.
+        // SDK 로드 실패 시에는 로컬 데이터만 유지한다.
+        setTimeout(waitForSupabaseAndBootstrap, 0);
     </script>
 </body>
 </html>
