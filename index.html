@@ -276,7 +276,7 @@
 
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; min-width: 0; }
         .admin-tools { display: none; gap: 8px; flex-wrap: wrap; align-items: center; min-width: 0; }
-        .admin-tools.is-visible { display: flex !important; }
+        .admin-tools.is-visible { display: flex !important; pointer-events: auto; }
         .btn {
             padding: 8px 14px;
             font-size: 12px;
@@ -296,28 +296,32 @@
         .btn-conceal { background-color: #8b6f47; color: #fffaf2; }
         .btn-conceal:hover { background-color: #765b38; }
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
+        .theme-status-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            min-width: 92px;
+        }
         .cloud-sync-status {
-            position: absolute;
-            right: 14px;
-            bottom: 7px;
-            display: inline-flex;
+            display: none;
             align-items: center;
-            min-height: 18px;
-            padding: 0 4px;
-            border-radius: 6px;
+            min-height: 16px;
+            padding: 0 3px;
             font-size: 9px;
             font-weight: 700;
             color: var(--color-text-muted);
             white-space: nowrap;
             pointer-events: none;
         }
-        [data-theme="dark"] .cloud-sync-status { color: var(--color-text-muted); }
+        body.admin-mode .cloud-sync-status { display: inline-flex; }
         [data-theme="dark"] .btn-conceal { background-color: #6f5538; color: #f5eee4; }
         [data-theme="dark"] .btn-conceal:hover { background-color: #826547; }
         [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
         @media (max-width: 700px) {
-            .panel-card { padding-bottom: 28px !important; }
-            .cloud-sync-status { right: 12px; bottom: 7px; }
+            .panel-card { padding-bottom: 16px !important; }
+            .theme-status-wrap { align-items: flex-end; min-width: 86px; }
+            .cloud-sync-status { font-size: 8px; }
         }
 
         .conceal-overlay {
@@ -421,7 +425,7 @@
             color: #d8b993;
         }
         @media (max-width: 700px) {
-            .conceal-overlay { padding: 94px 14px 28px; }
+            .conceal-overlay { padding: 82px 14px 24px; }
             .conceal-overlay-card { padding: 28px 20px 24px; border-radius: 14px; }
             .conceal-overlay-icon { width: 48px; height: 48px; margin-bottom: 15px; font-size: 21px; }
             .conceal-overlay-title { font-size: 18px; }
@@ -437,6 +441,32 @@
         body.conceal-active:not(.admin-mode) .btn-group { display: flex !important; }
         body.conceal-active:not(.admin-mode) .panel-card { position: relative; box-shadow: none; gap: 0; padding: 10px 12px; }
         body.admin-mode .conceal-overlay { display: none !important; }
+        body.conceal-active:not(.admin-mode) .btn-group {
+            grid-template-columns: 1fr !important;
+        }
+        body.conceal-active:not(.admin-mode) #btn-print-view {
+            display: none !important;
+        }
+        body.conceal-active:not(.admin-mode) #admin-tools {
+            display: none !important;
+        }
+        body.conceal-active:not(.admin-mode) .control-panel {
+            z-index: 100;
+        }
+        body.conceal-active.admin-mode .conceal-overlay {
+            display: none !important;
+            pointer-events: none !important;
+        }
+        body.conceal-active.admin-mode .control-panel,
+        body.conceal-active.admin-mode .btn-group,
+        body.conceal-active.admin-mode #btn-admin-login,
+        body.conceal-active.admin-mode #admin-tools,
+        body.conceal-active.admin-mode #btn-print-view {
+            position: relative;
+            z-index: 120;
+            pointer-events: auto;
+        }
+
 
         main {
             max-width: 1150px;
@@ -936,7 +966,10 @@
             display: none !important;
         }
         body.print-preview-mode .cards-grid { column-count: 1 !important; }
-        body.print-preview-mode .card-content { max-height: none !important; overflow: visible !important; }
+        body.print-preview-mode .card-content,
+        body.print-preview-mode .card-content.expanded,
+        body.print-preview-mode .card-body,
+        body.print-preview-mode .reply-content { max-height: none !important; overflow: visible !important; }
         body.print-preview-mode .card-content.expandable::after { display: none !important; }
         /* 인쇄 미리보기 중에도 상단 인쇄 바와 겹치지 않도록 헤더만 고정 해제, 색상은 현재 테마(라이트/다크)를 그대로 따름 */
         body.print-preview-mode header { position: static !important; }
@@ -955,10 +988,15 @@
                 page-break-inside: auto !important;
                 overflow: visible !important;
             }
-            .card-content, .card-body {
+            .card-content, .card-content.expanded, .card-body, .reply-box, .reply-content {
                 max-height: none !important;
                 height: auto !important;
                 overflow: visible !important;
+                clip-path: none !important;
+            }
+            .card-content {
+                display: block !important;
+                white-space: pre-wrap !important;
             }
             .card-content.expandable::after { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; }
@@ -977,7 +1015,10 @@
                 <p id="header-subtitle" class="header-subtitle">청운관 및 미래관 건의사항, 총 33건 접수 (2026.09.21 - 2026.09.23)</p>
             </div>
             <div class="header-actions">
-                <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
+                <div class="theme-status-wrap">
+                    <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
+                    <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
+                </div>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
             </div>
         </div>
@@ -1052,7 +1093,6 @@
                     </div>
                     <button id="btn-print-view" class="btn btn-print" type="button">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
-                <span id="cloud-sync-status" class="cloud-sync-status" aria-live="polite">Cloud sync: waiting</span>
                 </div>
             </div>
         </div>
@@ -1803,7 +1843,10 @@
                 adminTools.setAttribute('aria-hidden', isAdmin ? 'false' : 'true');
             }
             document.body.classList.toggle('admin-mode', isAdmin);
-            if (concealOverlay) concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
+            if (concealOverlay) {
+                concealOverlay.setAttribute('aria-hidden', (concealMode && !isAdmin) ? 'false' : 'true');
+                concealOverlay.style.pointerEvents = (concealMode && !isAdmin) ? 'auto' : 'none';
+            }
             if (btnConceal) {
                 btnConceal.classList.toggle('active', concealMode);
                 btnConceal.textContent = concealMode ? 'Deactivate Conceal' : 'Activate Conceal';
@@ -1860,7 +1903,12 @@
                     const { data: { session } } = await supabase.auth.getSession();
                     if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
                         isAdmin = true; setAdminSession(); adminIndicator.style.display = 'inline-block'; btnAdminLogin.textContent = 'Administrator Logout'; updateAdminToolsVisibility();
+                        await setupCloudSubscription();
+                        await setupConcealSubscription();
                         await loadConcealModeFromCloud({ silent: true });
+                        await refreshFromCloud({ silent: true });
+                        updateAdminToolsVisibility();
+                        renderCards();
                         return true;
                     }
                     isAdmin = false; updateAdminToolsVisibility();
@@ -1877,7 +1925,13 @@
             if (supabase) {
                 try { await supabase.auth.signOut(); } catch(e) { console.error(e); }
             }
-            isAdmin = false; clearAdminSession(); adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator'; updateAdminToolsVisibility(); applyConcealMode(concealMode, { silent: true, remote: true }); renderCards(); if (message) showToast(message, 'info');
+            isAdmin = false; clearAdminSession();
+            if (btnConceal) btnConceal.disabled = false;
+            adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator';
+            updateAdminToolsVisibility();
+            applyConcealMode(concealMode, { silent: true, remote: true });
+            renderCards();
+            if (message) showToast(message, 'info');
         }
 
         btnAdminLogin.addEventListener('click', () => {
@@ -2310,7 +2364,7 @@
                 if (!window.__supabaseAuthListenerBound) {
                     window.__supabaseAuthListenerBound = true;
                     supabase.auth.onAuthStateChange(async (_event, session) => {
-                        if (session) {
+                        if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
                             isAdmin = true;
                             setAdminSession();
                             adminIndicator.style.display = 'inline-block';
@@ -2318,6 +2372,7 @@
                             updateAdminToolsVisibility();
                             await setupConcealSubscription();
                             await loadConcealModeFromCloud({ silent: true });
+                            await refreshFromCloud({ silent: true });
                             renderCards();
                         } else if (isAdmin) {
                             isAdmin = false;
