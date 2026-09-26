@@ -864,6 +864,12 @@
                             <option value="회신 완료">회신 완료</option>
                         </optgroup></select>
 
+                    <select id="filter-priority" class="filter-select">
+                        <option value="all">우선순위 전체</option>
+                        <option value="긴급">긴급 처리</option>
+                        <option value="우선">우선 처리</option>
+                    </select>
+
                     <div class="sort-reset-group">
                         <select id="filter-sort" class="filter-select">
                             <option value="id_asc">번호순</option>
@@ -1082,17 +1088,21 @@
             try {
                 const { data, error } = await supabase.from('petitions').select('*').order('id', { ascending: true });
                 if (error) throw error;
-                if (data && data.length) {
-                    petitions = data.map(cloudRowToPetition);
+                const petitionRows = Array.isArray(data) ? data.filter(row => Number(row.id) > 0) : [];
+                if (petitionRows.length) {
+                    petitions = petitionRows.map(cloudRowToPetition);
                     savePetitionsLocal();
                     renderCards();
                     return true;
                 }
+                // id=0 같은 사이트 제어용 행만 있거나 Cloud가 비어 있으면
+                // 로컬에 보관된 기존 안건을 절대 덮어쓰지 않는다.
                 if (options.seedIfEmpty && isAdmin && petitions.length) {
                     await savePetitionsCloud();
                     return true;
                 }
-                return false;
+                renderCards();
+                return petitions.length > 0;
             } catch (e) {
                 console.error('Supabase 불러오기 오류:', e);
                 if (!options.silent) showToast('Cloud data could not be loaded. Local data is being shown.', 'warning', 4200);
@@ -1161,6 +1171,7 @@
         const filterDorm = document.getElementById('filter-dorm');
         const filterCategory = document.getElementById('filter-category');
         const filterStatus = document.getElementById('filter-status');
+        const filterPriority = document.getElementById('filter-priority');
         const filterSort = document.getElementById('filter-sort');
         const statsSummary = document.getElementById('stats-summary');
         const btnAdminLogin = document.getElementById('btn-admin-login');
@@ -1720,6 +1731,7 @@
         filterDorm.addEventListener('change',renderCards);
         filterCategory.addEventListener('change',renderCards);
         filterStatus.addEventListener('change',renderCards);
+        filterPriority.addEventListener('change',renderCards);
         filterSort.addEventListener('change',renderCards);
 
         document.addEventListener('keydown',e=>{ if(e.key==='Escape' && adminLoginOverlay.style.display==='flex') closeAdminLoginModal(); });
