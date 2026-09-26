@@ -1715,7 +1715,9 @@
             target.isNew = false;
             clearDraft(id);
             savePetitions([id]).then(ok => {
-                showToast(ok ? `안건 #${id}의 처리 내용이 저장되었습니다.` : `안건 #${id}은 이 기기에 저장되었지만 클라우드 동기화에 실패했습니다.`, ok ? 'success' : 'warning');
+                if (ok) {
+        showToast(`안건 #${id}의 처리 내용이 저장되었습니다.`, 'success');
+    }
                 renderCards();
             });
         };
