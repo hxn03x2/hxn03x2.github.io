@@ -304,15 +304,17 @@
         .conceal-public-actions {
             display: none;
             align-items: center;
-            gap: 6px;
+            margin-left: 6px;
         }
         .btn-public-header {
-            padding: 7px 11px;
+            height: 34px;
+            min-height: 34px;
+            padding: 0 13px;
             border-radius: 999px;
             border: 1px solid var(--color-border-soft);
             background: var(--color-card-bg);
             color: var(--color-text);
-            font: 700 11px/1.1 inherit;
+            font: 700 11px/34px inherit;
             white-space: nowrap;
             cursor: pointer;
             box-shadow: 0 1px 4px rgba(0,0,0,.08);
@@ -323,11 +325,22 @@
         [data-theme="dark"] .btn-conceal { background-color: #6f5538; color: #f5eee4; }
         [data-theme="dark"] .btn-conceal:hover { background-color: #826547; }
         [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
-        @media (max-width: 700px) {
+        @media (max-width: 1024px) {
             .panel-card { padding-bottom: 16px !important; }
             .theme-status-wrap { align-items: center; min-width: auto; }
-            .header-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+            .header-actions { gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
             body.conceal-active:not(.admin-mode) .conceal-public-actions { display: flex; }
+            body.conceal-active:not(.admin-mode) #btn-admin-login { display: none !important; }
+            body.conceal-active:not(.admin-mode) #btn-print-view { display: none !important; }
+            body.conceal-active:not(.admin-mode) .control-panel { display: none !important; }
+            body.conceal-active:not(.admin-mode) .header-actions { gap: 8px; }
+            body.conceal-active:not(.admin-mode) .theme-status-wrap,
+            body.conceal-active:not(.admin-mode) .conceal-public-actions { height: 34px; }
+        }
+        @media (max-width: 480px) {
+            .header-actions { gap: 8px; }
+            .btn-theme, .btn-public-header { height: 34px; min-height: 34px; }
+            .btn-public-header { padding: 0 12px; font-size: 11px; line-height: 34px; }
         }
 
         .conceal-overlay {
@@ -1066,7 +1079,6 @@
                 </div>
                 <div id="conceal-public-actions" class="conceal-public-actions" aria-hidden="true">
                     <button id="btn-public-admin" class="btn-public-header" type="button">Administrator</button>
-                    <button id="btn-public-print" class="btn-public-header" type="button">Print View</button>
                 </div>
                 <div id="admin-indicator" class="admin-status" style="display: none;">Administrator authentication complete</div>
             </div>
@@ -1479,7 +1491,7 @@
             }
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (session?.user?.id === ADMIN_SUPABASE_USER_ID) {
+                if (!adminLogoutInProgress && session?.user?.id === ADMIN_SUPABASE_USER_ID) {
                     isAdmin = true;
                     setAdminSession();
                     adminIndicator.style.display = 'inline-block';
@@ -1540,7 +1552,6 @@
         const btnConceal = document.getElementById('btn-conceal');
         const concealPublicActions = document.getElementById('conceal-public-actions');
         const btnPublicAdmin = document.getElementById('btn-public-admin');
-        const btnPublicPrint = document.getElementById('btn-public-print');
         const concealOverlay = document.getElementById('conceal-overlay');
         const excelFileInput = document.getElementById('excel-file-input');
         const btnThemeToggle = document.getElementById('btn-theme-toggle');
@@ -1964,16 +1975,32 @@
             return false;
         }
 
+        let adminLogoutInProgress = false;
         async function logoutAdmin(message = 'Administrator session ended.') {
-            if (supabase) {
-                try { await supabase.auth.signOut(); } catch(e) { console.error(e); }
-            }
-            isAdmin = false; clearAdminSession();
+            if (adminLogoutInProgress) return;
+            adminLogoutInProgress = true;
+            // Clear the local admin UI/session first so an auth-state callback cannot restore it mid-logout.
+            isAdmin = false;
+            clearAdminSession();
             if (btnConceal) btnConceal.disabled = false;
-            adminIndicator.style.display = 'none'; btnAdminLogin.textContent = 'Administrator';
+            adminIndicator.style.display = 'none';
+            btnAdminLogin.textContent = 'Administrator';
             updateAdminToolsVisibility();
+            try {
+                if (supabase) {
+                    await supabase.auth.signOut({ scope: 'local' });
+                    // Verify that no local Supabase session remains.
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) {
+                        await supabase.auth.signOut({ scope: 'local' });
+                    }
+                }
+            } catch(e) {
+                console.error('Administrator logout failed:', e);
+            }
             applyConcealMode(concealMode, { silent: true, remote: true });
             renderCards();
+            adminLogoutInProgress = false;
             if (message) showToast(message, 'info');
         }
 
@@ -1982,8 +2009,7 @@
             openAdminLoginModal();
         });
         if (btnPublicAdmin) btnPublicAdmin.addEventListener('click', () => btnAdminLogin.click());
-        if (btnPublicPrint) btnPublicPrint.addEventListener('click', () => btnPrintView.click());
-        if (btnConceal) btnConceal.addEventListener('click', async () => {
+                if (btnConceal) btnConceal.addEventListener('click', async () => {
             if (!isAdmin) { showToast('Administrator authentication is required.', 'warning'); return; }
             const next = !concealMode;
             btnConceal.disabled = true;
@@ -2416,7 +2442,7 @@
                     window.__supabaseAuthListenerBound = true;
                     supabase.auth.onAuthStateChange((_event, session) => {
                         const validAdmin = session?.user?.id === ADMIN_SUPABASE_USER_ID;
-                        if (validAdmin) {
+                        if (!adminLogoutInProgress && validAdmin) {
                             isAdmin = true;
                             setAdminSession();
                             adminIndicator.style.display = 'inline-block';
