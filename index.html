@@ -615,41 +615,14 @@
             border: 1px solid var(--reply-box-border);
             border-radius: 8px;
         }
-        .reply-toggle {
-            width: 100%;
-            padding: 0;
-            background: none;
-            border: 0;
-            color: var(--reply-box-header);
-            font: inherit;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
         .reply-header {
             font-size: 12px; font-weight: 700; color: var(--reply-box-header);
-            margin: 0; display: flex; align-items: center; gap: 4px;
-            min-width: 0;
+            margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
         }
-        .reply-toggle-label {
-            flex: 0 0 auto;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--color-text-muted);
-            white-space: nowrap;
-        }
-        .reply-toggle[aria-expanded="true"] .reply-toggle-label::before { content: '접기'; }
-        .reply-toggle[aria-expanded="false"] .reply-toggle-label::before { content: '펼치기'; }
         .reply-content {
-            display: none;
-            margin-top: 8px;
             font-size: 12px; color: var(--reply-box-text);
             white-space: pre-wrap; word-break: break-word; line-height: 1.6;
         }
-        .reply-content.is-expanded { display: block; }
 
         .admin-reply-editor {
             margin-top: 14px; padding: 12px;
@@ -1556,6 +1529,7 @@
 
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
+                        <option value="검토 중">검토 중</option>
                         <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
@@ -2278,11 +2252,8 @@
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
                     <div class="reply-box">
-                        <button type="button" class="reply-toggle" aria-expanded="false" aria-controls="reply-content-${item.id}" onclick="toggleReply(${item.id})">
-                            <span class="reply-header">[광주중앙고등학교 기숙사 자치위원회 회신]</span>
-                            <span class="reply-toggle-label" aria-hidden="true"></span>
-                        </button>
-                        <div id="reply-content-${item.id}" class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
+                        <div class="reply-header">📌 [광주중앙고등학교 기숙사 자치위원회 회신]</div>
+                        <div class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
                     </div>` : '';
 
                 let adminEditorHtml = '';
@@ -2296,7 +2267,7 @@
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
                             <div class="admin-field-row admin-field-row-three">
                                 <div class="admin-field"><label for="process-status-${item.id}">처리 상태</label><select id="process-status-${item.id}">
-                                    ${['미지정','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['미지정','검토 중','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="reply-status-${item.id}">회신 상태</label><select id="reply-status-${item.id}">
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
@@ -2388,14 +2359,6 @@
                 contentEl.classList.add('expanded');
                 btn.textContent = '접기';
             }
-        };
-
-        window.toggleReply = function (id) {
-            const contentEl = document.getElementById(`reply-content-${id}`);
-            const toggle = document.querySelector(`.reply-toggle[aria-controls=\"reply-content-${id}\"]`);
-            if (!contentEl || !toggle) return;
-            const expanded = contentEl.classList.toggle('is-expanded');
-            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         };
 
         // ── 토스트 알림 ───────────────────────────────────────────
@@ -3041,7 +3004,7 @@
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
             const addedIds=[];
-            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'미지정',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
+            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'검토 중',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
             savePetitions(addedIds).then(ok => {
                 showToast(ok ? `엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.` : '일부 안건의 클라우드 동기화에 실패했습니다.','warning');
                 closeExcelPreview();
