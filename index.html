@@ -1468,6 +1468,41 @@
                 visibility: hidden !important;
             }
         }
+
+        /* ── 독립 설문조사 영역 ───────────────────────────── */
+        .survey-view { max-width: 1150px; margin: 20px auto 0; padding: 0 16px 32px; }
+        .survey-shell { display: flex; flex-direction: column; gap: 12px; }
+        .survey-header-card, .survey-summary-card, .survey-card {
+            background: var(--color-card-bg); border: 1px solid var(--color-border);
+            border-radius: 12px; box-shadow: var(--shadow-panel);
+        }
+        .survey-header-card { padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .survey-kicker { margin: 0 0 6px; color: var(--color-accent-dark); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+        .survey-header-card h2 { margin: 0; color: var(--color-text); font-size: 20px; line-height: 1.4; }
+        .survey-description { margin: 7px 0 0; color: var(--color-text-muted); font-size: 12px; line-height: 1.6; }
+        .survey-summary-card { padding: 14px 18px; display: flex; gap: 28px; flex-wrap: wrap; }
+        .survey-summary-card > div { display: flex; flex-direction: column; gap: 3px; }
+        .survey-summary-label { color: var(--color-text-faint); font-size: 10px; font-weight: 700; }
+        .survey-summary-card strong { color: var(--color-text); font-size: 13px; }
+        .survey-cards-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .survey-card { padding: 16px; min-width: 0; }
+        .survey-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 13px; }
+        .survey-response-number { color: var(--color-text-faint); font-size: 10px; font-weight: 800; }
+        .survey-response-date { color: var(--color-text-muted); font-size: 10px; white-space: nowrap; }
+        .survey-field { margin-top: 12px; min-width: 0; }
+        .survey-field:first-of-type { margin-top: 0; }
+        .survey-field-label { display: block; margin-bottom: 6px; color: var(--color-text-muted); font-size: 10px; font-weight: 800; }
+        .survey-field-value { color: var(--color-text); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .survey-badge-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .survey-badge { display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid var(--color-border-soft); border-radius: 999px; background: var(--color-bg); color: var(--color-text-muted); font-size: 10px; font-weight: 700; line-height: 1.35; }
+        .survey-attachment { display: inline-flex; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--color-border-soft); color: var(--color-accent-dark); background: var(--color-bg); font-size: 10px; font-weight: 700; }
+        .survey-empty { padding: 42px 20px; text-align: center; color: var(--color-text-faint); background: var(--color-card-bg); border: 1px dashed var(--color-border-soft); border-radius: 12px; font-size: 13px; }
+        @media (max-width: 700px) {
+            .survey-view { width: 100vw; max-width: 100vw; box-sizing: border-box; padding: 16px 12px 28px; }
+            .survey-header-card { align-items: stretch; flex-direction: column; }
+            .survey-header-card .btn { width: 100%; }
+            .survey-cards-grid { grid-template-columns: 1fr; }
+        }
 </style>
 </head>
 <body>
@@ -1481,6 +1516,7 @@
             <div class="header-actions">
                 <div class="theme-status-wrap">
                     <button id="btn-theme-toggle" class="btn-theme" title="화면 테마 전환" aria-label="화면 테마 전환">Dark Mode</button>
+                    <button id="btn-survey-view" class="btn-theme" type="button">위생·시설 실태조사</button>
                 </div>
                 <div id="conceal-public-actions" class="conceal-public-actions" aria-hidden="true">
                     <button id="btn-public-admin" class="btn-public-header" type="button">Administrator</button>
@@ -1578,6 +1614,25 @@
     <main>
         <div id="cards-container" class="cards-grid"></div>
     </main>
+
+    <!-- 기숙사 위생·시설 및 관리 실태조사: 기존 안건 시스템과 완전히 독립된 영역 -->
+    <section id="survey-view" class="survey-view" hidden aria-labelledby="survey-title">
+        <div class="survey-shell">
+            <div class="survey-header-card">
+                <div>
+                    <p class="survey-kicker">기숙사 실태조사</p>
+                    <h2 id="survey-title">기숙사 위생·시설 및 관리 실태조사</h2>
+                    <p class="survey-description">기숙사 내 위생·시설 및 관리 상태를 확인하기 위한 설문 응답 현황입니다.</p>
+                </div>
+                <button id="btn-petition-view" class="btn btn-modal-cancel" type="button">건의사항 보기</button>
+            </div>
+            <div class="survey-summary-card">
+                <div><span class="survey-summary-label">현재 응답</span><strong id="survey-count">0건</strong></div>
+                <div><span class="survey-summary-label">대상 기숙사</span><strong>청운관 · 미래관</strong></div>
+            </div>
+            <div id="survey-cards-container" class="survey-cards-grid"></div>
+        </div>
+    </section>
 
     <footer>
         <p>광주중앙고등학교 기숙사 자치위원회</p>
@@ -2197,14 +2252,7 @@
                 const matchesPriority = filterPriority.value === 'all' || item.priority === filterPriority.value;
                 let matchesStatus = true;
                 if (statusVal !== 'all') {
-                    if (statusVal === '회신 대기') {
-                        matchesStatus = item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요';
-                    } else if (statusVal === '회신 완료') {
-                        // 회신 상태 필터는 처리 상태(status)가 아니라 replyStatus를 기준으로 한다.
-                        matchesStatus = item.replyStatus === '회신 완료';
-                    } else {
-                        matchesStatus = item.status === statusVal;
-                    }
+                    matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
                 }
                 return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
             });
@@ -2220,6 +2268,91 @@
         }
 
         // ── 카드 렌더링 ───────────────────────────────────────────
+        // ── 독립 설문조사 데이터/렌더링 ─────────────────────────────
+        // 현재 엑셀에 실제로 들어온 응답만 반영한다. 개인정보 동의 및 회신용 연락처는 표시하지 않는다.
+        const surveyResponses = [
+            {
+                responseNo: 1,
+                date: '2026-09-28 20:44:26',
+                participant: 'participant 1',
+                dorm: '청운관 (여성 기숙사)',
+                categories: [
+                    '생활공간 및 공용공간의 위생·청결 관리',
+                    '화장실·샤워실·탈의실 등 위생시설의 관리 상태',
+                    '세탁·건조 등 생활 편의시설의 관리 상태',
+                    '청소·방역 및 위생관리 체계'
+                ],
+                detail: '청운관 4층 추가자습실에서 바퀴벌레가 밤마다 나타나고 있습니다.',
+                attachment: 'Link'
+            }
+        ];
+
+        const surveyView = document.getElementById('survey-view');
+        const surveyCardsContainer = document.getElementById('survey-cards-container');
+        const surveyCount = document.getElementById('survey-count');
+        const btnSurveyView = document.getElementById('btn-survey-view');
+        const btnPetitionView = document.getElementById('btn-petition-view');
+
+        function renderSurveyResponses() {
+            surveyCount.textContent = `${surveyResponses.length}건`;
+            if (!surveyResponses.length) {
+                surveyCardsContainer.innerHTML = '<div class="survey-empty">현재 접수된 설문 응답이 없습니다.</div>';
+                return;
+            }
+            surveyCardsContainer.innerHTML = surveyResponses.map(item => `
+                <article class="survey-card">
+                    <div class="survey-card-head">
+                        <span class="survey-response-number">응답 #${item.responseNo}</span>
+                        <span class="survey-response-date">${escapeHtml(item.date)}</span>
+                    </div>
+                    <div class="survey-field">
+                        <span class="survey-field-label">참여자</span>
+                        <div class="survey-field-value">${escapeHtml(item.participant)}</div>
+                    </div>
+                    <div class="survey-field">
+                        <span class="survey-field-label">대상 기숙사</span>
+                        <div class="survey-field-value">${escapeHtml(item.dorm)}</div>
+                    </div>
+                    <div class="survey-field">
+                        <span class="survey-field-label">기숙사 위생 및 청결 관리 실태</span>
+                        <div class="survey-badge-group">
+                            ${item.categories.map(category => `<span class="survey-badge">${escapeHtml(category)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="survey-field">
+                        <span class="survey-field-label">문제의 구체적인 내용 및 발생 장소</span>
+                        <div class="survey-field-value">${escapeHtml(item.detail)}</div>
+                    </div>
+                    <div class="survey-field">
+                        <span class="survey-field-label">문제 상황 관련 사진 및 자료 첨부</span>
+                        <div class="survey-field-value"><span class="survey-attachment">${escapeHtml(item.attachment)}</span></div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function showSurveyView() {
+            surveyView.hidden = false;
+            document.querySelector('main').style.display = 'none';
+            document.querySelector('footer').style.display = 'none';
+            document.querySelector('.control-panel').style.display = 'none';
+            document.getElementById('print-mode-bar').style.display = 'none';
+            renderSurveyResponses();
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        function showPetitionView() {
+            surveyView.hidden = true;
+            document.querySelector('main').style.display = '';
+            document.querySelector('footer').style.display = '';
+            document.querySelector('.control-panel').style.display = '';
+            renderCards();
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        btnSurveyView.addEventListener('click', showSurveyView);
+        btnPetitionView.addEventListener('click', showPetitionView);
+
         function renderCards() {
             document.body.classList.toggle('admin-mode', isAdmin);
             updateHeaderSummary();
@@ -2259,7 +2392,7 @@
                     const history = Array.isArray(item.replyHistory) ? item.replyHistory : [];
                     const historyHtml = history.length ? `<details class="history-box"><summary>Reply & Processing Change History (${history.length})</summary>${history.slice().reverse().map(h => `<div class="history-item"><strong>${escapeHtml(h.at || '')}</strong><br>${escapeHtml(h.summary || '')}</div>`).join('')}<button type="button" class="history-reset-btn" onclick="clearReplyHistory(${item.id})">Reset History</button></details>` : '';
                     const draft = getDraft(item.id);
-                    const replyEnabled = replyStatus === '회신 대기' || replyStatus === '회신 완료';
+                    const replyEnabled = replyStatus === '회신 대기';
                     adminEditorHtml = `
                         <div class="admin-reply-editor">
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
@@ -2704,11 +2837,7 @@
             }
 
             target.isNew = false;
-            // 회신문/상태 변경은 클라우드 응답과 관계없이 우선 로컬에 즉시 보존한다.
-            saveAdminStateLocal();
-            savePetitionsLocal();
             clearDraft(id);
-            renderCards();
 
             try {
                 const savePromise = savePetitions([id]);
@@ -2718,9 +2847,6 @@
                 const ok = await Promise.race([savePromise, timeoutPromise]);
 
                 if (ok) {
-                    saveAdminStateLocal();
-                    savePetitionsLocal();
-                    renderCards();
                     showToast(`안건 #${id}의 처리 내용이 저장되었습니다.`, 'success', 4500);
                 } else {
                     const detail = window.__lastCloudSaveError || 'Supabase 저장 오류의 상세 내용이 확인되지 않았습니다.';
