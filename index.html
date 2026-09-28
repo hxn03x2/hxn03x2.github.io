@@ -310,6 +310,9 @@
         .theme-status-wrap {
             display: flex;
             align-items: center;
+            gap: 10px;
+            display: flex;
+            align-items: center;
             min-width: 92px;
         }
         .conceal-public-actions {
@@ -343,7 +346,10 @@
         [data-theme="dark"] .btn-conceal.active { background-color: #8b6a47; color: #fff8ef; }
         @media (max-width: 1024px) {
             .panel-card { padding-bottom: 16px !important; }
-            .theme-status-wrap { align-items: center; min-width: auto; }
+            .theme-status-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px; align-items: center; min-width: auto; }
             .header-actions { gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
             body.conceal-active:not(.admin-mode) .conceal-public-actions { display: flex; }
             body.conceal-active:not(.admin-mode) .control-panel { display: none !important; }
@@ -2363,6 +2369,8 @@
             document.querySelector('footer').style.display = '';
             document.querySelector('.control-panel').style.display = '';
             document.getElementById('print-mode-bar').style.display = '';
+            // 설문 화면에서 돌아올 때 기존 필터/검색 조건을 건드리지 않고
+            // 기존 건의사항 목록을 그대로 다시 렌더링한다.
             renderCards();
             window.scrollTo({ top: 0, behavior: 'auto' });
         }
@@ -2373,6 +2381,11 @@
         function renderCards() {
             document.body.classList.toggle('admin-mode', isAdmin);
             if (isSurveyView) { renderSurveyResponses(); return; }
+            // 설문 화면 전환 상태와 무관하게 건의사항 데이터가 비어 있으면
+            // 원본 보존 데이터로 즉시 복구하여 전체 안건이 사라지는 것을 방지한다.
+            if (!Array.isArray(petitions) || petitions.length === 0) {
+                petitions = JSON.parse(JSON.stringify(initialPetitions)).map(normalizePetition);
+            }
             updateHeaderSummary();
             const rawQuery = searchInput.value.trim();
             // Conceal 상태의 공개 사용자는 일반 보기뿐 아니라 인쇄 미리보기/인쇄에서도
