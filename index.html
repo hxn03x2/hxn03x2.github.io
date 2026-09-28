@@ -615,14 +615,25 @@
             border: 1px solid var(--reply-box-border);
             border-radius: 8px;
         }
+        .reply-toggle {
+            width: 100%; padding: 0; background: transparent; border: 0;
+            color: var(--reply-box-header); cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            text-align: left;
+        }
         .reply-header {
             font-size: 12px; font-weight: 700; color: var(--reply-box-header);
-            margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
+            margin: 0; display: flex; align-items: center; gap: 4px;
         }
+        .reply-toggle-label { font-size: 11px; font-weight: 700; color: var(--color-text-muted); white-space: nowrap; }
+        .reply-toggle[aria-expanded="true"] .reply-toggle-label::before { content: '접기'; }
+        .reply-toggle[aria-expanded="false"] .reply-toggle-label::before { content: '펼치기'; }
         .reply-content {
+            display: none; margin-top: 8px;
             font-size: 12px; color: var(--reply-box-text);
             white-space: pre-wrap; word-break: break-word; line-height: 1.6;
         }
+        .reply-content.is-expanded { display: block; }
 
         .admin-reply-editor {
             margin-top: 14px; padding: 12px;
@@ -1529,7 +1540,6 @@
 
                     <select id="filter-status" class="filter-select">
                         <option value="all">처리 상태 전체</option>
-                        <option value="검토 중">검토 중</option>
                         <option value="학교 전달">학교 전달</option>
                         <option value="조치 예정">조치 예정</option>
                         <option value="조치 완료">조치 완료</option>
@@ -2252,8 +2262,11 @@
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
                     <div class="reply-box">
-                        <div class="reply-header">📌 [광주중앙고등학교 기숙사 자치위원회 회신]</div>
-                        <div class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
+                        <button type="button" class="reply-toggle" aria-expanded="false" aria-controls="reply-content-${item.id}" onclick="toggleReply(${item.id})">
+                            <span class="reply-header">[광주중앙고등학교 기숙사 자치위원회 회신]</span>
+                            <span class="reply-toggle-label" aria-hidden="true"></span>
+                        </button>
+                        <div id="reply-content-${item.id}" class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
                     </div>` : '';
 
                 let adminEditorHtml = '';
@@ -2267,7 +2280,7 @@
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
                             <div class="admin-field-row admin-field-row-three">
                                 <div class="admin-field"><label for="process-status-${item.id}">처리 상태</label><select id="process-status-${item.id}">
-                                    ${['미지정','검토 중','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
+                                    ${['미지정','학교 전달','조치 예정','조치 완료','반려'].map(v => `<option value="${v}" ${processStatus===v?'selected':''}>${v}</option>`).join('')}
                                 </select></div>
                                 <div class="admin-field"><label for="reply-status-${item.id}">회신 상태</label><select id="reply-status-${item.id}">
                                     ${['','회신 대기','회신 완료'].map(v => `<option value="${v}" ${replyStatus===v?'selected':''}>${v || '미지정'}</option>`).join('')}
@@ -2359,6 +2372,14 @@
                 contentEl.classList.add('expanded');
                 btn.textContent = '접기';
             }
+        };
+
+        window.toggleReply = function (id) {
+            const content = document.getElementById(`reply-content-${id}`);
+            const button = document.querySelector(`.reply-toggle[aria-controls="reply-content-${id}"]`);
+            if (!content || !button) return;
+            const expanded = content.classList.toggle('is-expanded');
+            button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         };
 
         // ── 토스트 알림 ───────────────────────────────────────────
@@ -2751,8 +2772,10 @@
             }
             if (!confirm(`${label}로 지정된 ${targets.length}건의 우선순위를 모두 '미지정'으로 되돌리시겠습니까?\n\n안건 내용과 처리 상태·회신 상태는 변경되지 않습니다.`)) return;
 
+            const ids = targets.map(item => Number(item.id));
+            // 화면과 로컬 상태를 먼저 즉시 반영하여 버튼 클릭 후 지연이 느껴지지 않게 한다.
             targets.forEach(item => {
-                item.priority = null;
+                item.priority = '미지정';
                 item.isNew = false;
                 item.replyHistory = Array.isArray(item.replyHistory) ? item.replyHistory : [];
                 item.replyHistory.push({
@@ -2761,21 +2784,33 @@
                 });
             });
             saveAdminStateLocal();
+            savePetitionsLocal();
+            renderCards();
+
+            if (!supabase) initializeSupabaseClient();
+            if (!supabase) {
+                showToast(`${label} 회수는 화면에 반영했지만 클라우드 연결이 없습니다.`, 'warning', 6000);
+                return;
+            }
+
             try {
-                const ok = await savePetitions(targets.map(item => item.id));
-                if (ok) {
-                    showToast(`${label} ${targets.length}건을 모두 미지정으로 되돌렸습니다.`, 'success', 4000);
-                } else {
-                    showToast(`${label} 전체 회수 후 클라우드 저장에 실패했습니다.`, 'error', 7000);
-                }
+                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw sessionError;
+                if (!sessionData?.session?.access_token) throw new Error('관리자 세션이 만료되었습니다.');
+
+                // 기존처럼 안건마다 여러 번 요청하지 않고 한 번의 UPDATE로 전체 회수한다.
+                const { error } = await supabase
+                    .from('petitions')
+                    .update({ priority: '미지정', is_new: false })
+                    .in('id', ids);
+                if (error) throw error;
+
+                showToast(`${label} ${targets.length}건을 모두 미지정으로 되돌렸습니다.`, 'success', 4000);
             } catch (e) {
                 console.error('우선순위 전체 회수 저장 오류:', e);
-                showToast(`${label} 전체 회수 저장 중 오류가 발생했습니다.`, 'error', 7000);
-            } finally {
-                renderCards();
+                showToast(`${label} 회수는 화면에 반영되었지만 클라우드 저장에 실패했습니다. 다시 시도해 주세요.`, 'error', 7000);
             }
         }
-
         btnClearUrgent.addEventListener('click', () => clearPriorityGroup('긴급 처리'));
         btnClearPriority.addEventListener('click', () => clearPriorityGroup('우선 처리'));
 
@@ -3004,7 +3039,7 @@
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
             const addedIds=[];
-            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'검토 중',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
+            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'미지정',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
             savePetitions(addedIds).then(ok => {
                 showToast(ok ? `엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.` : '일부 안건의 클라우드 동기화에 실패했습니다.','warning');
                 closeExcelPreview();
