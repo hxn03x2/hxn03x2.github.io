@@ -2197,7 +2197,14 @@
                 const matchesPriority = filterPriority.value === 'all' || item.priority === filterPriority.value;
                 let matchesStatus = true;
                 if (statusVal !== 'all') {
-                    matchesStatus = item.status === statusVal || (statusVal === '회신 대기' && (item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요'));
+                    if (statusVal === '회신 대기') {
+                        matchesStatus = item.replyStatus === '회신 대기' || item.replyStatus === '회신 필요';
+                    } else if (statusVal === '회신 완료') {
+                        // 회신 상태 필터는 처리 상태(status)가 아니라 replyStatus를 기준으로 한다.
+                        matchesStatus = item.replyStatus === '회신 완료';
+                    } else {
+                        matchesStatus = item.status === statusVal;
+                    }
                 }
                 return matchesSearch && matchesDorm && matchesCategory && matchesPriority && matchesStatus;
             });
@@ -2252,7 +2259,7 @@
                     const history = Array.isArray(item.replyHistory) ? item.replyHistory : [];
                     const historyHtml = history.length ? `<details class="history-box"><summary>Reply & Processing Change History (${history.length})</summary>${history.slice().reverse().map(h => `<div class="history-item"><strong>${escapeHtml(h.at || '')}</strong><br>${escapeHtml(h.summary || '')}</div>`).join('')}<button type="button" class="history-reset-btn" onclick="clearReplyHistory(${item.id})">Reset History</button></details>` : '';
                     const draft = getDraft(item.id);
-                    const replyEnabled = replyStatus === '회신 대기';
+                    const replyEnabled = replyStatus === '회신 대기' || replyStatus === '회신 완료';
                     adminEditorHtml = `
                         <div class="admin-reply-editor">
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
@@ -2697,7 +2704,11 @@
             }
 
             target.isNew = false;
+            // 회신문/상태 변경은 클라우드 응답과 관계없이 우선 로컬에 즉시 보존한다.
+            saveAdminStateLocal();
+            savePetitionsLocal();
             clearDraft(id);
+            renderCards();
 
             try {
                 const savePromise = savePetitions([id]);
@@ -2707,6 +2718,9 @@
                 const ok = await Promise.race([savePromise, timeoutPromise]);
 
                 if (ok) {
+                    saveAdminStateLocal();
+                    savePetitionsLocal();
+                    renderCards();
                     showToast(`안건 #${id}의 처리 내용이 저장되었습니다.`, 'success', 4500);
                 } else {
                     const detail = window.__lastCloudSaveError || 'Supabase 저장 오류의 상세 내용이 확인되지 않았습니다.';
