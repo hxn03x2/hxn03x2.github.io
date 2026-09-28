@@ -2706,8 +2706,16 @@
             rows.slice(0,6).forEach((row, ri) => {
                 const map = {};
                 (row || []).forEach((cell, ci) => {
-                    const h = normalizeDuplicateText(cell).replace(/\s/g,'');
-                    for (const [key, list] of Object.entries(aliases)) if (list.some(a => h === normalizeDuplicateText(a).replace(/\s/g,''))) map[key] = ci;
+                    // Google Forms/Excel headers may carry a trailing '(*)'.
+                    // Remove that marker before alias matching so required-field headers
+                    // such as '대상 기숙사 선택(*)' and '건의사항 분류(*)' are mapped correctly.
+                    const normalizeHeader = value => normalizeDuplicateText(value)
+                        .replace(/\(\*\)\s*$/g, '')
+                        .replace(/\s/g, '');
+                    const h = normalizeHeader(cell);
+                    for (const [key, list] of Object.entries(aliases)) {
+                        if (list.some(a => h === normalizeHeader(a))) map[key] = ci;
+                    }
                 });
                 const score = Object.keys(map).length;
                 if (score > Object.keys(best.map).length) best = { row:ri, map };
