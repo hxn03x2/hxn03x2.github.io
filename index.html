@@ -1825,6 +1825,54 @@
             return allSaved;
         }
 
+        // ── 관리자 변경사항 자동 저장 ─────────────────────────────
+        // 회신 원문은 기존 임시저장 기능을 사용하고, 처리 상태/회신 상태/우선순위는
+        // 변경 즉시 로컬에 보존하여 새로고침이나 일시적인 네트워크 오류에도 유지한다.
+        const ADMIN_STATE_STORAGE_KEY = 'gjcentral_dorm_admin_state_v1';
+
+        function saveAdminStateLocal() {
+            try {
+                const state = petitions.map(p => ({
+                    id: Number(p.id),
+                    status: p.status ?? null,
+                    priority: p.priority ?? null,
+                    replyStatus: p.replyStatus ?? null,
+                    replyContent: p.replyContent ?? '',
+                    replyHistory: Array.isArray(p.replyHistory) ? p.replyHistory : [],
+                    isNew: !!p.isNew
+                }));
+                localStorage.setItem(ADMIN_STATE_STORAGE_KEY, JSON.stringify({
+                    version: 1,
+                    savedAt: new Date().toISOString(),
+                    state
+                }));
+            } catch (e) {
+                console.warn('관리자 변경사항 자동 저장 실패:', e);
+            }
+        }
+
+        function restoreAdminStateLocal() {
+            try {
+                const raw = localStorage.getItem(ADMIN_STATE_STORAGE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed?.state)) return;
+                const byId = new Map(parsed.state.map(x => [Number(x.id), x]));
+                petitions.forEach(p => {
+                    const saved = byId.get(Number(p.id));
+                    if (!saved) return;
+                    if (Object.prototype.hasOwnProperty.call(saved, 'status')) p.status = saved.status;
+                    if (Object.prototype.hasOwnProperty.call(saved, 'priority')) p.priority = saved.priority;
+                    if (Object.prototype.hasOwnProperty.call(saved, 'replyStatus')) p.replyStatus = saved.replyStatus;
+                    if (Object.prototype.hasOwnProperty.call(saved, 'replyContent')) p.replyContent = saved.replyContent;
+                    if (Array.isArray(saved.replyHistory)) p.replyHistory = saved.replyHistory;
+                    if (Object.prototype.hasOwnProperty.call(saved, 'isNew')) p.isNew = !!saved.isNew;
+                });
+            } catch (e) {
+                console.warn('관리자 변경사항 자동 복원 실패:', e);
+            }
+        }
+
         function cloudRowToPetition(row) {
             return normalizePetition({
                 id: row.id, dorm: row.dorm, category: row.category, date: row.date, content: row.content,
@@ -1920,6 +1968,8 @@
         let pendingExcelItems = [];
         let printRange = 'current';
         let draftSaveTimers = {};
+
+        restoreAdminStateLocal();
 
         // DOM 요소
         const cardsContainer = document.getElementById('cards-container');
@@ -2182,7 +2232,7 @@
                 }
 
                 return `
-                    <div class="card" data-id="${item.id}">
+                    <div class="card" data-id="${item.id}" data-petition-number="${item.id}">
                         <div class="card-header">
                             <div class="badge-group">
                                 <span class="badge-id">#${item.id}</span>
@@ -2207,6 +2257,20 @@
                 filtered.forEach(item => {
                     const ta = document.getElementById(`admin-textarea-${item.id}`);
                     if (ta) ta.addEventListener('input', () => scheduleDraftSave(item.id, ta.value));
+
+                    const processSelect = document.getElementById(`process-status-${item.id}`);
+                    const replySelect = document.getElementById(`reply-status-${item.id}`);
+                    const prioritySelect = document.getElementById(`priority-${item.id}`);
+                    const autoSaveField = (field, value) => {
+                        const target = petitions.find(p => String(p.id) === String(item.id));
+                        if (!target) return;
+                        target[field] = value || null;
+                        saveAdminStateLocal();
+                        savePetitions([item.id]).catch(() => {});
+                    };
+                    if (processSelect) processSelect.addEventListener('change', () => autoSaveField('status', processSelect.value));
+                    if (replySelect) replySelect.addEventListener('change', () => autoSaveField('replyStatus', replySelect.value || null));
+                    if (prioritySelect) prioritySelect.addEventListener('change', () => autoSaveField('priority', prioritySelect.value));
                 });
             }
             checkContentOverflow();
@@ -2514,6 +2578,7 @@
             if (!target) return;
             if (!confirm('Clear the reply processing change history for this petition?')) return;
             target.replyHistory = [];
+            saveAdminStateLocal();
             savePetitions([id]).then(ok => {
                 renderCards();
                 showToast(ok ? 'Reply processing history cleared.' : 'History was cleared locally, but cloud synchronization failed.', ok ? 'success' : 'warning');
@@ -2578,6 +2643,7 @@
             target.status = newProcessStatus;
             target.replyStatus = newReplyStatus;
             target.priority = newPriority;
+            saveAdminStateLocal();
 
             if (changes.length) {
                 target.replyHistory = Array.isArray(target.replyHistory) ? target.replyHistory : [];
@@ -3025,3 +3091,4 @@
 </script>
 </body>
 </html>
+<script>window.addEventListener('beforeunload', saveAdminStateLocal); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveAdminStateLocal(); });</script>
