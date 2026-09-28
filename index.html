@@ -307,8 +307,10 @@
         .btn-conceal { background-color: #8b6f47; color: #fffaf2; }
         .btn-conceal:hover { background-color: #765b38; }
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
-        .btn-priority-reset { background-color: var(--color-card-bg); color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
-        .btn-priority-reset:hover { background-color: var(--color-border); }
+        .btn-priority-reset { background-color: var(--color-accent); color: #ffffff; border: 1px solid var(--color-accent-dark); }
+        .btn-priority-reset:hover { background-color: var(--color-accent-dark); }
+        [data-theme="dark"] .btn-priority-reset { background-color: #8a6b4c; color: #fffaf2; border-color: #a88763; }
+        [data-theme="dark"] .btn-priority-reset:hover { background-color: #a88763; }
         .theme-status-wrap {
             display: flex;
             align-items: center;
@@ -1558,8 +1560,8 @@
                     <div id="admin-tools" class="admin-tools" aria-hidden="true">
                         <button id="btn-excel-upload" class="btn btn-excel" type="button">Excel file Upload</button>
                         <button id="btn-conceal" class="btn btn-conceal" type="button">Activate Conceal</button>
-                        <button id="btn-clear-urgent" class="btn btn-priority-reset" type="button">긴급 처리 전체 회수</button>
-                        <button id="btn-clear-priority" class="btn btn-priority-reset" type="button">우선 처리 전체 회수</button>
+                        <button id="btn-clear-urgent" class="btn btn-priority-reset" type="button">Recall Emergency</button>
+                        <button id="btn-clear-priority" class="btn btn-priority-reset" type="button">Recall Priority</button>
                     </div>
                     <button id="btn-print-view" class="btn btn-print" type="button">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
@@ -2814,28 +2816,29 @@
             if (!a.length) return b.length;
             if (!b.length) return a.length;
 
-            // 짧은 문자열을 열로 사용해 메모리를 최소화한다.
+            // 긴 건의문 전체를 O(n²)으로 비교하면 엑셀 업로드 순간 UI가 멈출 수 있다.
+            // 허용 거리(maxDistance) 주변의 좁은 대역만 계산하여 업로드 지연을 방지한다.
             if (a.length > b.length) [a, b] = [b, a];
+            const n = a.length, m = b.length;
+            const INF = maxDistance + 1;
+            let prev = new Array(n + 1).fill(INF);
+            for (let i = 0; i <= Math.min(n, maxDistance); i++) prev[i] = i;
 
-            let prev = Array.from({length: a.length + 1}, (_, i) => i);
-            for (let j = 1; j <= b.length; j++) {
-                const cur = [j];
-                let rowMin = cur[0];
-
-                for (let i = 1; i <= a.length; i++) {
+            for (let j = 1; j <= m; j++) {
+                const cur = new Array(n + 1).fill(INF);
+                cur[0] = j <= maxDistance ? j : INF;
+                const start = Math.max(1, j - maxDistance);
+                const end = Math.min(n, j + maxDistance);
+                let rowMin = INF;
+                for (let i = start; i <= end; i++) {
                     const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                    cur[i] = Math.min(
-                        cur[i - 1] + 1,
-                        prev[i] + 1,
-                        prev[i - 1] + cost
-                    );
-                    rowMin = Math.min(rowMin, cur[i]);
+                    cur[i] = Math.min(cur[i - 1] + 1, prev[i] + 1, prev[i - 1] + cost);
+                    if (cur[i] < rowMin) rowMin = cur[i];
                 }
-
-                if (rowMin > maxDistance) return maxDistance + 1;
+                if (rowMin > maxDistance) return INF;
                 prev = cur;
             }
-            return prev[a.length];
+            return prev[n];
         }
 
         function isDuplicatePetition(item, pool = petitions) {
@@ -2967,7 +2970,7 @@
                         // 연락처 자체는 저장하지 않는다. 입력 여부만 회신 대기 상태로 반영한다.
                         const item={ dorm:inferDorm(rawDorm), category:normalized.category, date:excelDateValue(rawDate) || new Date().toISOString().slice(0,19).replace('T', ' '), content };
                         if (rawContact) item.replyStatus = '회신 대기';
-                        item.isDuplicate = isDuplicatePetition(item) || isDuplicatePetition(item, pendingExcelItems.filter(x => !x.isDuplicate));
+                        item.isDuplicate = isDuplicatePetition(item) || pendingExcelItems.some(x => !x.isDuplicate && normalizeDuplicateComparable(x.content) === normalizeDuplicateComparable(item.content) && normalizeDuplicateText(x.dorm) === normalizeDuplicateText(item.dorm));
                         pendingExcelItems.push(item);
                     }
                     if (!pendingExcelItems.length) { showToast('엑셀 파일 내 유효한 데이터가 없습니다.', 'warning'); excelFileInput.value=''; return; }
