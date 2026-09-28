@@ -2649,18 +2649,21 @@
         }
         function inferDorm(raw) { const text = String(raw || ''); return (text.includes('청운관') || text.includes('여성')) ? '청운관, 여성 기숙사' : '미래관, 남성 기숙사'; }
         function normalizeImportedPetitionCategory(rawCategory, rawContent) {
-            const allowed = new Set(['생활 규정 및 점호', '시설 및 설비', '청소 및 위생', '소음 및 보안', '기타']);
-            const category = String(rawCategory ?? '').trim();
+            const allowed = ['생활 규정 및 점호', '시설 및 설비', '청소 및 위생', '소음 및 보안', '기타'];
+            const raw = String(rawCategory ?? '').trim();
             const content = String(rawContent ?? '').trim();
 
-            if (!allowed.has(category)) {
-                if (!content || /^x$/i.test(content)) {
-                    return { category: '기타', content: category || content };
-                }
-                return { category: '기타', content };
-            }
+            // Google Forms/Excel exports often contain the category description in parentheses.
+            // Match the actual category label at the beginning rather than requiring an exact match.
+            const matched = allowed.find(label => raw === label || raw.startsWith(label + ' ') || raw.startsWith(label + '('));
+            if (matched) return { category: matched, content };
 
-            return { category, content };
+            // For non-standard categories: display them as '기타'.
+            // If the content field is blank or just x, the student's category field is treated as the actual petition text.
+            if (!content || /^x$/i.test(content)) {
+                return { category: '기타', content: raw || content };
+            }
+            return { category: '기타', content };
         }
 
         function inferCategory(raw) {
