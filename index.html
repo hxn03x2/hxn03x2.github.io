@@ -2701,24 +2701,35 @@
             });
         }
         function findHeaderIndex(rows) {
-            const aliases = { date:['날짜','일시','등록일','접수일','작성일','응답일시'], dorm:['기숙사','생활관','관','대상 기숙사 선택'], category:['분류','카테고리','구분','건의사항 분류'], content:['내용','건의사항','건의 내용','제안내용','제안 사항','요청내용','건의 내용(*)'], contact:['회신용 연락처','회신용 연락처 (선택사항)','연락처','전화번호'] };
+            // Google Forms/Excel 헤더의 실제 명칭을 우선하여 열을 결정한다.
+            // 특히 '대상 기숙사 선택(*)' / '건의사항 분류(*)'처럼 (*)가 붙은 헤더도 동일하게 인식한다.
+            const aliases = {
+                date:['응답일시','날짜','일시','등록일','접수일','작성일'],
+                dorm:['대상 기숙사 선택','기숙사','생활관'],
+                category:['건의사항 분류','분류','카테고리','구분'],
+                content:['건의 내용','건의사항','내용','제안내용','제안 사항','요청내용'],
+                contact:['회신용 연락처 (선택사항)','회신용 연락처','연락처','전화번호']
+            };
+            const normalizeHeader = value => normalizeDuplicateText(value)
+                .replace(/\(\*\)\s*$/g, '')
+                .replace(/\s/g, '');
             let best = { row:-1, map:{} };
             rows.slice(0,6).forEach((row, ri) => {
                 const map = {};
                 (row || []).forEach((cell, ci) => {
-                    // Google Forms/Excel headers may carry a trailing '(*)'.
-                    // Remove that marker before alias matching so required-field headers
-                    // such as '대상 기숙사 선택(*)' and '건의사항 분류(*)' are mapped correctly.
-                    const normalizeHeader = value => normalizeDuplicateText(value)
-                        .replace(/\(\*\)\s*$/g, '')
-                        .replace(/\s/g, '');
                     const h = normalizeHeader(cell);
+                    if (!h) return;
                     for (const [key, list] of Object.entries(aliases)) {
-                        if (list.some(a => h === normalizeHeader(a))) map[key] = ci;
+                        if (list.some(a => h === normalizeHeader(a))) {
+                            // 같은 종류의 열은 첫 번째 정확한 일치만 사용한다.
+                            if (map[key] == null) map[key] = ci;
+                        }
                     }
                 });
-                const score = Object.keys(map).length;
-                if (score > Object.keys(best.map).length) best = { row:ri, map };
+                const required = ['date','dorm','category','content'];
+                const score = required.filter(k => map[k] != null).length * 10 + Object.keys(map).length;
+                const bestScore = required.filter(k => best.map[k] != null).length * 10 + Object.keys(best.map).length;
+                if (score > bestScore) best = { row:ri, map };
             });
             return best;
         }
@@ -2780,10 +2791,11 @@
                         const rawCat = row[map.category] || '';
                         const rawContent = row[map.content] || '';
                         const rawContact = map.contact != null ? String(row[map.contact] || '').trim() : '';
-                        const normalized = normalizeImportedPetitionCategory(rawCat, rawContent);
+                                    const normalized = normalizeImportedPetitionCategory(rawCat, rawContent);
                         const content = normalized.content;
                         if (!content) continue;
-                        const item={ dorm:inferDorm(rawDorm), category:normalized.category, date:excelDateValue(rawDate) || new Date().toISOString().slice(0,19).replace('T', ' '), content, contact: rawContact };
+                        // 연락처 자체는 저장하지 않는다. 입력 여부만 회신 대기 상태로 반영한다.
+                        const item={ dorm:inferDorm(rawDorm), category:normalized.category, date:excelDateValue(rawDate) || new Date().toISOString().slice(0,19).replace('T', ' '), content };
                         if (rawContact) item.replyStatus = '회신 대기';
                         item.isDuplicate = isDuplicatePetition(item) || isDuplicatePetition(item, pendingExcelItems.filter(x => !x.isDuplicate));
                         pendingExcelItems.push(item);
@@ -2818,7 +2830,7 @@
             if(!toAdd.length){ closeExcelPreview(); showToast('추가할 새 안건이 없습니다. 중복 항목은 제외되었습니다.','info'); return; }
             let nextId=petitions.length?Math.max(...petitions.map(p=>p.id))+1:1;
             const addedIds=[];
-            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'미지정',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],contact:item.contact || '',isNew:false}); addedIds.push(id); });
+            toAdd.forEach(item=>{ const id=nextId++; petitions.push({id,dorm:item.dorm,category:item.category,date:item.date,content:item.content,status:'미지정',priority:'미지정',replyStatus:item.replyStatus || null,replyContent:'',replyHistory:[],isNew:false}); addedIds.push(id); });
             savePetitions(addedIds).then(ok => {
                 showToast(ok ? `엑셀 파일로부터 ${toAdd.length}건의 건의사항이 추가되었습니다.` : '일부 안건의 클라우드 동기화에 실패했습니다.','warning');
                 closeExcelPreview();
