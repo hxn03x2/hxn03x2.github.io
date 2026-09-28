@@ -1422,6 +1422,33 @@
             color: var(--color-accent-dark) !important;
         }
 
+        /* FINAL UI FIX: conceal public header + remove empty control panel */
+        /* 열람 제한 화면에서는 검색/필터 패널 자체를 숨겨 빈 박스가 남지 않게 함 */
+        body.conceal-active:not(.admin-mode) .control-panel {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        /* 공개 열람 제한 상태의 Administrator 버튼은 Dark/Light Mode와 동일한
+           둥근 헤더 버튼 형태를 사용하고, 테마에 맞는 밝은 글자를 사용한다. */
+        #btn-public-admin.btn-public-header {
+            height: 34px !important;
+            min-height: 34px !important;
+            padding: 8px 14px !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background-color: rgba(255, 255, 255, 0.06) !important;
+            color: var(--color-header-text) !important;
+            font: 700 12px/16px 'Nanum Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            white-space: nowrap !important;
+            box-shadow: none !important;
+        }
+        #btn-public-admin.btn-public-header:hover {
+            background-color: rgba(255, 255, 255, 0.14) !important;
+            color: var(--color-header-text) !important;
+        }
+
         /* 인쇄물에는 화면 조작용 UI를 포함하지 않음 */
         @media print {
             #print-mode-bar,
@@ -2139,6 +2166,21 @@
                 });
         }
 
+        function updateHeaderSummary() {
+            const el = document.getElementById('header-subtitle');
+            if (!el) return;
+            const list = Array.isArray(petitions) ? petitions : [];
+            if (!list.length) {
+                el.textContent = '청운관 및 미래관 건의사항, 현재 0건 접수';
+                return;
+            }
+            const dates = list.map(p => String(p.date || '')).filter(Boolean).sort();
+            const first = dates[0] ? dates[0].slice(0, 10).replaceAll('-', '.') : '';
+            const last = dates[dates.length - 1] ? dates[dates.length - 1].slice(0, 10).replaceAll('-', '.') : '';
+            const range = first && last ? ` (${first} - ${last})` : '';
+            el.textContent = `청운관 및 미래관 건의사항, 총 ${list.length}건 접수${range}`;
+        }
+
         function getFilteredPetitions() {
             if (isAdmin && concealMode) {
                 return [...petitions].sort((a,b) => compareItems(a,b,filterSort.value));
@@ -2173,6 +2215,7 @@
         // ── 카드 렌더링 ───────────────────────────────────────────
         function renderCards() {
             document.body.classList.toggle('admin-mode', isAdmin);
+            updateHeaderSummary();
             const rawQuery = searchInput.value.trim();
             // Conceal 상태의 공개 사용자는 일반 보기뿐 아니라 인쇄 미리보기/인쇄에서도
             // 안건 데이터가 노출되지 않도록 렌더링 자체를 차단한다.
