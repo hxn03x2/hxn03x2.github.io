@@ -615,14 +615,41 @@
             border: 1px solid var(--reply-box-border);
             border-radius: 8px;
         }
+        .reply-toggle {
+            width: 100%;
+            padding: 0;
+            background: none;
+            border: 0;
+            color: var(--reply-box-header);
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
         .reply-header {
             font-size: 12px; font-weight: 700; color: var(--reply-box-header);
-            margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
+            margin: 0; display: flex; align-items: center; gap: 4px;
+            min-width: 0;
         }
+        .reply-toggle-label {
+            flex: 0 0 auto;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            white-space: nowrap;
+        }
+        .reply-toggle[aria-expanded="true"] .reply-toggle-label::before { content: '접기'; }
+        .reply-toggle[aria-expanded="false"] .reply-toggle-label::before { content: '펼치기'; }
         .reply-content {
+            display: none;
+            margin-top: 8px;
             font-size: 12px; color: var(--reply-box-text);
             white-space: pre-wrap; word-break: break-word; line-height: 1.6;
         }
+        .reply-content.is-expanded { display: block; }
 
         .admin-reply-editor {
             margin-top: 14px; padding: 12px;
@@ -2251,8 +2278,11 @@
                 const replyStatusBadgeHtml = replyStatus ? `<span class="reply-status-badge ${isReplyDone ? 'reply-status-done' : ''}">${escapeHtml(replyStatus)}</span>` : '';
                 const replyBoxHtml = isReplyDone && item.replyContent ? `
                     <div class="reply-box">
-                        <div class="reply-header">📌 [광주중앙고등학교 기숙사 자치위원회 회신]</div>
-                        <div class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
+                        <button type="button" class="reply-toggle" aria-expanded="false" aria-controls="reply-content-${item.id}" onclick="toggleReply(${item.id})">
+                            <span class="reply-header">[광주중앙고등학교 기숙사 자치위원회 회신]</span>
+                            <span class="reply-toggle-label" aria-hidden="true"></span>
+                        </button>
+                        <div id="reply-content-${item.id}" class="reply-content">${highlightText(item.replyContent, rawQuery)}</div>
                     </div>` : '';
 
                 let adminEditorHtml = '';
@@ -2358,6 +2388,14 @@
                 contentEl.classList.add('expanded');
                 btn.textContent = '접기';
             }
+        };
+
+        window.toggleReply = function (id) {
+            const contentEl = document.getElementById(`reply-content-${id}`);
+            const toggle = document.querySelector(`.reply-toggle[aria-controls=\"reply-content-${id}\"]`);
+            if (!contentEl || !toggle) return;
+            const expanded = contentEl.classList.toggle('is-expanded');
+            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         };
 
         // ── 토스트 알림 ───────────────────────────────────────────
