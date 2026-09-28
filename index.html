@@ -307,6 +307,8 @@
         .btn-conceal { background-color: #8b6f47; color: #fffaf2; }
         .btn-conceal:hover { background-color: #765b38; }
         .btn-conceal.active { background-color: #6d4f32; color: #fffaf2; }
+        .btn-priority-reset { background-color: var(--color-card-bg); color: var(--color-accent-dark); border: 1px solid var(--color-border-soft); }
+        .btn-priority-reset:hover { background-color: var(--color-border); }
         .theme-status-wrap {
             display: flex;
             align-items: center;
@@ -1556,6 +1558,8 @@
                     <div id="admin-tools" class="admin-tools" aria-hidden="true">
                         <button id="btn-excel-upload" class="btn btn-excel" type="button">Excel file Upload</button>
                         <button id="btn-conceal" class="btn btn-conceal" type="button">Activate Conceal</button>
+                        <button id="btn-clear-urgent" class="btn btn-priority-reset" type="button">긴급 처리 전체 회수</button>
+                        <button id="btn-clear-priority" class="btn btn-priority-reset" type="button">우선 처리 전체 회수</button>
                     </div>
                     <button id="btn-print-view" class="btn btn-print" type="button">Print View</button>
                     <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
@@ -2010,6 +2014,8 @@
         const adminIndicator = document.getElementById('admin-indicator');
         const adminTools = document.getElementById('admin-tools');
         const btnExcelUpload = document.getElementById('btn-excel-upload');
+        const btnClearUrgent = document.getElementById('btn-clear-urgent');
+        const btnClearPriority = document.getElementById('btn-clear-priority');
         const btnConceal = document.getElementById('btn-conceal');
         const concealPublicActions = document.getElementById('conceal-public-actions');
         const btnPublicAdmin = document.getElementById('btn-public-admin');
@@ -2252,7 +2258,7 @@
                     const history = Array.isArray(item.replyHistory) ? item.replyHistory : [];
                     const historyHtml = history.length ? `<details class="history-box"><summary>Reply & Processing Change History (${history.length})</summary>${history.slice().reverse().map(h => `<div class="history-item"><strong>${escapeHtml(h.at || '')}</strong><br>${escapeHtml(h.summary || '')}</div>`).join('')}<button type="button" class="history-reset-btn" onclick="clearReplyHistory(${item.id})">Reset History</button></details>` : '';
                     const draft = getDraft(item.id);
-                    const replyEnabled = replyStatus === '회신 대기' || replyStatus === '회신 완료';
+                    const replyEnabled = replyStatus === '회신 대기';
                     adminEditorHtml = `
                         <div class="admin-reply-editor">
                             <div class="admin-reply-editor-label">[Administrator] Reply & Processing Management</div>
@@ -2727,6 +2733,48 @@
                 renderCards();
             }
         };
+
+        // ── 우선순위 전체 회수 ─────────────────────────────────────
+        async function clearPriorityGroup(priorityValue) {
+            if (!isAdmin) {
+                showToast('Administrator authentication is required.', 'warning');
+                return;
+            }
+            const label = priorityValue === '긴급 처리' ? '긴급 처리' : '우선 처리';
+            const targets = petitions.filter(item => item.priority === priorityValue);
+            if (!targets.length) {
+                showToast(`${label}로 지정된 안건이 없습니다.`, 'info', 2800);
+                return;
+            }
+            if (!confirm(`${label}로 지정된 ${targets.length}건의 우선순위를 모두 '미지정'으로 되돌리시겠습니까?\n\n안건 내용과 처리 상태·회신 상태는 변경되지 않습니다.`)) return;
+
+            targets.forEach(item => {
+                item.priority = null;
+                item.isNew = false;
+                item.replyHistory = Array.isArray(item.replyHistory) ? item.replyHistory : [];
+                item.replyHistory.push({
+                    at: new Date().toLocaleString('ko-KR'),
+                    summary: `우선순위: ${label} → 미지정`
+                });
+            });
+            saveAdminStateLocal();
+            try {
+                const ok = await savePetitions(targets.map(item => item.id));
+                if (ok) {
+                    showToast(`${label} ${targets.length}건을 모두 미지정으로 되돌렸습니다.`, 'success', 4000);
+                } else {
+                    showToast(`${label} 전체 회수 후 클라우드 저장에 실패했습니다.`, 'error', 7000);
+                }
+            } catch (e) {
+                console.error('우선순위 전체 회수 저장 오류:', e);
+                showToast(`${label} 전체 회수 저장 중 오류가 발생했습니다.`, 'error', 7000);
+            } finally {
+                renderCards();
+            }
+        }
+
+        btnClearUrgent.addEventListener('click', () => clearPriorityGroup('긴급 처리'));
+        btnClearPriority.addEventListener('click', () => clearPriorityGroup('우선 처리'));
 
         // ── 엑셀 업로드 (파싱 → 미리보기 → 확인 후 반영) ────────────
         btnExcelUpload.addEventListener('click', () => {
